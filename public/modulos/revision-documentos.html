@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revisión de Documentos - Admin</title>
+    <link rel="stylesheet" href="crm-styles.css"> 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <style>
+        .doc-card {
+            background-color: var(--bg-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+            border-left: 5px solid var(--primary-color);
+        }
+        .doc-card h4 {
+            font-size: 1.1rem;
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+        }
+        .doc-status {
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+        .status-pendiente {
+            background-color: #ffc10730;
+            color: #ffc107;
+        }
+        .status-aprobado {
+            background-color: #94C35530;
+            color: var(--primary-dark);
+        }
+        .doc-actions a {
+            margin-right: 15px;
+            color: var(--text-light);
+            transition: color 0.2s;
+        }
+        .doc-actions a:hover {
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-logo">
+            <i class="fas fa-leaf"></i> 
+            <h2>CRM de Ventas</h2>
+        </div>
+        <div class="header-user">
+            <span>Admin</span>
+            <i class="fas fa-user-circle"></i>
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <ul>
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
+                <li><a href="gestor-contactos-crm.html"><i class="fas fa-address-book"></i> <span>Contactos</span></a></li>
+                <li><a href="gestor-cotizaciones-crm.html"><i class="fas fa-file-invoice-dollar"></i> <span>Cotizaciones</span></a></li>
+                <li class="active"><a href="admin-revision-documentos.html"><i class="fas fa-file-signature"></i> <span>Documentos</span></a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            
+            <div class="dashboard-header">
+                <h2>Revisión de Documentos Pendientes</h2>
+                <button class="add-button">
+                    <i class="fas fa-list-alt"></i> Ver Aprobados
+                </button>
+            </div>
+
+            <section class="recent-quotes-section">
+                <h3>Cotización #2025-005 (Cliente: TECNOLOGÍAS S.A. DE C.V.)</h3>
+                
+                <p style="margin-bottom: 10px;">
+                    <i class="fas fa-envelope" style="color: var(--primary-color);"></i> **Contacto:** ejemplo@empresa.com | 
+                    <i class="fas fa-phone-alt" style="color: var(--primary-color);"></i> **Teléfono:** 55 1234 5678
+                </p>
+
+                <div class="doc-card">
+                    <h4>Constancia de Situación Fiscal</h4>
+                    <span class="doc-status status-pendiente">Pendiente de Revisión</span>
+                    <div class="doc-actions" style="margin-top: 10px;">
+                        <a href="#" download><i class="fas fa-download"></i> Descargar</a>
+                        <button class="action-btn" style="color: var(--primary-dark);"><i class="fas fa-check"></i> Aprobar</button>
+                        <button class="action-btn" style="color: #cc0000;"><i class="fas fa-times"></i> Rechazar</button>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <h4>Identificación Oficial del Representante</h4>
+                    <span class="doc-status status-aprobado">Aprobado</span>
+                    <div class="doc-actions" style="margin-top: 10px;">
+                        <a href="#" download><i class="fas fa-download"></i> Descargar</a>
+                        </div>
+                </div>
+
+                <div class="doc-card">
+                    <h4>Poder Notarial del Representante Legal</h4>
+                    <span class="doc-status status-pendiente">Pendiente de Revisión</span>
+                    <div class="doc-actions" style="margin-top: 10px;">
+                        <a href="#" download><i class="fas fa-download"></i> Descargar</a>
+                        <button class="action-btn" style="color: var(--primary-dark);"><i class="fas fa-check"></i> Aprobar</button>
+                        <button class="action-btn" style="color: #cc0000;"><i class="fas fa-times"></i> Rechazar</button>
+                    </div>
+                </div>
+                
+                <button type="button" class="add-button" style="margin-top: 2rem; background-color: #cc0000;">
+                    <i class="fas fa-gavel"></i> Aprobación Final de la Cotización
+                </button>
+
+            </section>
+        </main>
+    </div>
+</body>
+</html>

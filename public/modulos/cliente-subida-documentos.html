@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subida de Documentos - CRM</title>
+    <link rel="stylesheet" href="crm-styles.css"> 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        .centered-form-wrapper {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 2rem;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+        .form-file-group {
+            margin-bottom: 1.5rem;
+        }
+        .file-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        .file-input-btn {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .file-input-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        .file-input {
+            display: none; /* Oculta el input de archivo por defecto */
+        }
+        .file-name {
+            margin-left: 10px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-logo">
+            <i class="fas fa-leaf"></i> 
+            <h2>Portal de Clientes</h2>
+        </div>
+        <div class="header-user">
+            <span>Cotización #2025-005</span>
+        </div>
+    </header>
+
+    <div class="centered-form-wrapper">
+        <h2 style="color: var(--primary-color); margin-bottom: 1.5rem; text-align: center;">Subida de Documentos Legales</h2>
+        <p style="margin-bottom: 2rem; text-align: center; color: var(--text-light);">Por favor, suba los siguientes documentos para formalizar la cotización aceptada. Todos los campos son obligatorios.</p>
+
+        <form action="#" method="POST" enctype="multipart/form-data">
+            
+            <div class="form-file-group">
+                <label for="constancia" class="file-label">1. Constancia de Situación Fiscal (PDF o XML):</label>
+                <label for="constancia" class="file-input-btn">
+                    <i class="fas fa-upload"></i> Seleccionar Archivo
+                </label>
+                <input type="file" id="constancia" name="constancia" class="file-input" required accept=".pdf,.xml">
+                <span id="name-constancia" class="file-name">Ningún archivo seleccionado.</span>
+            </div>
+
+            <div class="form-file-group">
+                <label for="identificacion" class="file-label">2. Identificación Oficial del Representante (INE/Pasaporte):</label>
+                <label for="identificacion" class="file-input-btn">
+                    <i class="fas fa-upload"></i> Seleccionar Archivo
+                </label>
+                <input type="file" id="identificacion" name="identificacion" class="file-input" required accept=".pdf,.jpg,.png">
+                <span id="name-identificacion" class="file-name">Ningún archivo seleccionado.</span>
+            </div>
+
+            <div class="form-file-group">
+                <label for="poder" class="file-label">3. Poder Notarial del Representante Legal:</label>
+                <label for="poder" class="file-input-btn">
+                    <i class="fas fa-upload"></i> Seleccionar Archivo
+                </label>
+                <input type="file" id="poder" name="poder" class="file-input" required accept=".pdf">
+                <span id="name-poder" class="file-name">Ningún archivo seleccionado.</span>
+            </div>
+
+            <div class="form-file-group">
+                <label for="domicilio" class="file-label">4. Comprobante de Domicilio (Donde se realiza la recolección):</label>
+                <label for="domicilio" class="file-input-btn">
+                    <i class="fas fa-upload"></i> Seleccionar Archivo
+                </label>
+                <input type="file" id="domicilio" name="domicilio" class="file-input" required accept=".pdf,.jpg,.png">
+                <span id="name-domicilio" class="file-name">Ningún archivo seleccionado.</span>
+            </div>
+
+            <hr style="border-top: 1px solid var(--border-color); margin: 2rem 0;">
+
+            <label for="correo">Correo Electrónico del Contacto:</label>
+            <input type="email" id="correo" name="correo" class="form-input" placeholder="ejemplo@empresa.com" required>
+
+            <label for="telefono">Número Telefónico del Contacto:</label>
+            <input type="tel" id="telefono" name="telefono" class="form-input" placeholder="55 1234 5678" required>
+
+
+            <button type="submit" class="add-button" style="width: 100%; margin-top: 2rem; padding: 1rem;">
+                <i class="fas fa-check-circle"></i> Subir y Enviar Documentos
+            </button>
+        </form>
+    </div>
+
+    <script>
+        document.querySelectorAll('.file-input').forEach(input => {
+            input.addEventListener('change', function() {
+                const fileName = this.files.length > 0 ? this.files[0].name : 'Ningún archivo seleccionado.';
+                document.getElementById('name-' + this.id).textContent = fileName;
+            });
+        });
+    </script>
+</body>
+</html>
