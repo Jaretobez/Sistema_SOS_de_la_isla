@@ -144,6 +144,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('sistema_sos');
         Schema::dropIfExists('tipo_servicio');
         Schema::dropIfExists('periodo_pago');
         Schema::dropIfExists('perfil');
