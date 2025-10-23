@@ -28,9 +28,10 @@
     <div class="container">
         <nav class="sidebar">
             <ul>
-                <li class="active"><a href="#"><i class="fas fa-home"></i> <span>Inicio</span></a></li>
-                <li><a href="{{ url('contactos') }}"><i class="fas fa-address-book"></i> <span>Contactos</span></a></li>
-                <li><a href="{{ url('cotizaciones') }}"><i class="fas fa-file-invoice-dollar"></i> <span>Cotizaciones</span></a></li>
+                <li class="{{ request()->is('/') ? 'active' : '' }}"><a href="/"><i class="fas fa-home"></i><span>Inicio</span></a></li>
+                <li class="{{ request()->is('listaEmpresa*') ? 'active' : '' }}"><a href="{{ url('listaEmpresa') }}"><i class="fas fa-address-book"></i> <span>Empresas</span></a></li>
+                <li class="{{ request()->is('cotizaciones*') ? 'active' : '' }}"><a href="{{ url('cotizaciones') }}"><i class="fas fa-file-invoice-dollar"></i> <span>Cotizaciónes</span></a></li>
+                <li class="{{ request()->is('facturacion*') ? 'active' : '' }}"><a href="{{ url('facturacion') }}"><i class="fas fa-money-bill-wave"></i> <span>Facturación</span></a></li>
             </ul>
         </nav>
 

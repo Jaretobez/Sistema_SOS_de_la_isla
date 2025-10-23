@@ -4,6 +4,7 @@
 @section('usuario', auth()->user()->name ?? 'Vendedor')
 
 @section('content')
+
     <div class="dashboard-header">
         <h2>Dashboard de Ventas</h2>
         <button class="add-button"><i class="fas fa-plus"></i> Añadir Contacto</button>
