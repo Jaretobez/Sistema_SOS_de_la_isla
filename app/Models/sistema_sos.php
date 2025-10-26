@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class sistema_sos extends Model
 {
     protected $table = 'empresa';
-    protected $primarykey ='ID_EMPRESA';
+    protected $primaryKey ='ID_EMPRESA';
     public $timestamps = false;
 
     protected $fillable = [

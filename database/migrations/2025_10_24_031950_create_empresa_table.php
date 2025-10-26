@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('tipo', 100)->nullable();
             $table->string('direccion', 500)->nullable();
             $table->string('id_ruta', 50)->nullable();
-            $table->date('fecha_creacion')->nullable();
+            $table->date('fecha_registro')->nullable();
             $table->timestamps(); // Añade created_at y updated_at
         });
     }

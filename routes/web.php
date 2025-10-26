@@ -5,7 +5,7 @@ use App\Http\Controllers\Controller;
 
 
 Route::get('/', function () {
-    return view('dashboard');
+    return view('inicio');
 });
 
 Route::get('/listaEmpresa', [Controller::class, 'index'])->name('empresas.index');

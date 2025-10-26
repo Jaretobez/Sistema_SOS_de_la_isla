@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.inicio_layout')
 
 @section('title', 'Dashboard de Ventas')
 @section('usuario', auth()->user()->name ?? 'Vendedor')
