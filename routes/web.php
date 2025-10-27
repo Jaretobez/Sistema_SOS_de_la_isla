@@ -1,16 +1,20 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Controller;
-
 
 Route::get('/', function () {
-    return view('dashboard');
+    return view('welcome');
 });
 
-Route::get('/listaEmpresa', [Controller::class, 'index'])->name('empresas.index');
-Route::get('/listaEmpresa/buscar', [Controller::class, 'buscar'])->name('empresas.buscar');
-// O si prefieres POST para búsquedas:
-Route::post('/listaEmpresa/buscar', [Controller::class, 'buscar'])->name('empresas.buscar.post');
-Route::get('/cotizaciones', [Controller::class, 'indexCotizaciones']);
-Route::get('/facturacion', [Controller::class, 'indexFacturacion']);
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';
