@@ -1,4 +1,3 @@
-
 @extends('layouts.barmenu')
 
 @section('title', 'Dashboard de Ventas')
@@ -73,4 +72,3 @@
         </table>
     </section>
 @endsection
-
