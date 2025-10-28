@@ -18,6 +18,7 @@
 }
 
 body {
+    /*margin-top: 70px;  /*Ajusta el valor según la altura de tu header */
     font-family: 'Poppins', sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
@@ -26,6 +27,11 @@ body {
 
 /* ESTRUCTURA GENERAL */
 .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000; /* Asegura que el header se quede encima de otros elementos */
     background-color: var(--bg-color);
     padding: 1rem 2rem;
     box-shadow: var(--shadow);
@@ -51,7 +57,9 @@ body {
 }
 
 .container {
+    
     display: flex;
+     margin-top: 70px;
 }
 
 .sidebar {
