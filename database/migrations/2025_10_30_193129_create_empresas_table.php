@@ -11,9 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('empresas', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::create('Empresas', function (Blueprint $table) {
+            $table->id('id_empresa');
+            $table->string('nombre_comercial', 255);
+            $table->string('razon_social', 255);
+            $table->string('tipo', 100)->nullable();
+            $table->string('direccion', 500)->nullable();
+            $table->string('id_ruta', 50)->nullable();
+            $table->date('fecha_registro')->nullable();
+            $table->timestamps(); // Añade created_at y updated_at
         });
     }
 

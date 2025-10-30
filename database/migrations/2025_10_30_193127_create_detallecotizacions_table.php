@@ -11,9 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('detallecotizacions', function (Blueprint $table) {
-            $table->id();
+        Schema::create('DetalleCotizacion', function (Blueprint $table) {
+            $table->id('id_detalle');
+            $table->unsignedBigInteger('id_cotizacion'); // Llave Foránea
+            $table->unsignedBigInteger('id_producto'); // Llave Foránea
+            $table->integer('cantidad');
+            $table->decimal('precio_unitario', 10, 2); // DECIMAL para el precio "congelado"
+            $table->boolean('lunes')->default(false);
+            $table->boolean('martes')->default(false);
+            $table->boolean('miercoles')->default(false);
+            $table->boolean('jueves')->default(false);
+            $table->boolean('viernes')->default(false);
             $table->timestamps();
+
+            // Definición de Llaves Foráneas
+            $table->foreign('id_cotizacion')->references('id_cotizacion')->on('Cotizacion')->onDelete('cascade');
+            $table->foreign('id_producto')->references('id_producto')->on('Producto')->onDelete('restrict');
         });
     }
 
@@ -22,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('detallecotizacions');
+        Schema::dropIfExists('detalle_cotizacion');
     }
 };

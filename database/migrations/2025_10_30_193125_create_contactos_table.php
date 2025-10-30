@@ -11,9 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('contactos', function (Blueprint $table) {
-            $table->id();
+        Schema::create('Contacto', function (Blueprint $table) {
+            $table->id('id_contacto');
+            $table->unsignedBigInteger('id_empresa'); // Llave Foránea
+            $table->string('nombre', 255);
+            $table->string('email', 255)->nullable()->unique();
+            $table->string('telefono', 20)->nullable(); // VARCHAR es mejor que LONG para teléfonos
+            $table->date('fecha_registro_contacto')->nullable();
             $table->timestamps();
+
+            // Definición de la Llave Foránea
+            $table->foreign('id_empresa')->references('id_empresa')->on('Empresa')->onDelete('cascade');
         });
     }
 
@@ -22,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('contactos');
+        Schema::dropIfExists('contacto');
     }
 };
