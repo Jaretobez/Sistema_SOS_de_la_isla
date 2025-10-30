@@ -9,10 +9,17 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+   public function up(): void
     {
         Schema::create('empresas', function (Blueprint $table) {
-            $table->id();
+            $table->id('id_empresa');
+            $table->string('nombre_empresa');
+            $table->string('razon_social');
+            $table->string('tipo')->nullable();
+            $table->string('direccion')->nullable();
+            $table->enum('estado', ['Activo', 'Suspendido', 'Cancelado'])->nullable();
+            $table->string('horario')->nullable();
+            $table->string('ruta')->nullable();
             $table->timestamps();
         });
     }
