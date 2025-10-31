@@ -6,6 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+
+         // Nombre de la tabla
+    protected $table = 'empresas';
+
+    // Clave primaria personalizada
+    protected $primaryKey = 'id_empresa';
     /**
      * Run the migrations.
      */
@@ -13,13 +19,14 @@ return new class extends Migration
     {
         Schema::create('Empresas', function (Blueprint $table) {
             $table->id('id_empresa');
-            $table->string('nombre_comercial', 255);
-            $table->string('razon_social', 255);
-            $table->string('tipo', 100)->nullable();
-            $table->string('direccion', 500)->nullable();
-            $table->string('id_ruta', 50)->nullable();
-            $table->date('fecha_registro')->nullable();
-            $table->timestamps(); // Añade created_at y updated_at
+            $table->string('nombre_empresa');
+            $table->string('razon_social');
+            $table->string('tipo')->nullable();
+            $table->string('direccion')->nullable();
+            $table->enum('estado', ['Activo', 'Suspendido', 'Cancelado'])->nullable();
+            $table->string('horario')->nullable();
+            $table->string('ruta')->nullable();
+            $table->timestamps();
         });
     }
 
