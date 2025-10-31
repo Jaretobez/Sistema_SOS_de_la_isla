@@ -13,7 +13,13 @@ return new class extends Migration
     {
         Schema::create('failed_jobs', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->string('uuid', 255);
+            $table->text('connection');
+            $table->text('queue');
+            $table->longText('payload');
+            $table->longText('exception');
+            $table->timestamp('failed_at')->useCurrent();
+            $table->unique('uuid');
         });
     }
 

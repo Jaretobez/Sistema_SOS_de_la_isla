@@ -12,8 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('cache_locks', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->string('key', 255);
+            $table->string('owner', 255);
+            $table->integer('expiration');
+            $table->primary('key');
         });
     }
 
