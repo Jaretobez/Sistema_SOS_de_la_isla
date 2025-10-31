@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class empresa extends Model
+class Empresa extends Model
 {
      // Nombre de la tabla
     protected $table = 'empresas';
@@ -22,6 +22,9 @@ class empresa extends Model
         'horario',
         'ruta'
     ];
+
+     // Habilitar timestamps automáticos
+    public $timestamps = true;
 
     /**
      * Obtener todas las empresas con los campos específicos.
