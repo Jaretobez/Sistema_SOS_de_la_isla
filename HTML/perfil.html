@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de Empresa</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
+
+    <style>
+        /* --- Configuración Básica --- */
+        html, body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 1rem; /* Añadimos padding al body para que no pegue a los bordes */
+            color: #1c1e21;
+        }
+        * {
+            box-sizing: border-box;
+        }
+
+        /* --- TU ESTRUCTURA GRID (con estilos añadidos) --- */
+        .parent {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            
+            /* CAMBIO 1: Las filas ahora crecen con el contenido */
+            grid-template-rows: auto auto auto; 
+            
+            gap: 16px; 
+            
+            /* CAMBIO 2: Quitamos la altura fija */
+            /* height: 95vh; (Eliminado) */
+            
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        /* Contenedor genérico para las tarjetas */
+        .card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            padding: 1.5rem;
+            border: 1px solid #e0e0e0; /* Añadido para consistencia */
+            
+            /* CAMBIO 3: Quitamos el scroll interno */
+            /* overflow-y: auto; (Eliminado) */
+        }
+        
+        /* CAMBIO 4: Simplificamos la asignación de filas */
+        .div1 {
+            grid-column: span 5;
+            grid-row: 1; /* Fila 1 */
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .div2 {
+            grid-column: span 3;
+            grid-row: 2; /* Fila 2 */
+        }
+        .div3 {
+            grid-column: 4 / span 2;
+            grid-row: 2; /* Fila 2 */
+        }
+        .div4 {
+            grid-column: span 5;
+            grid-row: 3; /* Fila 3 */
+        }
+
+        /* --- Estilos de Botones Genéricos --- */
+        .btn {
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0 4px;
+        }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-primary:hover { background-color: #0069d9; }
+        .btn-secondary { background-color: #6c757d; color: white; }
+        .btn-secondary:hover { background-color: #5a6268; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        .btn-danger:hover { background-color: #c82333; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-success:hover { background-color: #218838; }
+        .btn-light { background-color: #f8f9fa; color: #333; border: 1px solid #ddd; }
+        .btn-light:hover { background-color: #e2e6ea; }
+
+
+        /* --- 1. Estilos para DIV1 (Cabecera) --- */
+        .header-left { display: flex; gap: 1.5rem; }
+        .profile-pic-frame {
+            width: 160px;
+            height: 160px;
+            background-color: #e0e0e0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            color: #b0b0b0;
+        }
+        .profile-info h1 { margin: 0 0 0.25rem 0; font-size: 2rem; }
+        .profile-info h2 { margin: 0 0 1rem 0; font-size: 1.2rem; font-weight: 400; color: #606770; }
+        .profile-info p { font-size: 0.9rem; color: #606770; margin-bottom: 1rem; }
+        
+        .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; }
+        
+        /* Estilos de Status Badge (Pagado, Pendiente, etc.) */
+        .status-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1rem;
+            color: white;
+            text-align: center;
+            min-width: 110px;
+        }
+        .status-badge i { margin-right: 0.5rem; }
+        .status-badge.pagado { background-color: #28a745; }
+        .status-badge.pendiente { background-color: #ffc107; color: #333; }
+        .status-badge.inactivo { background-color: #6c757d; }
+        
+        .header-right .btn-group { display: flex; }
+        
+        .payment-info {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            text-align: right;
+            width: 100%;
+        }
+        .payment-info p { margin: 0; font-size: 0.9rem; color: #495057; }
+        .payment-info .monto { font-size: 1.1rem; font-weight: 700; color: #1c1e21; }
+
+
+        /* --- 2. Estilos para DIV2 (Contactos) --- */
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+        .card-header h2 { margin: 0; }
+        .contact-list { list-style: none; padding: 0; }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .contact-item:last-child { border-bottom: none; }
+        .contact-pic {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #b0b0b0;
+        }
+        .contact-details { flex-grow: 1; }
+        .contact-details p { margin: 0; }
+        .contact-details .nombre { font-weight: 600; }
+        .contact-details .email { font-size: 0.9rem; color: #007bff; }
+
+        /* --- 3. Estilos para DIV3 (Documentación) --- */
+        .doc-list { list-style: none; padding: 0; }
+        .doc-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .doc-item:last-child { border-bottom: none; }
+        .doc-name { display: flex; align-items: center; gap: 0.75rem; font-weight: 500; }
+        .doc-name i { font-size: 1.2rem; color: #6c757d; }
+        
+        .doc-status {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.25rem 0.6rem;
+            border-radius: 12px;
+            color: white;
+        }
+        .doc-status.aceptado { background-color: #28a745; }
+        .doc-status.rechazado { background-color: #dc3545; }
+        .doc-status.pendiente { background-color: #ffc107; color: #333; }
+        .doc-status.inactivo { background-color: #e9ecef; color: #6c757d; } /* Añadido */
+        
+        .doc-status-general {
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+        .doc-status-general.aceptado { background-color: #d4edda; color: #155724; }
+        .doc-status-general.pendiente { background-color: #fff3cd; color: #856404; }
+        .doc-status-general.inactivo { background-color: #e9ecef; color: #6c757d; }
+
+        
+        /* --- 4. Estilos para DIV4 (Horario) --- */
+        .schedule-days { display: flex; justify-content: space-around; gap: 0.5rem; }
+        .dia {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        .dia.activo { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .dia.inactivo { background-color: #f8f9fa; color: #adb5bd; border: 1px solid #e9ecef; }
+        .no-schedule { text-align: center; padding: 1rem; }
+        
+        /* --- Estilos de Modales (copiados de style.css) --- */
+        .hidden { display: none; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 100; }
+        .modal-content { background-color: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); width: 90%; max-width: 600px; position: relative; max-height: 90vh; overflow-y: auto; }
+        .modal-close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #888; }
+        
+        /* Estilos de Lista de Contactos (de style.css) */
+        .contacto-block { background-color: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 4px; padding: 1rem; margin-bottom: 1rem; position: relative; }
+        .contacto-block:first-child { background-color: #f0f5fb; }
+        .contacto-block-label { font-weight: bold; font-size: 0.9rem; color: #555; margin-bottom: 0.5rem; }
+        .contacto-block-inputs { display: flex; flex-wrap: wrap; gap: 1rem; }
+        .contacto-block-inputs div { flex: 1; min-width: 150px; }
+        .contacto-block-inputs label { display: block; font-size: 0.9rem; margin-bottom: 0.25rem; }
+        .contacto-block-inputs input { width: 100%; padding: 0.5rem; box-sizing: border-box; }
+        .btn-remove-contacto { position: absolute; top: 5px; right: 5px; background: none; border: none; color: #dc3545; font-size: 1.2rem; cursor: pointer; line-height: 1; }
+        .btn-remove-contacto:hover { color: #a71d2a; }
+        #btn-add-contacto { background-color: #17a2b8; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        #btn-add-contacto:hover { background-color: #138496; }
+    </style>
+</head>
+<body>
+
+    <div class="parent">
+        
+        <div class="div1 card">
+            
+            <div class="header-left">
+                <div class="profile-pic-frame"><i class="fa-solid fa-building"></i></div>
+                <div class="profile-info">
+                    <h1 id="perfil-nombre-comercial">Cargando...</h1>
+                    <h2 id="perfil-razon-social"></h2>
+                    <p><i class="fa-solid fa-calendar-alt"></i> Cliente desde: <span id="perfil-fecha-creacion">...</span></p>
+                    <div class="profile-actions-left">
+                        <button class="btn btn-light" id="perfil-btn-modificar"><i class="fa-solid fa-pencil"></i> Modificar</button>
+                        <button class="btn btn-light" id="perfil-btn-eliminar"><i class="fa-solid fa-trash"></i> Eliminar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <div class="status-badge" id="perfil-estado-servicio">
+                    <i class="fa-solid fa-spinner fa-spin"></i> </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="perfil-btn-cotizar"><i class="fa-solid fa-file-invoice-dollar"></i> Cotizar</button>
+                    <button class="btn btn-danger" id="perfil-btn-cancelar"><i class="fa-solid fa-ban"></i> Cancelar Servicio</button>
+                </div>
+                
+                <div class="payment-info" id="perfil-payment-info" style="display: none;"> <p class="monto" id="perfil-monto">...</p>
+                    <p id="perfil-fecha-pago">...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="div2 card">
+            <div class="card-header">
+                <h2>Contactos</h2>
+                <button class="btn btn-success" id="perfil-btn-add-contacto"><i class="fa-solid fa-plus"></i> Añadir Contacto</button>
+            </div>
+            <ul class="contact-list" id="perfil-lista-contactos">
+                </ul>
+        </div>
+        
+        <div class="div3 card">
+            <div class="card-header">
+                <h2>Documentación</h2>
+                <button class="btn btn-light"><i class="fa-solid fa-upload"></i></button>
+            </div>
+            
+            <ul class="doc-list" id="perfil-lista-documentos">
+                </ul>
+        </div>
+        
+        <div class="div4 card">
+            <div class="card-header">
+                <h2>Horario de Cotización</h2>
+            </div>
+            <div id="perfil-horario-container">
+                </div>
+        </div>
+
+    </div>
+
+        <div id="modal-form-placeholder"></div>
+    <div id="modal-cotizar-placeholder"></div>
+    
+    <script src="app_perfil.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<div id="modal-overlay-empresa" class="modal-overlay">
+    <div class="modal-content">
+        
+        <button id="modal-close-btn" class="modal-close-btn">&times;</button>
+        <h2 id="modal-titulo"></h2> 
+
+        <form id="form-empresa-nueva" style="max-height: 70vh; overflow-y: auto; padding: 0 0.5rem;">
+            
+            <input type="hidden" id="form-mode" value="anadir">
+            <input type="hidden" id="empresa-id-edit" value="">
+
+            <fieldset style="border:1px solid #ddd; border-radius:4px; padding:1rem; margin-bottom:1rem;">
+                <legend style="padding:0 5px;">Datos de la Empresa</legend>
+                <div style="display:flex; gap:1rem; margin-bottom:0.75rem;">
+                    <div style="flex:1;"><label for="emp-nombre-comercial">Nombre Comercial</label><input type="text" id="emp-nombre-comercial" required style="width:100%; padding:0.5rem;"></div>
+                    <div style="flex:1;"><label for="emp-razon-social">Razón Social</label><input type="text" id="emp-razon-social" required style="width:100%; padding:0.5rem;"></div>
+                </div>
+                <div style="display:flex; gap:1rem; margin-bottom:0.75rem;">
+                    <div style="flex:1;"><label for="emp-tipo">Tipo</label><select id="emp-tipo" style="width:100%; padding:0.5rem;"><option value="empresarial">Empresarial</option><option value="comercial">Comercial</option></select></div>
+                    <div style="flex:1;"><label for="emp-ruta">Ruta (ej. C-01)</label><input type="text" id="emp-ruta" style="width:100%; padding:0.5rem;"></div>
+                </div>
+                <div style="margin-bottom:0.75rem;"><label for="emp-direccion">Dirección</label><textarea id="emp-direccion" rows="2" style="width:100%; padding:0.5rem;"></textarea></div>
+            </fieldset>
+
+            <fieldset style="border:1px solid #ddd; border-radius:4px; padding:1rem; margin-bottom:1rem;">
+                <legend style="padding:0 5px;">Contactos</legend>
+                
+                <div id="contactos-list">
+                    </div>
+                
+                <button type="button" id="btn-add-contacto">
+                    <i class="fa fa-plus"></i> Añadir Otro Contacto
+                </button>
+
+            </fieldset>
+
+            <button type="submit" id="btn-guardar-empresa" style="padding: 0.75rem; background-color: #007bff; color:white; border:none; border-radius: 4px; width:100%; font-size: 1rem;">
+                Guardar
+            </button>
+        </form>
+    </div>
+</div>

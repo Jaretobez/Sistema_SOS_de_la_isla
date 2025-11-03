@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Empresas</title>
+    
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+
+    <nav id="sidebar-placeholder" class="sidebar"></nav>
+
+    <main class="content">
+        <div class="panel">
+            <h2>Gestión de Empresas y Contactos</h2>
+
+            <button id="btn-anadir-nuevo" class="btn-anadir">+ Añadir Nuevo</button>
+            
+            <form id="form-busqueda" class="form-busqueda">
+                <input type="search" id="busqueda" placeholder="Buscar empresa, contacto, email...">
+                <select id="estado" name="estado">
+                    <option value="">Todos</option>
+                    <option value="activo">Activo</option>
+                    <option value="inactivo">Inactivo</option>
+                </select>
+                <button type="submit">Buscar</button>
+            </form>
+
+            <table class="tabla-empresas">
+                <thead>
+                    <tr>
+                        <th>Nombre Comercial</th>
+                        <th>Contacto Principal</th>
+                        <th>Email</th>
+                        <th>Teléfono</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-body">
+                    </tbody>
+            </table>
+            <p id="no-resultados" style="display: none; text-align: center; padding: 1rem;">
+                No hay empresas para mostrar.
+            </p>
+        </div>
+    </main>
+
+    <div id="modal-form-placeholder"></div>
+    
+    <div id="modal-view-placeholder"></div>
+
+
+    <script src="main.js"></script> <script src="app_empresas.js"></script> </body>
+</html>

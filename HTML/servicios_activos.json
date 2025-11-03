@@ -1,0 +1,20 @@
+[
+    {
+        "id servicio": "S-1001",
+        "id_cotizacion": "C-1761950300123",
+        "id_empresa": 102,
+        "monto_mensual": 600.00,
+        "estado actual de pago": "Pendiente",
+        "dia de facturacion": "2025-11-15T06:00:00Z",
+        "estado de documentacion": "Pendiente"
+    },
+    {
+        "id servicio": "S-1002",
+        "id_cotizacion": "C-1761870371699",
+        "id_empresa": 100,
+        "monto_mensual": 1860.00,
+        "estado actual de pago": "Pagado",
+        "dia de facturacion": "2025-11-01T06:00:00Z",
+        "estado de documentacion": "Todo Aceptado"
+    }
+]

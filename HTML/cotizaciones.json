@@ -1,0 +1,29 @@
+[
+    {
+        "idCotizacion": "C-1761870371699",
+        "fechaCreacion": "2025-10-31T00:26:11.699Z",
+        "fechaVencimiento": "2025-11-30T00:26:11.699Z",
+        "idEmpresa": 100,
+        "idContacto": 5001,
+        "formaPago": "efectivo",
+        "total": 1860,
+        "estado": "Pendiente",
+        "detalles": [
+            { "idProducto": "P-001", "cantidad": 1, "precioUnitario": 1460, "lunes": true, "martes": false, "miercoles": true, "jueves": false, "viernes": false },
+            { "idProducto": "P-002", "cantidad": 2, "precioUnitario": 200, "lunes": false, "martes": false, "miercoles": false, "jueves": false, "viernes": false }
+        ]
+    },
+    {
+        "idCotizacion": "C-1761950300123",
+        "fechaCreacion": "2025-11-01T10:15:00.000Z",
+        "fechaVencimiento": "2025-12-01T10:15:00.000Z",
+        "idEmpresa": 102,
+        "idContacto": 5003,
+        "formaPago": "transferencia",
+        "total": 600,
+        "estado": "Aceptada",
+        "detalles": [
+            { "idProducto": "P-003", "cantidad": 1, "precioUnitario": 600, "lunes": false, "martes": false, "miercoles": false, "jueves": false, "viernes": false }
+        ]
+    }
+]

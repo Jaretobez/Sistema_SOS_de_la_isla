@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+
+    <nav id="sidebar-placeholder" class="sidebar"></nav>
+
+    <main class="content">
+        <div class="panel" style="background: none; border:none; box-shadow: none;">
+            
+            <div class="dashboard-header">
+                <h2>Dashboard de Ventas</h2>
+                <button class="add-button" id="btn-ir-a-empresas">
+                    <i class="fas fa-plus"></i> Añadir Empresa
+                </button>
+            </div>
+
+            <section class="cards-section">
+                
+                <div class="card">
+                    <div class="card-icon pending">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Cotizaciones Pendientes</h3>
+                        <p class="card-number" id="count-cot-pendientes">...</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon clients">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Clientes Activos</h3>
+                        <p class="card-number" id="count-clientes-activos">...</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon suspended">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Pagos Pendientes</h3>
+                        <p class="card-number" id="count-pagos-pendientes">...</p>
+                    </div>
+                </div>
+             
+            </section>
+
+            <section class="recent-quotes-section">
+                <h3>Cotizaciones Recientes</h3>
+                <table class="tabla-empresas">
+                    <thead>
+                        <tr>
+                            <th>Folio</th>
+                            <th>Cliente</th>
+                            <th>Fecha</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-recientes-body">
+                        <tr>
+                            <td colspan="5" style="text-align: center;">Cargando...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </div>
+    </main>
+
+    <script src="main.js"></script> <script src="app_dashboard.js"></script> </body>
+</html>

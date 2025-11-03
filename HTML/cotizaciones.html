@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Cotizaciones</title>
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
+</head>
+<body>
+
+    <nav id="sidebar-placeholder" class="sidebar"></nav>
+
+    <main class="content">
+        <div class="panel">
+            <h2>Gestión de Cotizaciones</h2>
+
+            <div class="tabs">
+                <button class="tab-button active" data-tab="tab-crear">
+                    <i class="fa fa-plus"></i> Crear Cotización
+                </button>
+                <button class="tab-button" data-tab="tab-guardadas">
+                    <i class="fa fa-file-invoice"></i> Cotizaciones Guardadas
+                </button>
+            </div>
+
+            <div id="tab-crear" class="tab-content active">
+                <form id="form-busqueda-clientes" class="form-busqueda">
+                    <input type="search" id="busqueda-clientes" placeholder="Buscar cliente para cotizar...">
+                    <button type="submit">Buscar</button>
+                </form>
+
+                <table class="tabla-empresas">
+                    <thead>
+                        <tr>
+                            <th>Empresa</th>
+                            <th>Contacto Principal</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-clientes-body">
+                        </tbody>
+                </table>
+                <p id="no-resultados-clientes" style="display: none; text-align: center; padding: 1rem;">
+                    No se encontraron clientes.
+                </p>
+            </div>
+
+            <div id="tab-guardadas" class="tab-content">
+                <form id="form-busqueda-cotizaciones" class="form-busqueda">
+                    <input type="search" id="busqueda-cotizaciones" placeholder="Buscar por folio o cliente...">
+                    <select id="filtro-estado-cotizacion">
+                        <option value="">Todos los Estados</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Aceptada">Aceptada</option>
+                        <option value="Rechazada">Rechazada</option>
+                    </select>
+                </form>
+
+                <table class="tabla-empresas">
+                    <thead>
+                        <tr>
+                            <th>Folio</th>
+                            <th>Cliente</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-cotizaciones-body">
+                        </tbody>
+                </table>
+                <p id="no-resultados-cotizaciones" style="display: none; text-align: center; padding: 1rem;">
+                    No se encontraron cotizaciones.
+                </p>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="modal-placeholder"></div>
+    <div id="modal-view-placeholder"></div>
+    <script src="main.js"></script> <script src="app_cotizaciones.js"></script> </body>
+</html>

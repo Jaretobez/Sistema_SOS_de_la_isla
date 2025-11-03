@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Facturación</title>
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+
+    <nav id="sidebar-placeholder" class="sidebar"></nav>
+
+    <main class="content">
+        <div class="panel">
+            <h2>Gestión de Facturación</h2>
+
+            <form id="form-busqueda" class="form-busqueda">
+                <input type="search" id="busqueda" placeholder="Buscar por nombre de empresa...">
+                <select id="filtro-pago">
+                    <option value="">Todos los Estados</option>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Pagado">Pagado</option>
+                </select>
+                <button type"submit">Buscar</button>
+            </form>
+
+            <table class="tabla-empresas">
+                <thead>
+                    <tr>
+                        <th>Empresa</th>
+                        <th>Monto a Pagar</th>
+                        <th>Fecha de Facturación</th>
+                        <th>Estado de Pago</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-body">
+                    </tbody>
+            </table>
+            <p id="no-resultados" style="display: none; text-align: center; padding: 1rem;">
+                No se encontraron facturas pendientes.
+            </p>
+        </div>
+    </main>
+
+    <script src="main.js"></script> <script src="app_facturacion.js"></script> </body>
+</html>
