@@ -1,70 +1,48 @@
 // Espera a que la página HTML se cargue por completo antes de hacer nada.
 document.addEventListener("DOMContentLoaded", () => {
     
+    // --- CAMBIO BD ---
+    // Definimos la ubicación de nuestros archivos PHP (nuestra API)
+    const API_URL = 'api/empresas_api.php'; 
+
     // --- Selectores del DOM ---
-    // Aquí "agarramos" los elementos del HTML para poder usarlos después.
-    // Es como guardar los botones y la tabla en variables.
-    const tablaBody = document.getElementById("tabla-body"); // El cuerpo de la tabla
-    const noResultados = document.getElementById("no-resultados"); // El mensaje de "No se encontraron"
-    const formBusqueda = document.getElementById("form-busqueda"); // El formulario de búsqueda
-    const inputBusqueda = document.getElementById("busqueda"); // El campo para escribir la búsqueda
-    const btnAnadirNuevo = document.getElementById("btn-anadir-nuevo"); // El botón "+ Añadir Nuevo"
-    const modalFormPlaceholder = document.getElementById("modal-form-placeholder"); // Div vacío para el modal de Añadir/Editar
-    const modalViewPlaceholder = document.getElementById("modal-view-placeholder"); // Div vacío para el modal de "Ver" (aunque no se usa aquí)
+    const tablaBody = document.getElementById("tabla-body");
+    const noResultados = document.getElementById("no-resultados");
+    const formBusqueda = document.getElementById("form-busqueda");
+    const inputBusqueda = document.getElementById("busqueda");
+    const btnAnadirNuevo = document.getElementById("btn-anadir-nuevo");
+    const modalFormPlaceholder = document.getElementById("modal-form-placeholder");
+    const modalViewPlaceholder = document.getElementById("modal-view-placeholder");
 
     // --- Almacenes de Datos ---
-    // Variables vacías que usaremos para guardar los datos que descarguemos.
-    let datosCombinados = []; // Aquí guardaremos la lista de empresas CON sus contactos.
-    let modalFormHTML = ""; // Aquí guardaremos el HTML del formulario para reusarlo.
+    // 'datosCombinados' ahora solo guardará la lista que viene del servidor.
+    // Ya no hacemos la combinación de "empresas" y "contactos" aquí.
+    let datosCombinados = []; 
+    let modalFormHTML = ""; // Caché para el HTML del formulario
 
     // --- 1. Carga Inicial ---
-    // Esta función se ejecuta apenas carga la página para traer los datos.
-    async function cargarDatosIniciales() {
+    // Esta función ahora también se usará para BUSCAR.
+    async function cargarDatosIniciales(terminoBusqueda = "") {
         try {
-            // Pide 3 archivos al mismo tiempo y espera a que lleguen todos.
-            const [respEmpresas, respContactos, respModalForm] = await Promise.all([
-                
-                // =======================================================================
-                // AQUÍ ES DONDE DEBE IR LA CONEXIÓN (EN EL BACKEND)
-                // =======================================================================
-                //
-                // Estas 2 líneas `fetch` piden archivos .json (son "datos de prueba").
-                // En la versión real, deben llamar a tus archivos PHP (tu API).
-                //
-                // Ejemplo:
-                // fetch("api/traer_empresas.php"),
-                // fetch("api/traer_contactos.php"),
-                //
-                // Esos archivos PHP son los que DEBEN tener la CONEXIÓN A LA BD
-                // para hacer el SELECT y devolver los datos en formato JSON.
-                //
-                fetch("empresas.json"),
-                fetch("contactos.json"),
-                
-                // Esta línea carga el HTML del formulario (esto está bien así).
-                fetch("modal_empresa_form.html")
-            ]);
-
-            // Convierte las respuestas en datos que JavaScript entiende.
-            const empresas = await respEmpresas.json();
-            const contactos = await respContactos.json();
+            // --- CAMBIO BD ---
+            // Solo cargamos el HTML del modal. Los datos de la empresa vendrán del PHP.
+            const respModalForm = await fetch("modal_empresa_form.html");
             modalFormHTML = await respModalForm.text(); // Guarda el HTML del formulario.
 
-            // Organiza los contactos: crea un "mapa" donde cada ID de empresa
-            // tiene su propia lista de contactos.
-            const contactosPorEmpresa = contactos.reduce((acc, contacto) => {
-                const idEmp = contacto["id empresa"];
-                if (!acc[idEmp]) acc[idEmp] = [];
-                acc[idEmp].push(contacto);
-                return acc;
-            }, {});
+            // Ahora, hacemos la "llamada" (fetch) a nuestro archivo PHP.
+            // Le pasamos el término de búsqueda en la URL.
+            const url = `${API_URL}?accion=leer&termino=${encodeURIComponent(terminoBusqueda)}`;
+            const respDatos = await fetch(url);
+            
+            if (!respDatos.ok) {
+                throw new Error(`Error en el servidor: ${respDatos.statusText}`);
+            }
 
-            // Combina los datos: Junta cada empresa con su lista de contactos.
-            datosCombinados = empresas.map(empresa => ({
-                ...empresa, // Copia los datos de la empresa
-                contactos: contactosPorEmpresa[empresa.idempresa] || [], // Le añade su lista de contactos
-                contactoPrincipal: (contactosPorEmpresa[empresa.idempresa] || [])[0] || null // Pone el primer contacto como "principal"
-            }));
+            const datosDesdePHP = await respDatos.json();
+            
+            // Guardamos los datos recibidos.
+            // El PHP ya nos dará los datos combinados (empresa + contacto principal).
+            datosCombinados = datosDesdePHP;
 
             // Llama a la función para "dibujar" la tabla con los datos listos.
             renderizarTabla(datosCombinados);
@@ -72,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (error) {
             // Si algo falla al cargar, lo muestra en la consola y en la página.
             console.error("Error al cargar datos iniciales:", error);
-            noResultados.textContent = "Error al cargar los datos. Revisa la consola (F12).";
+            noResultados.textContent = "Error al cargar los datos. Revisa la consola (F12) o el log del servidor PHP.";
             noResultados.style.display = "block";
         }
     }
@@ -80,80 +58,55 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- 2. Renderizar Tabla ---
     // Esta función "dibuja" los datos en la tabla HTML.
     function renderizarTabla(empresas) {
-        tablaBody.innerHTML = ""; // Limpia la tabla por si tenía filas viejas.
-        
-        // Si no hay empresas, muestra el mensaje "No se encontraron resultados".
+        tablaBody.innerHTML = ""; 
         noResultados.style.display = empresas.length === 0 ? "block" : "none";
 
-        // Recorre la lista de empresas una por una.
         empresas.forEach(empresa => {
-            const tr = document.createElement("tr"); // Crea una fila <tr>
-            const contacto = empresa.contactoPrincipal; // Agarra el contacto principal
-
-            // Rellena la fila con los datos de la empresa y los botones.
+            const tr = document.createElement("tr"); 
+            
+            // --- CAMBIO BD ---
+            // Ahora usamos los nombres de las columnas de la BD (o los alias del PHP).
+            // Asumiremos que tu PHP nos dará 'contacto_nombre', 'contacto_email', etc.
             tr.innerHTML = `
                 <td>
-                    <strong>${empresa["nombre comercial"]}</strong>
-                    <div class="razon-social">${empresa["razon social"]}</div>
+                    <strong>${empresa.nombre_comercial}</strong>
+                    <div class="razon-social">${empresa.razon_social || ''}</div>
                 </td>
-                <td>${contacto ? contacto.nombre : '—'}</td>
-                <td>${contacto ? `<a href="mailto:${contacto.email}">${contacto.email}</a>` : '—'}</td>
-                <td>${contacto ? contacto.telefono : '—'}</td>
+                <td>${empresa.contacto_nombre || '—'}</td>
+                <td>${empresa.contacto_email ? `<a href="mailto:${empresa.contacto_email}">${empresa.contacto_email}</a>` : '—'}</td>
+                <td>${empresa.contacto_telefono || '—'}</td>
                 <td>
-                    <button class="btn-accion ver" data-id="${empresa.idempresa}" title="Ver Detalles">
+                    <button class="btn-accion ver" data-id="${empresa.id_empresa}" title="Ver Detalles">
                         <i class="fa fa-eye"></i>
                     </button>
-                    <button class="btn-accion modificar" data-id="${empresa.idempresa}" title="Modificar">
+                    <button class="btn-accion modificar" data-id="${empresa.id_empresa}" title="Modificar">
                         <i class="fa fa-pencil"></i>
                     </button>
-                    <button class="btn-accion eliminar" data-id="${empresa.idempresa}" title="Eliminar">
+                    <button class="btn-accion eliminar" data-id="${empresa.id_empresa}" title="Eliminar">
                         <i class="fa fa-trash"></i>
                     </button>
                 </td>
             `;
-            // Añade la fila nueva a la tabla.
             tablaBody.appendChild(tr);
         });
     }
 
-    // --- 3. Filtrar Tabla (Sin 'estado') ---
-    // Esta función se activa cada vez que escribes en el buscador.
-    function filtrarYRenderizar() {
-        const termino = inputBusqueda.value.toLowerCase(); // Lo que escribiste (en minúsculas)
-        
-        // Filtra la lista de empresas
-        const filtrados = datosCombinados.filter(item => {
-            // Revisa si el término de búsqueda está en el nombre, razón social, contacto o email.
-            const matchTermino = 
-                item["nombre comercial"].toLowerCase().includes(termino) ||
-                (item["razon social"] && item["razon social"].toLowerCase().includes(termino)) ||
-                (item.contactoPrincipal && item.contactoPrincipal.nombre.toLowerCase().includes(termino)) ||
-                (item.contactoPrincipal && item.contactoPrincipal.email.toLowerCase().includes(termino));
-
-            return matchTermino;
-        });
-        
-        // Vuelve a "dibujar" la tabla, pero solo con los resultados filtrados.
-        renderizarTabla(filtrados);
-    }
-
-    // --- 4. Helper para crear bloques de contacto ---
-    // Esta es una función "ayudante" para crear el HTML del formulario de un contacto.
+    // --- 3. Helper para crear bloques de contacto ---
+    // (Esta función "ayudante" no necesita cambios)
     function anadirBloqueContacto(container, contacto = {}) {
-        const bloqueId = `contacto-${Date.now()}-${Math.floor(Math.random() * 100)}`; // ID único
+        const bloqueId = `contacto-${Date.now()}-${Math.floor(Math.random() * 100)}`;
         const bloqueDiv = document.createElement('div');
         bloqueDiv.className = 'contacto-block';
         bloqueDiv.id = bloqueId;
-
-        // Si es el primer contacto, pone "Contacto Principal".
-        // Si no, pone "Contacto Adicional" y un botón de borrar (X).
+        
+        // --- CAMBIO BD ---
+        // Usamos los nombres de columna de la BD: 'nombre', 'email', 'telefono'
+        // (El `contacto.nombre || ''` ya funciona)
         bloqueDiv.innerHTML = `
             <div class="contacto-block-label">
                 ${container.children.length === 0 ? 'Contacto Principal' : 'Contacto Adicional'}
             </div>
-            
             ${container.children.length > 0 ? '<button type="button" class="btn-remove-contacto" title="Eliminar contacto">&times;</button>' : ''}
-            
             <div class="contacto-block-inputs">
                 <div>
                     <label for="cont-nombre-${bloqueId}">Nombre</label>
@@ -167,252 +120,259 @@ document.addEventListener("DOMContentLoaded", () => {
                     <label for="cont-telefono-${bloqueId}">Teléfono</label>
                     <input type="tel" id="cont-telefono-${bloqueId}" class="cont-telefono" value="${contacto.telefono || ''}">
                 </div>
+                <input type="hidden" class="cont-id" value="${contacto.id_contacto || ''}">
             </div>
         `;
-        
-        // Añade el bloque de contacto al formulario (en el modal).
         container.appendChild(bloqueDiv);
     }
 
-    // --- 5. Abrir Modal (Añadir o Modificar) ---
-    // Esta función abre la ventana emergente (modal).
-    function abrirModalForm(modo, id = null) {
-        // "Inyecta" el HTML del formulario (que cargamos al inicio) en la página.
+    // --- 4. Abrir Modal (Añadir o Modificar) ---
+    // ¡Esta función ahora es 'async' porque necesita cargar datos!
+    async function abrirModalForm(modo, id = null) {
         modalFormPlaceholder.innerHTML = modalFormHTML;
 
-        // Agarra los elementos de DENTRO del modal
         const form = document.getElementById("form-empresa-nueva");
         const titulo = document.getElementById("modal-titulo");
         const btnGuardar = document.getElementById("btn-guardar-empresa");
-        const formMode = document.getElementById("form-mode"); // Campo oculto que dice si es 'añadir' o 'modificar'
-        const empresaIdEdit = document.getElementById("empresa-id-edit"); // Campo oculto para guardar el ID a editar
-        
-        const contactosList = document.getElementById("contactos-list"); // El div que contendrá los bloques de contacto
-        const btnAnadirContacto = document.getElementById("btn-add-contacto"); // Botón "+ Añadir Otro Contacto"
+        const formMode = document.getElementById("form-mode");
+        const empresaIdEdit = document.getElementById("empresa-id-edit");
+        const contactosList = document.getElementById("contactos-list");
+        const btnAnadirContacto = document.getElementById("btn-add-contacto");
 
         if (modo === 'modificar') {
-            // Si es modo "Modificar"...
             titulo.textContent = "Modificar Empresa";
             btnGuardar.textContent = "Guardar Cambios";
             formMode.value = "modificar";
             empresaIdEdit.value = id;
 
-            // Busca la empresa que queremos modificar
-            const empresa = datosCombinados.find(e => e.idempresa == id);
-            if (empresa) {
+            // --- CAMBIO BD ---
+            // En lugar de buscar en 'datosCombinados', le pedimos al PHP
+            // los datos completos de ESTA empresa (empresa + TODOS sus contactos).
+            try {
+                const url = `${API_URL}?accion=leer_uno&id=${id}`;
+                const resp = await fetch(url);
+                const data = await resp.json();
+
+                if (!data.empresa) throw new Error('No se encontró la empresa.');
+
+                const empresa = data.empresa;
+                const contactos = data.contactos;
+
                 // Rellena el formulario con los datos de la empresa
-                document.getElementById("emp-nombre-comercial").value = empresa["nombre comercial"];
-                document.getElementById("emp-razon-social").value = empresa["razon social"];
+                document.getElementById("emp-nombre-comercial").value = empresa.nombre_comercial;
+                document.getElementById("emp-razon-social").value = empresa.razon_social;
                 document.getElementById("emp-tipo").value = empresa.tipo;
                 document.getElementById("emp-ruta").value = empresa.id_ruta;
                 document.getElementById("emp-direccion").value = empresa.direccion;
 
                 // Rellena los contactos que ya tiene
-                if (empresa.contactos.length > 0) {
-                    empresa.contactos.forEach(contacto => {
-                        anadirBloqueContacto(contactosList, contacto); // Llama al "ayudante"
+                if (contactos.length > 0) {
+                    contactos.forEach(contacto => {
+                        anadirBloqueContacto(contactosList, contacto);
                     });
                 } else {
-                    anadirBloqueContacto(contactosList); // Si no tiene, añade un bloque vacío
+                    anadirBloqueContacto(contactosList); // Añade uno vacío si no hay
                 }
+
+            } catch (error) {
+                console.error("Error al cargar datos para modificar:", error);
+                alert("No se pudieron cargar los datos de la empresa. Intente de nuevo.");
+                cerrarModalForm();
             }
+
         } else { // modo === 'anadir'
-            // Si es modo "Añadir"...
             titulo.textContent = "Añadir Nueva Empresa";
             btnGuardar.textContent = "Guardar Empresa";
             formMode.value = "anadir";
-            
-            // Añade un bloque de contacto vacío para empezar
             anadirBloqueContacto(contactosList);
         }
 
         // --- Listeners de DENTRO del modal ---
-        
-        // Activa el botón "+ Añadir Otro Contacto"
+        // (Esta lógica no cambia)
         btnAnadirContacto.addEventListener("click", () => {
             anadirBloqueContacto(contactosList);
         });
-
-        // Activa los botones (X) para borrar contactos
         contactosList.addEventListener("click", (e) => {
             if (e.target.classList.contains("btn-remove-contacto")) {
-                e.target.closest(".contacto-block").remove(); // Borra el bloque
-                
-                // Revisa si el primer bloque sigue ahí y le pone "Contacto Principal"
+                e.target.closest(".contacto-block").remove();
                 const primerBloque = contactosList.querySelector(".contacto-block:first-child");
                 if (primerBloque) {
                     primerBloque.querySelector(".contacto-block-label").textContent = "Contacto Principal";
                 }
             }
         });
-
-        // Activa el botón de cerrar (X) y el de guardar
         document.getElementById("modal-close-btn").addEventListener("click", cerrarModalForm);
-        form.addEventListener("submit", manejarSubmitEmpresa);
+        form.addEventListener("submit", manejarSubmitEmpresa); // Llama a la nueva función de guardado
     }
 
-    // --- 6. Cerrar Modal (Añadir o Modificar) ---
+    // --- 5. Cerrar Modal ---
     function cerrarModalForm() {
-        modalFormPlaceholder.innerHTML = ""; // Simplemente borra el HTML del modal
+        modalFormPlaceholder.innerHTML = ""; 
     }
 
-    // --- 7. Guardar Formulario (Simulado) ---
+    // --- 6. Guardar Formulario (¡AHORA ES REAL!) ---
     // Esta función se activa cuando das clic en "Guardar"
-    function manejarSubmitEmpresa(e) {
-        e.preventDefault(); // Evita que la página se recargue
-        const modo = document.getElementById("form-mode").value; // Revisa si era 'añadir' o 'modificar'
+    async function manejarSubmitEmpresa(e) {
+        e.preventDefault(); 
+        const modo = document.getElementById("form-mode").value;
+        const btnGuardar = document.getElementById("btn-guardar-empresa");
+        btnGuardar.disabled = true; // Deshabilita el botón para evitar doble clic
+        btnGuardar.textContent = "Guardando...";
 
-        // 1. Recolecta los datos de la Empresa del formulario
+        // 1. Recolecta datos de la Empresa
         const empresaData = {
-            "nombre comercial": document.getElementById("emp-nombre-comercial").value,
-            "razon social": document.getElementById("emp-razon-social").value,
+            "nombre_comercial": document.getElementById("emp-nombre-comercial").value,
+            "razon_social": document.getElementById("emp-razon-social").value,
             tipo: document.getElementById("emp-tipo").value,
             id_ruta: document.getElementById("emp-ruta").value,
-            direccion: document.getElementById("emp-direccion").value,
-            "fecha creacion": new Date().toISOString()
+            direccion: document.getElementById("emp-direccion").value
+            // La fecha_creacion la pondrá el PHP/BD
         };
 
-        // 2. Recolecta la lista de Contactos
-        const contactosData = []; // Una lista vacía
+        // Si es modo "modificar", añade el ID de la empresa
+        if (modo === 'modificar') {
+            empresaData.id_empresa = document.getElementById("empresa-id-edit").value;
+        }
+
+        // 2. Recolecta lista de Contactos
+        const contactosData = []; 
         const bloquesDeContacto = document.querySelectorAll("#contactos-list .contacto-block");
         
-        // Recorre cada bloque de contacto que exista
         bloquesDeContacto.forEach(bloque => {
             const nombre = bloque.querySelector(".cont-nombre").value;
             const email = bloque.querySelector(".cont-email").value;
-            const telefono = bloque.querySelector(".cont-telefono").value;
-
-            // Solo guarda el contacto si tiene nombre y email
-            if (nombre && email) {
+            
+            if (nombre && email) { // Solo guarda si tiene nombre y email
                 contactosData.push({
+                    id_contacto: bloque.querySelector(".cont-id").value, // Será '' si es nuevo
                     nombre: nombre,
                     email: email,
-                    telefono: telefono,
-                    "fecha de creacion": new Date().toISOString()
+                    telefono: bloque.querySelector(".cont-telefono").value
                 });
             }
         });
 
-        // Si no puso ni un contacto válido, le avisa y no guarda.
         if (contactosData.length === 0) {
             alert("Debes añadir al menos un contacto válido (con nombre y email).");
+            btnGuardar.disabled = false;
+            btnGuardar.textContent = (modo === 'anadir') ? "Guardar Empresa" : "Guardar Cambios";
             return; 
         }
 
-        // 3. Simular el guardado (AQUÍ IRÍA LA CONEXIÓN)
-        if (modo === 'anadir') {
-            // =======================================================================
-            // AQUÍ ES DONDE DEBE IR LA CONEXIÓN (EN EL BACKEND)
-            // =======================================================================
-            //
-            // Esta parte simula un "AÑADIR NUEVO" (INSERT)
-            // En lugar de 'console.log', aquí deberías enviar 'empresaData' y 'contactosData'
-            // a tu archivo PHP (ej: 'api/guardar_empresa.php').
-            //
-            // Ese PHP DEBE tener la CONEXIÓN A LA BD para hacer el INSERT
-            // de la empresa, obtener su nuevo ID, y luego hacer el INSERT
-            // de todos los contactos en 'contactosData' asociándolos a ese ID.
-            //
-            empresaData.idempresa = `E-${Date.now()}`; // ID de prueba
-            console.log("--- AÑADIENDO (Simulado) ---");
-            console.log("Empresa:", empresaData);
-            console.log("Contactos:", contactosData); 
-            alert("Empresa añadida (ver consola F12).");
-        
-        } else { // modo === 'modificar'
-            // =======================================================================
-            // AQUÍ ES DONDE DEBE IR LA CONEXIÓN (EN EL BACKEND)
-            // =======================================================================
-            //
-            // Esta parte simula un "MODIFICAR" (UPDATE)
-            // Aquí deberías enviar 'empresaData' y 'contactosData' (junto con el ID)
-            // a tu archivo PHP (ej: 'api/modificar_empresa.php').
-            //
-            // Ese PHP DEBE tener la CONEXIÓN A LA BD para hacer el UPDATE
-            // de la empresa, y luego manejar los contactos (borrar los viejos
-            // e insertar los nuevos, o una lógica más compleja de UPDATE/INSERT).
-            //
-            const id = document.getElementById("empresa-id-edit").value;
-            empresaData.idempresa = id;
+        // --- CAMBIO BD ---
+        // 3. Enviar los datos al PHP
+        try {
+            const body = {
+                modo: modo,
+                empresa: empresaData,
+                contactos: contactosData
+            };
             
-            console.log(`--- MODIFICANDO (Simulado) ID: ${id} ---`);
-            console.log("Empresa:", empresaData);
-            console.log("Contactos:", contactosData);
-            alert("Empresa modificada (ver consola F12).");
-        }
+            const resp = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body) // Envía todo en un solo JSON
+            });
 
-        cerrarModalForm(); // Cierra el modal
-        // Para ver el cambio, lo ideal sería recargar los datos desde la BD
-        // cargarDatosIniciales(); 
+            const resultado = await resp.json();
+
+            if (resultado.success) {
+                alert(resultado.message || "¡Guardado con éxito!");
+                cerrarModalForm();
+                cargarDatosIniciales(); // Recarga la tabla con los datos frescos de la BD
+            } else {
+                throw new Error(resultado.error || "Error desconocido al guardar.");
+            }
+
+        } catch (error) {
+            console.error("Error al guardar:", error);
+            alert("Error al guardar: " + error.message);
+            btnGuardar.disabled = false;
+            btnGuardar.textContent = (modo === 'anadir') ? "Guardar Empresa" : "Guardar Cambios";
+        }
     }
 
 
-    // --- 10. Eliminar Empresa (Simulado) ---
-    function eliminarEmpresa(id) {
-        const empresa = datosCombinados.find(e => e.idempresa == id);
-        // Pide confirmación antes de borrar
-        if (confirm(`¿Estás seguro de que deseas eliminar a "${empresa["nombre comercial"]}"?`)) {
+    // --- 7. Eliminar Empresa (¡AHORA ES REAL!) ---
+    async function eliminarEmpresa(id) {
+        // Busca el nombre en los datos locales para el confirm
+        const empresa = datosCombinados.find(e => e.id_empresa == id);
+        const nombre = empresa ? empresa.nombre_comercial : `ID ${id}`;
+        
+        if (confirm(`¿Estás seguro de que deseas eliminar a "${nombre}"? Esta acción no se puede deshacer.`)) {
             
-            // =======================================================================
-            // AQUÍ ES DONDE DEBE IR LA CONEXIÓN (EN EL BACKEND)
-            // =======================================================================
-            //
-            // Esta parte simula un "ELIMINAR" (DELETE)
-            // Aquí deberías llamar a tu archivo PHP (ej: 'api/borrar_empresa.php?id=' + id)
-            //
-            // Ese PHP DEBE tener la CONEXIÓN A LA BD para hacer el DELETE
-            // de la empresa (y la BD debería borrar sus contactos en "cascada").
-            //
-            console.log(`--- ELIMINANDO (Simulado) ID: ${id} ---`);
-            
-            // Esto es solo para simularlo en la página sin recargar
-            datosCombinados = datosCombinados.filter(e => e.idempresa != id);
-            renderizarTabla(datosCombinados); // Vuelve a dibujar la tabla sin la empresa
-            
-            alert("Empresa eliminada (simulado).");
+            // --- CAMBIO BD ---
+            // 3. Enviar la orden de eliminar al PHP
+            try {
+                const body = {
+                    modo: 'eliminar',
+                    id_empresa: id
+                };
+
+                const resp = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const resultado = await resp.json();
+
+                if (resultado.success) {
+                    alert(resultado.message || "Empresa eliminada.");
+                    cargarDatosIniciales(); // Recarga la tabla
+                } else {
+                    throw new Error(resultado.error || "Error desconocido al eliminar.");
+                }
+
+            } catch (error) {
+                console.error("Error al eliminar:", error);
+                alert("Error al eliminar: " + error.message);
+            }
         }
     }
 
 
     // --- Event Listeners Principales ---
-    // "Activa" los botones y buscadores que están fijos en la página.
     
-    // Evita que el formulario de búsqueda recargue la página
-    formBusqueda.addEventListener("submit", (e) => e.preventDefault());
-    // Llama a la función 'filtrar' cada vez que escribes algo
-    inputBusqueda.addEventListener("keyup", filtrarYRenderizar);
+    // --- CAMBIO BD ---
+    // El formulario de búsqueda ahora llama a la BD
+    formBusqueda.addEventListener("submit", (e) => {
+        e.preventDefault();
+        cargarDatosIniciales(inputBusqueda.value);
+    });
+    // (Opcional: puedes hacer que busque mientras escribe,
+    // pero puede hacer muchas llamadas a la BD)
+    // inputBusqueda.addEventListener("keyup", () => {
+    //     cargarDatosIniciales(inputBusqueda.value);
+    // });
     
-    // Activa el botón "+ Añadir Nuevo" para que abra el modal
+    // Activa el botón "+ Añadir Nuevo"
     btnAnadirNuevo.addEventListener("click", () => {
-        abrirModalForm('anadir'); // Llama al modal en modo 'añadir'
+        abrirModalForm('anadir');
     });
 
-    // "Escuchador" inteligente para los botones de la tabla
-    // (Escucha en la tabla, pero reacciona al botón que aprietes)
+    // "Escuchador" para los botones de la tabla (Ver, Modificar, Eliminar)
     tablaBody.addEventListener("click", (e) => {
-        // Revisa qué botón fue el que se apretó (o si se apretó el icono de adentro)
         const verBtn = e.target.closest(".ver");
         const modBtn = e.target.closest(".modificar");
         const delBtn = e.target.closest(".eliminar");
 
         if (verBtn) {
-            // Si fue "Ver", abre el perfil en una pestaña nueva
+            // 'id_empresa' porque así se llama en la BD
             window.open(`perfil.html?id=${verBtn.dataset.id}`, '_blank');
             return;
         }
         if (modBtn) {
-            // Si fue "Modificar", abre el modal en modo 'modificar'
             abrirModalForm('modificar', modBtn.dataset.id);
             return;
         }
         if (delBtn) {
-            // Si fue "Eliminar", llama a la función de borrar
             eliminarEmpresa(delBtn.dataset.id);
             return;
         }
     });
 
     // --- Carga Inicial ---
-    // ¡Aquí empieza todo! Llama a la función que carga los datos.
+    // ¡Aquí empieza todo! Llama a la función que carga los datos de la BD.
     cargarDatosIniciales();
 });

@@ -34,7 +34,32 @@
                         <label><input type="checkbox" class="dia-check" data-precio="130" data-dia="viernes"> Vie</label>
                     </div>
                 </div>
-            </fieldset>
+
+                <div id="tipo-residuo-group" class="hidden" style="padding-left: 20px; margin-top: 1rem;">
+                    <p style="margin:0.5rem 0;">Tipo de Residuo:</p>
+                    <div style="display:flex; gap: 20px;">
+                        <label>
+                            <input type="radio" id="tipo-urbano" name="tipo_residuo" value="Urbano" checked>
+                            Recolección de Residuos Solidos Urbanos
+                        </label>
+                        <label>
+                            <input type="radio" id="tipo-especial" name="tipo_residuo" value="Especial">
+                            Recolección de Residuo de Manejo Especial
+                        </label>
+                    </div>
+                </div>
+
+                <div id="bolsas-peso-group" class="hidden" style="padding-left: 20px; margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label for="bolsas-dia" style="display:block; margin-bottom: 5px;">Cantidad de Bolsas (por día)</label>
+                        <input type="number" id="bolsas-dia" value="1" min="1" style="width:100%; padding:0.5rem; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label for="peso-bolsa" style="display:block; margin-bottom: 5px;">Peso en KG (por bolsa)</label>
+                        <input type="number" id="peso-bolsa" value="1" min="1" style="width:100%; padding:0.5rem; box-sizing: border-box;">
+                    </div>
+                </div>
+                </fieldset>
             
             <fieldset style="border:1px solid #eee; border-radius:4px; padding:1rem; margin-bottom:1rem;">
                 <legend style="padding:0 5px;">Renta de Tolvas</legend>

@@ -1,5 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
     
+    // --- NUEVO: URL de la API ---
+    const API_URL = 'api/facturacion_api.php';
+
     // --- Selectores del DOM ---
     const tablaBody = document.getElementById("tabla-body");
     const noResultados = document.getElementById("no-resultados");
@@ -9,46 +12,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- Almacenes de Datos ---
     let datosFacturacion = []; // Guardará los servicios + nombre de empresa
-    let empresasMap = {}; // Mapa para buscar nombres de empresa
 
     // --- Helpers de Formato ---
     const formatMoneda = (num) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(num);
-    const formatFecha = (dateISO) => new Date(dateISO).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    const formatFecha = (dateISO) => {
+        if (!dateISO) return 'N/A';
+        return new Date(dateISO.replace(/-/g, '/')).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    };
 
-    // --- 1. Carga Inicial ---
+    // --- 1. Carga Inicial (ACTUALIZADO) ---
     async function cargarDatosIniciales() {
         try {
-            // Cargar los JSON de servicios y empresas
-            const [respServicios, respEmpresas] = await Promise.all([
-                fetch("servicios_activos.json"),
-                fetch("empresas.json")
-            ]);
-
-            const servicios = await respServicios.json();
-            const empresas = await respEmpresas.json();
-
-            // Crear un mapa de empresas para buscar nombres fácilmente
-            empresasMap = empresas.reduce((map, emp) => {
-                map[emp.idempresa] = emp;
-                return map;
-            }, {});
-
-            // Unir los datos
-            datosFacturacion = servicios.map(servicio => ({
-                ...servicio, // Copia todos los datos del servicio
-                empresa: empresasMap[servicio.id_empresa] // Añade la info de la empresa
-            }));
-
+            // --- CAMBIO BD ---
+            // Cargar los datos desde nuestra nueva API
+            const resp = await fetch(`${API_URL}?accion=leer_servicios`);
+            
+            if (!resp.ok) {
+                throw new Error(`Error del servidor: ${resp.statusText}`);
+            }
+            
+            datosFacturacion = await resp.json();
+            
             renderizarTabla(datosFacturacion);
 
         } catch (error) {
             console.error("Error al cargar datos iniciales:", error);
-            noResultados.textContent = "Error al cargar los datos.";
+            noResultados.textContent = "Error al cargar los datos. Revisa la consola (F12) o el log de Apache.";
             noResultados.style.display = "block";
         }
     }
 
-    // --- 2. Renderizar Tabla ---
+    // --- 2. Renderizar Tabla (ACTUALIZADO) ---
     function renderizarTabla(servicios) {
         tablaBody.innerHTML = "";
         noResultados.style.display = servicios.length === 0 ? "block" : "none";
@@ -56,9 +50,11 @@ document.addEventListener("DOMContentLoaded", () => {
         servicios.forEach(item => {
             const tr = document.createElement("tr");
             
-            const nombreEmpresa = item.empresa ? item.empresa["nombre comercial"] : "Empresa Desconocida";
-            const estado = item["estado actual de pago"];
-            const estadoClase = estado.toLowerCase().replace(" ", ""); // "pendiente" o "pagado"
+            // --- CAMBIO BD ---
+            // Usamos los nombres de columna de la BD (ej: 'nombre_comercial')
+            const nombreEmpresa = item.nombre_comercial || "Empresa Desconocida";
+            const estado = item.estado_actual_pago;
+            const estadoClase = estado.toLowerCase().replace(" ", "");
 
             let accionButton;
             if (estado === "Pagado") {
@@ -69,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 `;
             } else { // "Pendiente"
                 accionButton = `
-                    <button class="btn-pagar" data-id="${item["id servicio"]}">
+                    <button class="btn-pagar" data-id="${item.id_servicio}">
                         Marcar como Pagado
                     </button>
                 `;
@@ -78,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
             tr.innerHTML = `
                 <td><strong>${nombreEmpresa}</strong></td>
                 <td>${formatMoneda(item.monto_mensual)}</td>
-                <td>${formatFecha(item["dia de facturacion"])}</td>
+                <td>${formatFecha(item.fecha_proximo_vencimiento)}</td>
                 <td><span class="badge ${estadoClase}">${estado}</span></td>
                 <td>${accionButton}</td>
             `;
@@ -86,17 +82,18 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --- 3. Filtrar Tabla ---
+    // --- 3. Filtrar Tabla (ACTUALIZADO) ---
     function filtrarYRenderizar() {
         const termino = inputBusqueda.value.toLowerCase();
         const estadoFiltro = filtroPago.value;
         
         const filtrados = datosFacturacion.filter(item => {
+            // --- CAMBIO BD ---
             // 1. Filtrar por estado de pago
-            const matchEstado = (estadoFiltro === "") || (item["estado actual de pago"] === estadoFiltro);
+            const matchEstado = (estadoFiltro === "") || (item.estado_actual_pago === estadoFiltro);
             
             // 2. Filtrar por término de búsqueda (nombre de empresa)
-            const nombreEmpresa = item.empresa ? item.empresa["nombre comercial"].toLowerCase() : "";
+            const nombreEmpresa = item.nombre_comercial ? item.nombre_comercial.toLowerCase() : "";
             const matchTermino = nombreEmpresa.includes(termino);
 
             return matchEstado && matchTermino;
@@ -105,24 +102,52 @@ document.addEventListener("DOMContentLoaded", () => {
         renderizarTabla(filtrados);
     }
 
-    // --- 4. Acción de Pagar ---
-    function marcarComoPagado(idServicio) {
+    // --- 4. Acción de Pagar (ACTUALIZADO) ---
+    async function marcarComoPagado(idServicio) {
         // Mostrar la confirmación
-        if (confirm("¿Estás seguro de que deseas marcar este servicio como PAGADO?")) {
-            // 1. Encontrar el servicio en nuestros datos locales
-            const servicio = datosFacturacion.find(s => s["id servicio"] === idServicio);
-            
-            if (servicio) {
-                // 2. Actualizar el estado localmente
-                servicio["estado actual de pago"] = "Pagado";
-                
-                // 3. Simular el guardado
-                console.log("SIMULACIÓN: Guardando pago para servicio:", idServicio, servicio);
-                alert("Pago registrado (simulado).");
+        if (!confirm("¿Estás seguro de que deseas marcar este servicio como PAGADO?")) {
+            return;
+        }
 
-                // 4. Volver a renderizar la tabla para mostrar el cambio
-                filtrarYRenderizar(); // Usamos filtrar para mantener los filtros actuales
+        try {
+            // --- CAMBIO BD ---
+            // 1. Enviar la orden a la API
+            const body = {
+                modo: "marcar_pagado",
+                id_servicio: idServicio
+            };
+
+            const resp = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            if (!resp.ok) {
+                const errorText = await resp.text();
+                throw new Error(errorText || `Error del servidor: ${resp.statusText}`);
             }
+
+            const resultado = await resp.json();
+
+            if (resultado.success) {
+                // 2. Si la API tuvo éxito, actualizar el estado localmente
+                const servicio = datosFacturacion.find(s => s.id_servicio == idServicio);
+                if (servicio) {
+                    servicio.estado_actual_pago = "Pagado";
+                }
+                
+                alert("Pago registrado con éxito.");
+
+                // 3. Volver a renderizar la tabla para mostrar el cambio
+                filtrarYRenderizar(); // Usamos filtrar para mantener los filtros actuales
+            } else {
+                throw new Error(resultado.error || "Error desconocido al guardar.");
+            }
+        
+        } catch (error) {
+            console.error("Error al marcar como pagado:", error);
+            alert("Error: " + error.message);
         }
     }
 

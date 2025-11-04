@@ -1,0 +1,120 @@
+-- ---
+-- Tabla 1: Empresa
+-- Almacena la información fiscal y general de las empresas cliente.
+-- ---
+CREATE TABLE Empresa (
+    id_empresa INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_comercial VARCHAR(255) NOT NULL,
+    razon_social VARCHAR(255) NOT NULL,
+    tipo VARCHAR(100),
+    direccion VARCHAR(500),
+    id_ruta VARCHAR(50),
+    fecha_creacion DATE
+) ENGINE=InnoDB;
+
+-- ---
+-- Tabla 2: Contacto
+-- Almacena los contactos de cada empresa.
+-- ---
+CREATE TABLE Contacto (
+    id_contacto INT AUTO_INCREMENT PRIMARY KEY,
+    id_empresa INT NOT NULL,
+    nombre VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    telefono VARCHAR(20),  -- Usamos VARCHAR para guardar prefijos (+), guiones o espacios
+    fecha_registro_contacto DATE,
+    FOREIGN KEY (id_empresa) REFERENCES Empresa(id_empresa)
+) ENGINE=InnoDB;
+
+-- ---
+-- Tabla 3: Cotizacion
+-- El encabezado de la cotización, con el total y estado.
+-- ---
+CREATE TABLE Cotizacion (
+    id_cotizacion INT AUTO_INCREMENT PRIMARY KEY,
+    id_contacto INT NOT NULL,
+    forma_de_pago VARCHAR(100),
+    total DECIMAL(12, 2), -- Usamos DECIMAL para precisión monetaria (ej. 1,250,000.50)
+    estado_cotizacion VARCHAR(50) DEFAULT 'Borrador',
+    fecha_vencimiento DATE,
+    FOREIGN KEY (id_contacto) REFERENCES Contacto(id_contacto)
+) ENGINE=InnoDB;
+
+-- ---
+-- Tabla 4: Producto
+-- El catálogo maestro de tus productos o servicios.
+-- ---
+CREATE TABLE Producto (
+    id_producto INT AUTO_INCREMENT PRIMARY KEY,
+    sku VARCHAR(100) UNIQUE NOT NULL,
+    descripcion TEXT, -- TEXT es correcto para descripciones largas
+    unidad VARCHAR(50),
+    precio_unitario DECIMAL(10, 2) NOT NULL -- Usamos DECIMAL para dinero
+) ENGINE=InnoDB;
+
+-- ---
+-- Tabla 5: DetalleCotizacion
+-- Las líneas/conceptos de cada cotización y sus días de servicio.
+-- ¡AQUÍ ESTÁN LOS CAMBIOS!
+-- ---
+CREATE TABLE DetalleCotizacion (
+    id_detalle INT AUTO_INCREMENT PRIMARY KEY,
+    id_cotizacion INT NOT NULL,
+    id_producto INT NOT NULL,
+    cantidad INT NOT NULL,
+    precio_unitario DECIMAL(10, 2) NOT NULL, -- El precio "congelado" para esta cotización
+    lunes BOOLEAN DEFAULT 0,
+    martes BOOLEAN DEFAULT 0,
+    miercoles BOOLEAN DEFAULT 0,
+    jueves BOOLEAN DEFAULT 0,
+    viernes BOOLEAN DEFAULT 0,
+    
+    -- --- CAMPOS NUEVOS AÑADIDOS ---
+    
+    -- Almacena si es 'Urbano' o 'Especial'.
+    -- Usamos VARCHAR para flexibilidad, pero ENUM('Urbano', 'Especial') sería más eficiente.
+    tipo_residuo VARCHAR(100) NULL,
+    
+    -- Almacena la cantidad de bolsas por día (para el cálculo de peso).
+    bolsas_por_dia INT NULL,
+    
+    -- Almacena el peso promedio en KG de cada bolsa.
+    peso_por_bolsa_kg DECIMAL(10, 2) NULL,
+    
+    -- --- FIN DE CAMPOS NUEVOS ---
+    
+    FOREIGN KEY (id_cotizacion) REFERENCES Cotizacion(id_cotizacion),
+    FOREIGN KEY (id_producto) REFERENCES Producto(id_producto)
+) ENGINE=InnoDB;
+
+-- ---
+-- Tabla 6: ServiciosActivos (Contratos)
+-- Registra los servicios recurrentes que nacen de una cotización aprobada.
+-- ---
+CREATE TABLE ServiciosActivos (
+    id_servicio INT AUTO_INCREMENT PRIMARY KEY,
+    id_cotizacion INT NOT NULL,
+    id_empresa INT NOT NULL,
+    monto_mensual DECIMAL(10, 2) NOT NULL,
+    estado_actual_pago VARCHAR(50) DEFAULT 'Pendiente',
+    fecha_proximo_vencimiento DATE, -- Renombrado de 'dia_facturacion' para más claridad
+    estado_documentacion VARCHAR(50) DEFAULT 'Pendiente',
+    FOREIGN KEY (id_cotizacion) REFERENCES Cotizacion(id_cotizacion),
+    FOREIGN KEY (id_empresa) REFERENCES Empresa(id_empresa)
+) ENGINE=InnoDB;
+
+-- ---
+-- Tabla 7: Documentos
+-- Almacena los archivos y el estado de validación para cada servicio activo.
+-- ---
+CREATE TABLE Documentos (
+    id_documento INT AUTO_INCREMENT PRIMARY KEY,
+    id_servicio INT NOT NULL,
+    tipo_documento VARCHAR(100) NOT NULL,
+    path_archivo VARCHAR(500), -- 'path_archivo' en lugar de 'part_archivo'
+    estado_validacion VARCHAR(50) DEFAULT 'Pendiente',
+    observaciones TEXT, -- 'observaciones' en lugar de 'obsrevacion'
+    fecha_subida DATETIME, -- Usamos DATETIME para saber la hora exacta
+    fecha_revision DATETIME,
+    FOREIGN KEY (id_servicio) REFERENCES ServiciosActivos(id_servicio)
+) ENGINE=InnoDB;
