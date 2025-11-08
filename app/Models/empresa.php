@@ -2,43 +2,22 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Empresa extends Model
 {
-     // Nombre de la tabla
-    protected $table = 'empresas';
-
-    // Clave primaria personalizada
-    protected $primaryKey = 'id_empresa';
-
-    // Campos que se pueden asignar masivamente
     protected $fillable = [
-        'nombre_empresa',
-        'razon_social',
-        'tipo',
-        'direccion',
-        'estado',
-        'horario',
-        'ruta'
+        'nombre_comercial','razon_social','tipo','id_ruta','direccion'
     ];
 
-     // Habilitar timestamps automáticos
-    public $timestamps = true;
-
-    /**
-     * Obtener todas las empresas con los campos específicos.
-     */
-    public static function obtenerEmpresas()
+    public function contactos()
     {
-        return self::select(
-            'id_empresa',
-            'nombre_empresa',
-            'razon_social',
-            'estado',
-            'created_at'
-        )->get();
+        return $this->hasMany(Contacto::class);
+    }
+
+    public function contactoPrincipal()
+    {
+        return $this->hasOne(Contacto::class)->where('es_principal', true);
     }
 }
-
-

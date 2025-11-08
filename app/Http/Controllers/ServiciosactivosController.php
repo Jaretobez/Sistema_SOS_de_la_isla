@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\cotizacion;
+use App\Models\serviciosactivos;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StorecotizacionRequest;
-use App\Http\Requests\UpdatecotizacionRequest;
+use App\Http\Requests\StoreserviciosactivosRequest;
+use App\Http\Requests\UpdateserviciosactivosRequest;
 
-class CotizacionController extends Controller
+class ServiciosactivosController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -28,7 +28,7 @@ class CotizacionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorecotizacionRequest $request)
+    public function store(StoreserviciosactivosRequest $request)
     {
         //
     }
@@ -36,7 +36,7 @@ class CotizacionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(cotizacion $cotizacion)
+    public function show(serviciosactivos $serviciosactivos)
     {
         //
     }
@@ -44,7 +44,7 @@ class CotizacionController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(cotizacion $cotizacion)
+    public function edit(serviciosactivos $serviciosactivos)
     {
         //
     }
@@ -52,7 +52,7 @@ class CotizacionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatecotizacionRequest $request, cotizacion $cotizacion)
+    public function update(UpdateserviciosactivosRequest $request, serviciosactivos $serviciosactivos)
     {
         //
     }
@@ -60,7 +60,7 @@ class CotizacionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(cotizacion $cotizacion)
+    public function destroy(serviciosactivos $serviciosactivos)
     {
         //
     }

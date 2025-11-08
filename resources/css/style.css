@@ -1,0 +1,474 @@
+/* --- ESTILOS BÁSICOS DEL LAYOUT --- 
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    display: flex;
+    height: 100vh;
+    color: #333;
+}
+
+.sidebar {
+    width: 240px;
+    background-color: #2c3e50;
+    color: white;
+    padding-top: 1.5rem;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.sidebar-menu li a {
+    display: block;
+    padding: 1rem 1.5rem;
+    color: #ecf0f1;
+    text-decoration: none;
+    font-size: 1rem;
+    border-left: 4px solid transparent;
+}
+.sidebar-menu li a:hover {
+    background-color: #34495e;
+}
+/* La clase 'active' se la pondremos con JS 
+.sidebar-menu li.active a {
+    background-color: #34495e;
+    border-left-color: #3498db;
+    font-weight: bold;
+}
+
+.content {
+    flex-grow: 1;
+    padding: 2rem;
+    margin-left: 240px; /* Mismo ancho que el sidebar 
+    overflow-y: auto;
+    height: 100vh;
+    box-sizing: border-box; /* Para que el padding no cause problemas 
+}*/
+
+/* --- ESTILOS DEL PANEL Y TABLA (Tus estilos de antes) --- */
+.panel { background-color: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); max-width: 1000px; margin: auto; }
+.btn-anadir { padding: 0.6rem 1.5rem; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; font-weight: bold; margin-bottom: 1rem; }
+.btn-anadir:hover { background-color: #218838; }
+.form-busqueda { margin-bottom: 1rem; display: flex; gap: 0.5rem; align-items: center; }
+.form-busqueda input, .form-busqueda select { padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; }
+.form-busqueda input[type="search"] { flex: 1; }
+.form-busqueda button { padding: 0.5rem 1rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+.tabla-empresas { width: 100%; border-collapse: collapse; }
+.tabla-empresas th, .tabla-empresas td { padding: 0.75rem 0.5rem; text-align: left; vertical-align: top; }
+.tabla-empresas thead tr { border-bottom: 2px solid #ddd; }
+.tabla-empresas tbody tr { border-bottom: 1px solid #f1f1f1; }
+.info-empresa .razon-social { font-size: 0.9rem; color: #666; }
+.info-contacto { font-size: 0.9rem; color: #444; }
+.info-contacto .email { color: #0056b3; }
+.estado { font-weight: bold; }
+.estado.activo { color: #28a745; }
+.estado.inactivo { color: #dc3545; }
+.btn-cotizar { padding: 0.35rem 0.6rem; background-color: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+.btn-cotizar:hover { background-color: #138496; }
+
+/* --- ESTILOS DEL MODAL (Genéricos) --- */
+.hidden { display: none; }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 100; }
+.modal-content { background-color: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); width: 90%; max-width: 600px; position: relative; max-height: 90vh; overflow-y: auto; }
+.modal-close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #888; }
+
+/* ... (Todos tus estilos anteriores de layout, panel, tabla, modal, etc.) ... */
+/* ... (btn-cotizar, etc.) ... */
+
+
+/* --- NUEVOS ESTILOS PARA BOTONES DE ACCIÓN (Iconos) --- */
+.btn-accion {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    font-size: 1.1rem; /* Tamaño del icono */
+    margin: 0 2px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+.btn-accion:hover {
+    background-color: #f0f0f0;
+}
+
+.btn-accion.ver { color: #007bff; }       /* Azul */
+.btn-accion.modificar { color: #ffc107; } /* Amarillo */
+.btn-accion.eliminar { color: #dc3545; }  /* Rojo */
+
+/* Estilos para el modal de "Ver" (generado por JS) */
+.modal-ver-contenido {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+.modal-ver-contenido h3 {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+    margin-top: 1.5rem;
+}
+.modal-ver-contenido p {
+    margin: 0.5rem 0;
+}
+.modal-ver-contenido p strong {
+    display: inline-block;
+    width: 130px; /* Alinea los valores */
+    color: #555;
+}
+
+/* ... (Todos tus estilos anteriores) ... */
+
+/* --- NUEVOS ESTILOS PARA LISTA DE CONTACTOS --- */
+.contacto-block {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    position: relative;
+}
+/* Estilo para el primer contacto (principal) */
+.contacto-block:first-child {
+    background-color: #f0f5fb; /* Un azul claro */
+}
+.contacto-block-label {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 0.5rem;
+}
+.contacto-block-inputs {
+    display: flex;
+    flex-wrap: wrap; /* Para responsiveness */
+    gap: 1rem;
+}
+.contacto-block-inputs div {
+    flex: 1;
+    min-width: 150px; /* Para que no se encojan demasiado */
+}
+.contacto-block-inputs label {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+.contacto-block-inputs input {
+    width: 100%;
+    padding: 0.5rem;
+    box-sizing: border-box; /* Importante */
+}
+.btn-remove-contacto {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: none;
+    border: none;
+    color: #dc3545; /* Rojo */
+    font-size: 1.2rem;
+    cursor: pointer;
+    line-height: 1;
+}
+.btn-remove-contacto:hover {
+    color: #a71d2a;
+}
+#btn-add-contacto {
+    background-color: #17a2b8; /* Cian */
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+#btn-add-contacto:hover {
+    background-color: #138496;
+}
+
+/* ... (Todos tus estilos anteriores de layout, panel, modal, etc.) ... */
+
+/* --- NUEVO: Estilos para Pestañas (Tabs) --- */
+.tabs {
+    display: flex;
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 1.5rem;
+}
+.tab-button {
+    background: none;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    color: #007bff; /* Azul */
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px; /* Alinea con el borde inferior */
+}
+.tab-button:hover {
+    background-color: #f8f9fa;
+}
+.tab-button.active {
+    font-weight: bold;
+    color: #495057;
+    border-bottom-color: #007bff;
+}
+.tab-content {
+    display: none; /* Oculto por defecto */
+}
+.tab-content.active {
+    display: block; /* Visible cuando está activo */
+}
+
+/* --- NUEVO: Estilos para Estados de Cotización --- */
+.badge {
+    padding: 0.25em 0.6em;
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.35rem;
+    color: #fff;
+}
+.badge.pendiente { background-color: #ffc107; color: #333; } /* Amarillo */
+.badge.aceptada { background-color: #28a745; } /* Verde */
+.badge.rechazada { background-color: #dc3545; } /* Rojo */
+
+/* --- NUEVO: Estilos para botones de acción (Cotizaciones) --- */
+.btn-accion-cot {
+    background: none;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.9rem;
+    margin: 0 2px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+.btn-accion-cot.pdf { color: #dc3545; border-color: #dc3545; } /* Rojo */
+.btn-accion-cot.pdf:hover { background-color: #dc3545; color: white; }
+
+.btn-accion-cot.aceptar { color: #28a745; border-color: #28a745; } /* Verde */
+.btn-accion-cot.aceptar:hover { background-color: #28a745; color: white; }
+
+.btn-accion-cot.rechazar { color: #6c757d; border-color: #6c757d; } /* Gris */
+.btn-accion-cot.rechazar:hover { background-color: #6c757d; color: white; }
+
+/* ... (Todos tus estilos anteriores) ... */
+
+/* --- ACTUALIZACIÓN: Estilos para botones de acción (Cotizaciones) --- */
+
+/* Añade este bloque para el nuevo botón azul "ver" */
+.btn-accion-cot.ver { color: #007bff; border-color: #007bff; } /* Azul */
+.btn-accion-cot.ver:hover { background-color: #007bff; color: white; }
+
+/* ... (tus estilos existentes para .pdf, .aceptar, .rechazar) ... */
+
+
+/* --- NUEVO: Estilos para el modal de "Ver Detalles" (Copiado de Empresas) --- */
+.modal-ver-contenido {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+.modal-ver-contenido h3 {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+    margin-top: 1.5rem;
+}
+.modal-ver-contenido p {
+    margin: 0.5rem 0;
+}
+.modal-ver-contenido p strong {
+    display: inline-block;
+    width: 140px; /* Alinea los valores */
+    color: #555;
+}
+/* Estilo para la tabla de detalles en el modal */
+.modal-ver-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+}
+.modal-ver-tabla th, .modal-ver-tabla td {
+    border: 1px solid #eee;
+    padding: 0.5rem;
+    text-align: left;
+}
+.modal-ver-tabla th {
+    background-color: #f9f9f9;
+}
+
+/* ... (Todos tus estilos anteriores) ... */
+
+/* --- Estilos para DIV1 (Cabecera) --- */
+/* Modifica .status-badge para que sea genérico */
+.status-badge {
+    display: inline-block;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: white;
+    text-align: center;
+    min-width: 110px; /* Ancho mínimo */
+}
+.status-badge i { margin-right: 0.5rem; }
+
+/* Nuevos estilos para el estado de pago */
+.status-badge.pagado { background-color: #28a745; }
+.status-badge.pendiente { background-color: #ffc107; color: #333; }
+.status-badge.inactivo { background-color: #6c757d; } /* Para empresas sin servicio */
+
+/* Nuevos estilos para info de pago */
+.payment-info {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    text-align: right;
+    width: 100%; /* Ocupa todo el ancho de header-right */
+}
+.payment-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #495057;
+}
+.payment-info .monto {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1c1e21;
+}
+
+.doc-status-general {
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+.doc-status-general.aceptado { background-color: #d4edda; color: #155724; }
+.doc-status-general.pendiente { background-color: #fff3cd; color: #856404; }
+.doc-status-general.inactivo { background-color: #e9ecef; color: #6c757d; }
+
+/* Reutilizamos los badges de 'cotizaciones' */
+.badge.pagado { background-color: #28a745; } /* Verde */
+.badge.pendiente { background-color: #ffc107; color: #333; } /* Amarillo */
+
+/* Botón para la acción de pagar */
+.btn-pagar {
+    background-color: #28a745; /* Verde */
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.btn-pagar:hover {
+    background-color: #218838;
+}
+
+/* Estilo para el botón ya pagado (deshabilitado) */
+.btn-pagar.disabled {
+    background-color: #6c757d; /* Gris */
+    cursor: not-allowed;
+}
+
+/* ... (Todos tus estilos anteriores de layout, modal, badges, etc.) ... */
+
+/* --- NUEVO: Estilos para Dashboard (index.html) --- */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    /* Usamos el .panel para el fondo, así que no necesitamos fondo aquí */
+}
+
+.dashboard-header h2 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+/* El usuario pidió .add-button, lo haremos igual que .btn-anadir */
+.add-button {
+    padding: 0.6rem 1.5rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+}
+.add-button i { margin-right: 0.5rem; }
+
+.cards-section {
+    display: grid;
+    /* Crea 3 columnas, pero se adaptan si no hay espacio */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.card {
+    display: flex;
+    align-items: center;
+    background-color: #ffffff; /* Fondo blanco para las tarjetas */
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    border: 1px solid #e0e0e0;
+    gap: 1.5rem;
+}
+
+.card-icon {
+    font-size: 2.5rem;
+    padding: 1.25rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; /* Evita que el icono se encoja */
+}
+
+.card-content h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    color: #6c757d;
+    text-transform: uppercase;
+}
+
+.card-content .card-number {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #333;
+}
+
+/* Colores de iconos (basados en tu HTML y nuestros JSON) */
+.card-icon.pending { background-color: #fff3cd; color: #ffc107; } /* Amarillo */
+.card-icon.clients { background-color: #d4edda; color: #28a745; } /* Verde */
+.card-icon.suspended { background-color: #f5c6cb; color: #dc3545; } /* Rojo */
+
+.recent-quotes-section {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+.recent-quotes-section h3 {
+    font-size: 1.5rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+

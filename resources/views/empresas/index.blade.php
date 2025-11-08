@@ -1,60 +1,79 @@
-@extends('layouts.barmenu')
-@section('usuario', auth()->user()->name ?? 'Vendedor')
+@extends('layouts.app')
+@section('title','Gestión de Empresas')
 
 @section('content')
-    <div class="panel">
-        <h2>Lista de Empresas</h2>
-        {{-- Formulario de búsqueda y filtro --}}
-        <form action="{{ url('listaEmpresa') }}" method="GET" class="form-busqueda" style="margin-bottom:1rem; display:flex; gap:0.5rem; align-items:center;">
-            <input
-                type="search"
-                name="busqueda"
-                placeholder="Buscar empresa o razón social..."
-                value="{{ request('busqueda') }}"
-                style="padding:0.5rem; flex:1;"
-            />
+<div class="panel">
+    <h2>Gestión de Empresas y Contactos</h2>
 
-            <select name="estado" style="padding:0.5rem;">
-                <option value="">Todos</option>
-                <option value="activo" {{ request('estado') == 'activo' ? 'selected' : '' }}>Activo</option>
-                <option value="inactivo" {{ request('estado') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
-            </select>
+    <button id="btn-anadir-nuevo" class="btn-anadir">+ Añadir Nuevo</button>
 
-            <button type="submit" class="btn-ver-buscar-empresa">Buscar</button>
-        </form>
+    <form id="form-busqueda" class="form-busqueda">
+        <input type="search" id="busqueda" placeholder="Buscar empresa, contacto, email...">
+        <button type="submit">Buscar</button>
+    </form>
 
-        {{-- Tabla de resultados --}}
-        @if(isset($empresas) && $empresas->count())
-            <table class="tabla-empresas" style="width:100%; border-collapse:collapse;">
-                <thead>
-                    <tr style="text-align:left; border-bottom:1px solid #ddd;">
-                        <th style="padding:0.5rem;">Empresa</th>
-                        <th style="padding:0.5rem;">Fecha de registro</th>
-                        <th style="padding:0.5rem;">Estado</th>
-                        <th style="padding:0.5rem;">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($empresas as $empresa) 
-                        <tr style="border-bottom:1px solid #f1f1f1;">
-                            <td style="padding:0.5rem;">
-                                <strong>{{ $empresa->nombre_empresa }}</strong>
-                                @if(!empty($empresa->razon_social))
-                                    <div style="font-size:0.9rem; color:#666;">{{ $empresa->razon_social }}</div>
-                                @endif
-                            </td>
-                            <td style="padding:0.5rem;">{{ $empresa->created_at ? date('d/m/Y H:i', strtotime($empresa->created_at)) : '—' }}</td>
-                            <td style="padding:0.5rem;">{{ $empresa->estado ?? ($empresa->estado ?? '—') }}</td>
-                            <td style="padding:0.5rem;">
-                                {{-- Botón sin función (placeholder) --}}
-                                <button type="button" class="btn-ver-empresa">Ver</button>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        @else
-            <p>No hay empresas para mostrar.</p>
-        @endif
-    </div>
+    <table class="tabla-empresas">
+        <thead>
+        <tr>
+            <th>Nombre Comercial</th>
+            <th>Contacto Principal</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody id="tabla-body"></tbody>
+    </table>
+
+    <p id="no-resultados" style="display:none;text-align:center;padding:1rem;">
+        No hay empresas para mostrar.
+    </p>
+</div>
+
+{{-- Modal (lo incluimos en el HTML para evitar fetch extra) --}}
+<div id="empresa-modal" class="modal hidden">
+  <div class="modal-content">
+    <h3 id="modal-titulo">Añadir Nueva Empresa</h3>
+    <button id="modal-close-btn" type="button" class="modal-close">×</button>
+
+    <form id="form-empresa-nueva">
+      <input type="hidden" id="form-mode" value="anadir">
+      <input type="hidden" id="empresa-id-edit" value="">
+      <div>
+        <label>Nombre comercial</label>
+        <input id="emp-nombre-comercial" required>
+      </div>
+      <div>
+        <label>Razón social</label>
+        <input id="emp-razon-social">
+      </div>
+      <div>
+        <label>Tipo</label>
+        <input id="emp-tipo">
+      </div>
+      <div>
+        <label>Ruta</label>
+        <input id="emp-ruta" type="number">
+      </div>
+      <div>
+        <label>Dirección</label>
+        <input id="emp-direccion">
+      </div>
+
+      <hr>
+      <div id="contactos-list"></div>
+      <button type="button" id="btn-add-contacto">+ Añadir contacto</button>
+
+      <div style="margin-top:1rem">
+        <button id="btn-guardar-empresa" type="submit">Guardar Empresa</button>
+      </div>
+    </form>
+  </div>
+</div>
 @endsection
+
+@push('scripts')
+    @vite(['resources/js/empresas.js'])
+@endpush
+
+

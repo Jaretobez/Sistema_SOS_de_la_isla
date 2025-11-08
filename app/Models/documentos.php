@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class cotizacion extends Model
+class documentos extends Model
 {
-    /** @use HasFactory<\Database\Factories\CotizacionFactory> */
+    /** @use HasFactory<\Database\Factories\DocumentosFactory> */
     use HasFactory;
 }
