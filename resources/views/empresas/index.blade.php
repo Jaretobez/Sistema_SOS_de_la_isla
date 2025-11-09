@@ -1,79 +1,66 @@
 @extends('layouts.app')
-@section('title','Gestión de Empresas')
+@section('title','Empresas')
 
 @section('content')
-<div class="panel">
-    <h2>Gestión de Empresas y Contactos</h2>
-
-    <button id="btn-anadir-nuevo" class="btn-anadir">+ Añadir Nuevo</button>
-
-    <form id="form-busqueda" class="form-busqueda">
-        <input type="search" id="busqueda" placeholder="Buscar empresa, contacto, email...">
-        <button type="submit">Buscar</button>
+<div class="space-y-4">
+  <div class="flex items-center justify-between">
+    <form method="GET" action="{{ route('empresas.index') }}" class="flex gap-2">
+      <input name="q" value="{{ $t }}" placeholder="Buscar empresa/contacto/email..." class="border px-3 py-2 rounded">
+      <button class="px-3 py-2 bg-gray-800 text-white rounded">Buscar</button>
     </form>
 
-    <table class="tabla-empresas">
-        <thead>
-        <tr>
-            <th>Nombre Comercial</th>
-            <th>Contacto Principal</th>
-            <th>Email</th>
-            <th>Teléfono</th>
-            <th>Acciones</th>
-        </tr>
-        </thead>
-        <tbody id="tabla-body"></tbody>
-    </table>
-
-    <p id="no-resultados" style="display:none;text-align:center;padding:1rem;">
-        No hay empresas para mostrar.
-    </p>
-</div>
-
-{{-- Modal (lo incluimos en el HTML para evitar fetch extra) --}}
-<div id="empresa-modal" class="modal hidden">
-  <div class="modal-content">
-    <h3 id="modal-titulo">Añadir Nueva Empresa</h3>
-    <button id="modal-close-btn" type="button" class="modal-close">×</button>
-
-    <form id="form-empresa-nueva">
-      <input type="hidden" id="form-mode" value="anadir">
-      <input type="hidden" id="empresa-id-edit" value="">
-      <div>
-        <label>Nombre comercial</label>
-        <input id="emp-nombre-comercial" required>
-      </div>
-      <div>
-        <label>Razón social</label>
-        <input id="emp-razon-social">
-      </div>
-      <div>
-        <label>Tipo</label>
-        <input id="emp-tipo">
-      </div>
-      <div>
-        <label>Ruta</label>
-        <input id="emp-ruta" type="number">
-      </div>
-      <div>
-        <label>Dirección</label>
-        <input id="emp-direccion">
-      </div>
-
-      <hr>
-      <div id="contactos-list"></div>
-      <button type="button" id="btn-add-contacto">+ Añadir contacto</button>
-
-      <div style="margin-top:1rem">
-        <button id="btn-guardar-empresa" type="submit">Guardar Empresa</button>
-      </div>
-    </form>
+    <a href="{{ route('empresas.create') }}" class="px-3 py-2 bg-blue-600 text-white rounded">+ Añadir nueva</a>
   </div>
+
+  @if(session('ok'))
+    <div class="p-3 bg-green-100 border border-green-200 rounded text-green-800">
+      {{ session('ok') }}
+    </div>
+  @endif
+
+  <div class="overflow-x-auto bg-white rounded shadow">
+    <table class="min-w-full text-sm">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="text-left p-3">Nombre Comercial</th>
+          <th class="text-left p-3">Contacto Principal</th>
+          <th class="text-left p-3">Email</th>
+          <th class="text-left p-3">Teléfono</th>
+          <th class="text-right p-3">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @forelse($empresas as $e)
+          <tr class="border-t">
+            <td class="p-3">
+              <div class="font-semibold">{{ $e->nombre_comercial }}</div>
+              <div class="text-gray-500">{{ $e->razon_social }}</div>
+            </td>
+            <td class="p-3">{{ optional($e->contactoPrincipal)->nombre ?? '—' }}</td>
+            <td class="p-3">
+              @if(optional($e->contactoPrincipal)->email)
+                <a class="text-blue-600 underline" href="mailto:{{ $e->contactoPrincipal->email }}">
+                  {{ $e->contactoPrincipal->email }}
+                </a>
+              @else — @endif
+            </td>
+            <td class="p-3">{{ optional($e->contactoPrincipal)->telefono ?? '—' }}</td>
+            <td class="p-3 text-right">
+              <a class="px-2 py-1 bg-yellow-500 text-white rounded" href="{{ route('empresas.edit',$e) }}">Editar</a>
+              <form method="POST" action="{{ route('empresas.destroy',$e) }}" class="inline-block"
+                    onsubmit="return confirm('¿Eliminar {{ $e->nombre_comercial }}?');">
+                @csrf @method('DELETE')
+                <button class="px-2 py-1 bg-red-600 text-white rounded">Eliminar</button>
+              </form>
+            </td>
+          </tr>
+        @empty
+          <tr><td colspan="5" class="p-6 text-center text-gray-500">No hay empresas</td></tr>
+        @endforelse
+      </tbody>
+    </table>
+  </div>
+
+  <div>{{ $empresas->links() }}</div>
 </div>
 @endsection
-
-@push('scripts')
-    @vite(['resources/js/empresas.js'])
-@endpush
-
-
