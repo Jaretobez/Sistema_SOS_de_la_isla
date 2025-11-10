@@ -2,11 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class producto extends Model
+class Producto extends Model
 {
-    /** @use HasFactory<\Database\Factories\ProductoFactory> */
-    use HasFactory;
+    protected $table = 'producto';           // <- importante
+    protected $primaryKey = 'id_producto';   // <- importante
+    public $timestamps = false;
+
+    protected $fillable = [
+        'sku','descripcion','unidad','precio_unitario'
+    ];
+
+    public function detalles()
+    {
+        return $this->hasMany(DetalleCotizacion::class, 'id_producto', 'id_producto');
+    }
 }

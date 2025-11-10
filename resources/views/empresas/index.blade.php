@@ -1,66 +1,42 @@
 @extends('layouts.app')
-@section('title','Empresas')
+@section('title', 'Lista de Empresas')
 
 @section('content')
-<div class="space-y-4">
-  <div class="flex items-center justify-between">
-    <form method="GET" action="{{ route('empresas.index') }}" class="flex gap-2">
-      <input name="q" value="{{ $t }}" placeholder="Buscar empresa/contacto/email..." class="border px-3 py-2 rounded">
-      <button class="px-3 py-2 bg-gray-800 text-white rounded">Buscar</button>
-    </form>
+<div class="max-w-6xl mx-auto bg-white p-5 rounded shadow">
+  <h2 class="text-2xl font-bold mb-4">Empresas registradas</h2>
 
-    <a href="{{ route('empresas.create') }}" class="px-3 py-2 bg-blue-600 text-white rounded">+ Añadir nueva</a>
-  </div>
-
-  @if(session('ok'))
-    <div class="p-3 bg-green-100 border border-green-200 rounded text-green-800">
-      {{ session('ok') }}
-    </div>
-  @endif
-
-  <div class="overflow-x-auto bg-white rounded shadow">
-    <table class="min-w-full text-sm">
-      <thead class="bg-gray-50">
-        <tr>
-          <th class="text-left p-3">Nombre Comercial</th>
-          <th class="text-left p-3">Contacto Principal</th>
-          <th class="text-left p-3">Email</th>
-          <th class="text-left p-3">Teléfono</th>
-          <th class="text-right p-3">Acciones</th>
+  <table class="w-full border-collapse">
+    <thead>
+      <tr class="bg-gray-100 border-b">
+        <th class="p-2 text-left">Nombre comercial</th>
+        <th class="p-2 text-left">Razón social</th>
+        <th class="p-2 text-left">Contacto principal</th>
+        <th class="p-2 text-left">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach($empresas as $e)
+        <tr class="border-b hover:bg-gray-50">
+          <td class="p-2">{{ $e->nombre_comercial }}</td>
+          <td class="p-2">{{ $e->razon_social }}</td>
+          <td class="p-2">
+            {{ optional($e->contactoPrincipal)->nombre ?? '—' }}
+          </td>
+          <td class="p-2">
+            <a href="{{ route('empresas.show', $e->id_empresa) }}" class="px-3 py-1 bg-blue-600 text-white rounded">
+              <i class="fa-solid fa-id-card mr-1"></i> Perfil
+            </a>
+            <a href="{{ route('empresas.edit', $e->id_empresa) }}" class="px-3 py-1 bg-gray-200 rounded">
+              <i class="fa-solid fa-pen mr-1"></i> Editar
+            </a>
+          </td>
         </tr>
-      </thead>
-      <tbody>
-        @forelse($empresas as $e)
-          <tr class="border-t">
-            <td class="p-3">
-              <div class="font-semibold">{{ $e->nombre_comercial }}</div>
-              <div class="text-gray-500">{{ $e->razon_social }}</div>
-            </td>
-            <td class="p-3">{{ optional($e->contactoPrincipal)->nombre ?? '—' }}</td>
-            <td class="p-3">
-              @if(optional($e->contactoPrincipal)->email)
-                <a class="text-blue-600 underline" href="mailto:{{ $e->contactoPrincipal->email }}">
-                  {{ $e->contactoPrincipal->email }}
-                </a>
-              @else — @endif
-            </td>
-            <td class="p-3">{{ optional($e->contactoPrincipal)->telefono ?? '—' }}</td>
-            <td class="p-3 text-right">
-              <a class="px-2 py-1 bg-yellow-500 text-white rounded" href="{{ route('empresas.edit',$e) }}">Editar</a>
-              <form method="POST" action="{{ route('empresas.destroy',$e) }}" class="inline-block"
-                    onsubmit="return confirm('¿Eliminar {{ $e->nombre_comercial }}?');">
-                @csrf @method('DELETE')
-                <button class="px-2 py-1 bg-red-600 text-white rounded">Eliminar</button>
-              </form>
-            </td>
-          </tr>
-        @empty
-          <tr><td colspan="5" class="p-6 text-center text-gray-500">No hay empresas</td></tr>
-        @endforelse
-      </tbody>
-    </table>
-  </div>
+      @endforeach
 
-  <div>{{ $empresas->links() }}</div>
+      @if($empresas->isEmpty())
+        <tr><td colspan="4" class="p-3 text-center text-gray-500">No hay empresas registradas.</td></tr>
+      @endif
+    </tbody>
+  </table>
 </div>
 @endsection

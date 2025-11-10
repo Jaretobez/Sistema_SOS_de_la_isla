@@ -11,26 +11,46 @@ use Illuminate\Contracts\View\View;
 
 class EmpresaController extends Controller
 {
-    public function index(Request $request)
+     public function show(Empresa $empresa)
     {
-          $t = trim($request->query('q', ''));
+        // contactos y último servicio (si existe)
+        $empresa->load(['contactos', 'serviciosActivos' => function ($q) {
+            $q->orderByDesc('fecha_proximo_vencimiento');
+        }]);
 
-        $empresas = Empresa::with(['contactoPrincipal:id_contacto,id_empresa,nombre,email,telefono'])
-            ->when($t !== '', function ($q) use ($t) {
-                $q->where(function ($w) use ($t) {
-                    $w->where('nombre_comercial', 'like', "%$t%")
-                      ->orWhere('razon_social', 'like', "%$t%");
-                })->orWhereHas('contactos', function ($w) use ($t) {
-                    $w->where('nombre', 'like', "%$t%")
-                      ->orWhere('email', 'like', "%$t%");
-                });
-            })
-            ->orderByDesc('id_empresa')
-            ->paginate(10)
-            ->withQueryString();
+        $servicio = $empresa->serviciosActivos->first(); // último servicio (o null)
 
-        return view('empresas.index', compact('empresas', 't'));
-    
+        // Intentamos armar horario desde el detalle de la cotización asociada
+        $horario = null;
+        if ($servicio && $servicio->id_cotizacion) {
+            $det = DB::table('DetalleCotizacion')
+                ->where('id_cotizacion', $servicio->id_cotizacion)
+                ->orderBy('id_producto') // cualquiera; buscamos una línea con flags de días
+                ->first();
+
+            if ($det) {
+                $horario = [
+                    'lunes'     => (bool)($det->lunes ?? 0),
+                    'martes'    => (bool)($det->martes ?? 0),
+                    'miercoles' => (bool)($det->miercoles ?? 0),
+                    'jueves'    => (bool)($det->jueves ?? 0),
+                    'viernes'   => (bool)($det->viernes ?? 0),
+                ];
+            }
+        }
+
+        return view('empresas.show', compact('empresa', 'servicio', 'horario'));
+    }
+
+     public function index()
+    {
+        // Aquí pedimos las empresas con su contacto principal
+        $empresas = Empresa::with(['contactoPrincipal'])
+            ->orderBy('nombre_comercial')
+            ->get();
+
+        // Enviamos la variable $empresas a la vista
+        return view('empresas.index', compact('empresas'));
     }
 
     public function create()
