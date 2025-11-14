@@ -12,8 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('serviciosactivos', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->integer('id_servicio', true);
+            $table->integer('id_cotizacion')->index('id_cotizacion');
+            $table->integer('id_empresa')->index('id_empresa');
+            $table->decimal('monto_mensual', 10);
+            $table->string('estado_actual_pago', 50)->nullable()->default('Pendiente');
+            $table->date('fecha_proximo_vencimiento')->nullable();
+            $table->string('estado_documentacion', 50)->nullable()->default('Pendiente');
         });
     }
 

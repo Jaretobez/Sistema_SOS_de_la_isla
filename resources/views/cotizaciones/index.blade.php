@@ -26,45 +26,55 @@
       <button class="px-3 py-2 bg-gray-800 text-white rounded">Buscar</button>
     </form>
 
-    <div class="overflow-x-auto bg-white rounded shadow">
-      <table class="min-w-full text-sm">
-        <thead class="bg-gray-50">
-        <tr>
-          <th class="text-left p-3">Empresa</th>
-          <th class="text-left p-3">Contacto Principal</th>
-          <th class="text-left p-3">Acciones</th>
-        </tr>
-        </thead>
-        <tbody>
-        @forelse($empresas as $e)
-          <tr class="border-t">
-            <td class="p-3">
-              <div class="font-semibold">{{ $e->nombre_comercial }}</div>
-              <div class="text-gray-500">{{ $e->razon_social }}</div>
-            </td>
-            <td class="p-3">
-              <div>{{ optional($e->contactoPrincipal)->nombre ?? '—' }}</div>
-              <div class="text-gray-500">
-                @if(optional($e->contactoPrincipal)->email)
-                  <a class="text-blue-600 underline" href="mailto:{{ $e->contactoPrincipal->email }}">{{ $e->contactoPrincipal->email }}</a>
-                @endif
-              </div>
-            </td>
-            <td class="p-3">
-              <a class="px-3 py-2 bg-blue-600 text-white rounded"
-                 href="{{ route('cotizaciones.create', ['id_empresa'=>$e->id_empresa]) }}">
-                Nueva cotización
-              </a>
-            </td>
-          </tr>
-        @empty
-          <tr><td colspan="3" class="p-6 text-center text-gray-500">No se encontraron clientes.</td></tr>
-        @endforelse
-        </tbody>
-      </table>
-    </div>
+  <div class="overflow-x-auto bg-white rounded shadow">
+  <table class="min-w-full text-sm">
+    <thead class="bg-gray-50">
+      <tr>
+        <th class="text-left p-3">Folio</th>
+        <th class="text-left p-3">Cliente</th>
+        <th class="text-left p-3">Total</th>
+        <th class="text-left p-3">Estado</th>
+        <th class="text-right p-3">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @forelse($cotizaciones as $c)
+        <tr class="border-t">
+          {{-- En tu BD: id_cotizacion --}}
+          <td class="p-3">{{ $c->id_cotizacion }}</td>
 
-    <div>{{ $empresas->appends(['q_cot'=>$qCot,'estado'=>$estado])->links() }}</div>
+          {{-- Nombre de la empresa por la relación contacto -> empresa --}}
+          <td class="p-3">{{ optional(optional($c->contacto)->empresa)->nombre_comercial ?? '—' }}</td>
+
+          <td class="p-3">${{ number_format($c->total, 2) }}</td>
+
+          {{-- En tu BD: estado_cotizacion --}}
+          <td class="p-3">{{ $c->estado_cotizacion }}</td>
+
+          <td class="p-3 text-right">
+            <a class="px-2 py-1 bg-yellow-500 text-white rounded"
+               href="{{ route('cotizaciones.edit', $c->id_cotizacion) }}">Editar</a>
+
+            <form class="inline-block" method="POST"
+                  action="{{ route('cotizaciones.destroy', $c->id_cotizacion) }}"
+                  onsubmit="return confirm('¿Eliminar {{ $c->id_cotizacion }}?');">
+              @csrf @method('DELETE')
+              <button class="px-2 py-1 bg-red-600 text-white rounded">Eliminar</button>
+            </form>
+          </td>
+        </tr>
+      @empty
+        <tr>
+          <td colspan="5" class="p-6 text-center text-gray-500">
+            No se encontraron cotizaciones.
+          </td>
+        </tr>
+      @endforelse
+    </tbody>
+  </table>
+</div>
+
+<div>{{ $cotizaciones->appends(['q_cli'=>$qCli])->links() }}</div>
   </div>
 
   <hr class="my-6">

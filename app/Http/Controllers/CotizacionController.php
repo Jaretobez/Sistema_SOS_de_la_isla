@@ -37,16 +37,18 @@ public function index(Request $request)
     $qCot   = trim($request->query('q_cot',''));
     $estado = $request->query('estado','');
 
-    $cotizaciones = Cotizacion::with(['contacto.empresa:id_empresa,nombre_comercial'])
-        ->when($qCot !== '', function ($q) use ($qCot) {
-            $q->where('id_cotizacion','like',"%{$qCot}%")
-              ->orWhereHas('contacto.empresa', fn($w) =>
-                    $w->where('nombre_comercial','like',"%{$qCot}%"));
-        })
-        ->when($estado !== '', fn($q) => $q->where('estado_cotizacion',$estado))
-        ->orderByDesc('id_cotizacion')
-        ->paginate(10, ['*'], 'cot_page')
-        ->withQueryString();
+$cotizaciones = Cotizacion::with(['contacto.empresa:id_empresa,nombre_comercial'])
+    ->when($qCot !== '', function($q) use ($qCot){
+        $q->where('id_cotizacion', (int) $qCot)
+          ->orWhereHas('contacto.empresa', function($w) use ($qCot){
+              $w->where('nombre_comercial','like',"%{$qCot}%");
+          });
+    })
+    ->when($estado !== '', fn($q)=>$q->where('estado_cotizacion',$estado))
+    ->orderByDesc('id_cotizacion')
+    ->paginate(10, ['*'], 'cot_page')
+    ->withQueryString();
+
 
     return view('cotizaciones.index', compact('empresas','cotizaciones','qCli','qCot','estado'));
 }

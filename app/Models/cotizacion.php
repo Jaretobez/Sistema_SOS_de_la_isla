@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Cotizacion extends Model
 {
-    protected $table = 'Cotizacion';      // usa EXACTAMENTE el nombre real en la BD
+    protected $table = 'cotizacion';      // usa EXACTAMENTE el nombre real en la BD
     protected $primaryKey = 'id_cotizacion';
     public $timestamps = false;
 
