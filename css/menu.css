@@ -110,17 +110,24 @@ body.sidebar-open .main-wrapper {
     BOTÓN DE TOGGLE
     ============================================ */
 .menu-toggle {
-    /* El botón se posiciona ABSOLUTO dentro del main-wrapper */
-    position: absolute; 
+    /* CLAVE: Fijo al viewport */
+    position: fixed; 
     top: 15px;
     left: 15px;
+    
+    /* CLAVE: z-index mayor que el sidebar (1000) */
+    z-index: 1001; 
+    
+    /* Añadir transición para el movimiento lateral */
+    transition: left 0.3s ease; 
+    
+    /* ... otros estilos ... */
     background: #2563eb; 
     color: #fff;
     border: none;
     padding: 10px 15px;
     font-size: 20px;
     cursor: pointer;
-    z-index: 100;
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
 }

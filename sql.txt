@@ -9,7 +9,7 @@ USE sos;
 -- Almacena la información de los usuarios del sistema (basado en la imagen).
 -- La columna 'rol_id' se deja como INT simple sin clave foránea.
 -- ---
-CREATE TABLE Usuario (
+CREATE TABLE Usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
     correo VARCHAR(255) UNIQUE NOT NULL,

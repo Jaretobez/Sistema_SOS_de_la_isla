@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 // 🟢 CORRECCIÓN DE RUTA: Modal de empresa
                 fetch("../html/modal_empresa_form.html"), 
                 // 🟢 CORRECCIÓN DE RUTA: Modal de cotizar
-                fetch("../html/modal_formulario.html"),   
+                fetch("../html/modal_formulario.html"),  
                 fetch(`${API_URL_COTIZACIONES}?accion=leer_productos`), 
                 fetch(`${API_URL_PERFIL}?accion=leer_perfil&id=${idEmpresa}`) 
             ]);
@@ -403,15 +403,23 @@ document.addEventListener("DOMContentLoaded", () => {
         modalFormPlaceholder.innerHTML = modalEmpresaFormHTML;
         try {
             // El API de empresas debe devolver los datos completos de la empresa y sus contactos
-            const url = `${API_URL_EMPRESAS}?accion=leer_perfil&id_empresa=${id}`; 
+            // 🛑 CORRECCIÓN CLAVE: Cambiamos 'id_empresa' por 'id' para coincidir con perfil_api.php
+            const url = `${API_URL_EMPRESAS}?accion=leer_perfil&id=${id}`; 
             const resp = await fetch(url);
             const data = await resp.json();
             
-            // Asumiendo que el API devuelve { success: true, data: { empresa: {...}, contactos: [...] } }
-            if (!data.data || !data.data.empresa) throw new Error('No se encontró la empresa.');
+            // 🛑 CORRECCIÓN: Ajustamos la lógica para leer directamente de la raíz de la respuesta,
+            // asumiendo que el API devuelve { empresa: {...}, contactos: [...] }
+            // Si la API usa la clave 'success', la revisamos primero.
+            if (data.success === false) {
+                 throw new Error(data.error || 'Error en la API al cargar la empresa.');
+            }
+
+            // Aseguramos que la empresa y los contactos existan.
+            if (!data.empresa) throw new Error('No se encontró la empresa.');
             
-            const empresa = data.data.empresa;
-            const contactos = data.data.contactos;
+            const empresa = data.empresa; // ⬅️ CAMBIO: Acceso directo a 'data.empresa'
+            const contactos = data.contactos; // ⬅️ CAMBIO: Acceso directo a 'data.contactos'
             
             document.getElementById("emp-nombre-comercial").value = empresa.nombre_comercial;
             document.getElementById("emp-razon-social").value = empresa.razon_social;
@@ -551,7 +559,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let total = 0;
         const checkRecoleccion = document.getElementById('check-recoleccion');
         if (checkRecoleccion.checked) {
-            let costo_servicio_mensual = parseFloat(checkRecoleccion.dataset.precio || 0);
+            let costo_base_servicio = parseFloat(checkRecoleccion.dataset.precio || 0);
             let costo_dias_semanal = 0;
             const diasChecks = document.querySelectorAll('.dia-check:checked');
             diasChecks.forEach(check => {
