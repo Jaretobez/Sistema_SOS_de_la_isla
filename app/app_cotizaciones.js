@@ -9,6 +9,8 @@ let datosCombinados = [];
 let listaProductos = [];
 let listaCotizaciones = [];
 let modalHTML = ""; 
+let modalViewHTML = ""; // Nueva variable para el HTML del modal de ver
+let datosCotizacionActual = null; // Para guardar datos al generar PDF
 
 // --- Selectores del DOM (Declarados globalmente, inicializados en init) ---
 let tabButtons;
@@ -107,18 +109,21 @@ async function cargarDatosIniciales() {
     try {
         const [
             respModalHTML,
+            respModalViewHTML, // <--- NUEVO
             respClientes,
             respProductos,
             respCotizaciones
         ] = await Promise.all([
-            // Desde 'app/', subimos a la raíz (../) y entramos a 'html/'.
             fetch("../html/modal_formulario.html"), 
+            fetch("../html/modal_ver_cotizacion.html"), // <--- NUEVO: Cargar el nuevo archivo
             fetch(`${API_URL}?accion=leer_clientes`),
             fetch(`${API_URL}?accion=leer_productos`),
             fetch(`${API_URL}?accion=leer_cotizaciones`)
         ]);
 
         modalHTML = await respModalHTML.text();
+        modalViewHTML = await respModalViewHTML.text(); // <--- Guardamos el texto
+        
         datosCombinados = await respClientes.json();
         listaProductos = await respProductos.json();
         listaCotizaciones = await respCotizaciones.json();
@@ -128,10 +133,7 @@ async function cargarDatosIniciales() {
 
     } catch (error) {
         console.error("Error fatal al cargar datos iniciales:", error); 
-        if (noResultadosClientes) {
-            noResultadosClientes.textContent = "Error al cargar datos. Revisa la consola (F12).";
-            noResultadosClientes.style.display = "block";
-        }
+        // ... manejo de error existente ...
     }
 }
 
@@ -574,9 +576,211 @@ async function eliminarCotizacion(id) {
     }
 }
 
-function abrirModalVerCotizacion(id) {
-    // Usamos console.log/custom modal en lugar de alert()
-    console.log("Función 'Ver Detalles' aún no implementada.");
+async function abrirModalVerCotizacion(id) {
+    try {
+        // 1. Mostrar estado de carga (opcional, o simplemente esperar)
+        console.log("Cargando detalles de cotización " + id + "...");
+
+        // 2. Pedir datos completos a la API
+        const resp = await fetch(`${API_URL}?accion=leer_detalle_cotizacion&id=${id}`);
+        const data = await resp.json();
+
+        if (!data.success) {
+            alert("Error: " + (data.error || "No se pudo cargar la cotización"));
+            return;
+        }
+
+        const cabecera = data.cotizacion;
+        const productos = data.detalles;
+        datosCotizacionActual = { cabecera, productos }; // Guardar para el PDF
+
+        // 3. Inyectar el HTML en el placeholder correcto
+        modalViewPlaceholder.innerHTML = modalViewHTML;
+
+        // 4. Llenar los campos visuales generales
+        document.getElementById('view-folio').textContent = `#${cabecera.id_cotizacion}`;
+        
+        const badge = document.getElementById('view-estado');
+        badge.textContent = cabecera.estado_cotizacion;
+        badge.className = 'badge ' + cabecera.estado_cotizacion.toLowerCase().replace(" ", "");
+
+        document.getElementById('view-cliente').textContent = cabecera.nombre_comercial;
+        document.getElementById('view-contacto').textContent = `${cabecera.contacto_nombre} (${cabecera.contacto_email})`;
+        document.getElementById('view-fecha').textContent = cabecera.fecha_vencimiento || 'N/A';
+        document.getElementById('view-pago').textContent = cabecera.forma_de_pago || 'N/A';
+        document.getElementById('view-total').textContent = formatearMoneda(cabecera.total);
+
+        // --- 5. LÓGICA DE SEPARACIÓN (SERVICIO vs RENTAS) ---
+        
+        // Elementos del DOM
+        const containerServicio = document.getElementById('view-servicio-container');
+        const txtServicioNombre = document.getElementById('view-servicio-nombre');
+        const txtServicioTotal = document.getElementById('view-servicio-total');
+        const txtServicioDetalle = document.getElementById('view-servicio-detalle');
+        
+        const tbody = document.getElementById('view-tabla-productos');
+        const msgNoProductos = document.getElementById('view-no-productos');
+        
+        // Resetear visualización
+        tbody.innerHTML = '';
+        containerServicio.style.display = 'none';
+        msgNoProductos.style.display = 'none';
+        let hayProductosExtra = false;
+
+        productos.forEach(prod => {
+            const cantidad = parseFloat(prod.cantidad);
+            const precio = parseFloat(prod.precio_unitario);
+            const subtotal = cantidad * precio;
+
+            // ¿Es el Servicio de Recolección? (Identificamos porque tiene 'tipo_residuo')
+            if (prod.tipo_residuo) { // Si no es null o vacío
+                containerServicio.style.display = 'block'; // Mostramos el bloque azul
+                
+                // Formateamos el texto: "RSU (Urbano)" o "RME (Especial)"
+                const tipoTexto = (prod.tipo_residuo === 'Urbano') 
+                    ? 'Recolección de Residuos Sólidos Urbanos (RSU)' 
+                    : 'Recolección de Manejo Especial (RME)';
+                
+                txtServicioNombre.textContent = tipoTexto;
+                txtServicioTotal.textContent = formatearMoneda(subtotal); // Total del servicio
+                
+                // Detalles pequeños abajo
+                txtServicioDetalle.textContent = `${prod.bolsas_por_dia} bolsas/día`;
+
+            } else {
+                // Es una Renta (Tolva) u otro producto -> A LA TABLA
+                hayProductosExtra = true;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${prod.nombre_producto}</td>
+                    <td style="text-align:center;">${cantidad}</td>
+                    <td style="text-align:right;">${formatearMoneda(precio)}</td>
+                    <td style="text-align:right;">${formatearMoneda(subtotal)}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+        });
+
+        // Si solo hay servicio y no hay tolvas extra, mostramos mensaje en la tabla
+        if (!hayProductosExtra) {
+            msgNoProductos.style.display = 'block';
+            document.querySelector('.modal-table').style.display = 'none'; // Ocultar cabecera tabla
+        } else {
+            document.querySelector('.modal-table').style.display = 'table'; // Mostrar tabla
+            // Ajuste para móvil (si usaste el CSS que te di antes, esto asegura que se vea)
+            if(window.innerWidth <= 600) document.querySelector('.modal-table').style.display = 'block';
+        }
+
+        // 6. Configurar botones
+        document.getElementById('modal-view-close-btn').onclick = cerrarModalVer;
+        document.getElementById('btn-cerrar-view').onclick = cerrarModalVer;
+        
+        document.getElementById('btn-descargar-pdf').onclick = generarPDFCotizacion;
+
+        // Mostrar el modal (asumiendo que el CSS ya maneja .modal-overlay igual que el anterior)
+        // NOTA: Asegúrate que el HTML inyectado tenga style="display:flex" o que la clase lo maneje.
+        // Como 'modal-overlay' en tu CSS actual necesita 'display:flex', pero al inyectarlo está oculto?
+        // Vamos a forzar el display block/flex en el contenedor hijo:
+        const overlay = modalViewPlaceholder.querySelector('.modal-overlay');
+        overlay.style.display = 'flex'; // Forzar visualización
+
+    } catch (e) {
+        console.error("Error al abrir modal detalle:", e);
+    }
+}
+
+function cerrarModalVer() {
+    modalViewPlaceholder.innerHTML = "";
+    datosCotizacionActual = null;
+}
+
+// --- FUNCIÓN PARA GENERAR PDF (Usando pdfMake) ---
+function generarPDFCotizacion() {
+    if (!datosCotizacionActual) return;
+
+    const { cabecera, productos } = datosCotizacionActual;
+
+    // Construir filas para la tabla del PDF
+    const bodyTable = [
+        [ { text: 'Descripción', style: 'tableHeader' }, { text: 'Cant.', style: 'tableHeader' }, { text: 'P. Unitario', style: 'tableHeader' }, { text: 'Total', style: 'tableHeader' } ]
+    ];
+
+    productos.forEach(p => {
+        const subtotal = p.cantidad * p.precio_unitario;
+        bodyTable.push([
+            p.nombre_producto,
+            p.cantidad,
+            { text: formatearMoneda(p.precio_unitario), alignment: 'right' },
+            { text: formatearMoneda(subtotal), alignment: 'right' }
+        ]);
+    });
+
+    // Definición del documento
+    const docDefinition = {
+        content: [
+            { text: 'COTIZACIÓN', style: 'header' },
+            {
+                columns: [
+                    {
+                        width: 'auto',
+                        text: [
+                            { text: 'Folio: ', bold: true }, `#${cabecera.id_cotizacion}\n`,
+                            { text: 'Fecha: ', bold: true }, `${cabecera.fecha_creacion || new Date().toLocaleDateString()}\n`,
+                            { text: 'Vencimiento: ', bold: true }, `${cabecera.fecha_vencimiento}\n`,
+                            { text: 'Estado: ', bold: true }, `${cabecera.estado_cotizacion}`
+                        ]
+                    },
+                    {
+                        width: '*',
+                        alignment: 'right',
+                        text: [
+                            { text: 'Cliente:\n', bold: true },
+                            `${cabecera.nombre_comercial}\n`,
+                            `${cabecera.contacto_nombre}\n`,
+                            `${cabecera.contacto_email}`
+                        ]
+                    }
+                ]
+            },
+            { text: ' ', margin: [0, 10] }, // Espacio
+            {
+                table: {
+                    headerRows: 1,
+                    widths: [ '*', 'auto', 'auto', 'auto' ],
+                    body: bodyTable
+                },
+                layout: 'lightHorizontalLines'
+            },
+            { text: ' ', margin: [0, 10] },
+            {
+                text: `TOTAL: ${formatearMoneda(cabecera.total)}`,
+                style: 'total',
+                alignment: 'right'
+            }
+        ],
+        styles: {
+            header: {
+                fontSize: 18,
+                bold: true,
+                margin: [0, 0, 0, 10],
+                color: '#2563eb'
+            },
+            tableHeader: {
+                bold: true,
+                fontSize: 12,
+                color: 'black'
+            },
+            total: {
+                fontSize: 16,
+                bold: true,
+                color: '#059669'
+            }
+        }
+    };
+
+    // Descargar
+    pdfMake.createPdf(docDefinition).download(`Cotizacion_${cabecera.id_cotizacion}.pdf`);
 }
 
 const formatearMoneda = (numero) => {

@@ -10,6 +10,7 @@ html, body {
 
 /* El contenedor del contenido (content) */
 .content {
+    
     padding: 2rem;
     background: #f4f6f9;
     min-height: 100vh;
@@ -17,10 +18,12 @@ html, body {
 
 /* Contenedor de panel genérico */
 .panel {
+    
     background: white;
     padding: 1.5rem;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    margin-top: 2.5rem;
 }
 
 /* ============================================
@@ -872,5 +875,117 @@ html, body {
     .tolva-add-section button {
         flex: auto;
         width: 100%;
+    }
+}
+
+/* ============================================
+   ESTILOS ADICIONALES PARA MODAL VER DETALLE
+   ============================================ */
+
+.detalle-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Dos columnas */
+    gap: 15px;
+    background: #f9fafb;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.info-bloque strong {
+    display: block;
+    font-size: 0.85rem;
+    color: #777;
+    margin-bottom: 4px;
+}
+
+.info-valor {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 500;
+}
+
+/* ============================================
+   DISEÑO RESPONSIVO MÓVIL (MODALES)
+   ============================================ */
+@media (max-width: 600px) {
+
+    /* 1. Ajuste de la rejilla de información (Cliente/Fecha) */
+    .detalle-grid {
+        grid-template-columns: 1fr; /* Una sola columna */
+    }
+
+    /* 2. Transformar la tabla de productos en "Tarjetas" */
+    .modal-table, 
+    .modal-table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    /* Ocultamos los encabezados de la tabla original */
+    .modal-table thead {
+        display: none; 
+    }
+
+    .modal-table tr {
+        display: block;
+        margin-bottom: 1rem;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .modal-table td {
+        display: block;
+        text-align: right; /* Alineamos valores a la derecha */
+        padding: 6px 0;
+        border: none; /* Quitamos bordes de celda */
+        border-bottom: 1px dashed #f3f4f6;
+        font-size: 0.95rem;
+    }
+
+    .modal-table td:last-child {
+        border-bottom: none;
+    }
+
+    /* --- Estilos específicos por columna --- */
+    
+    /* Columna 1: Descripción (Nombre del producto) */
+    .modal-table td:nth-child(1) {
+        text-align: left;
+        font-weight: bold;
+        color: #2563eb;
+        font-size: 1rem;
+        margin-bottom: 5px;
+    }
+
+    /* Columna 2: Cantidad */
+    .modal-table td:nth-child(2)::before {
+        content: "Cantidad:"; /* Etiqueta automática */
+        float: left;
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    /* Columna 3: Precio Unitario */
+    .modal-table td:nth-child(3)::before {
+        content: "P. Unitario:"; /* Etiqueta automática */
+        float: left;
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    /* Columna 4: Total */
+    .modal-table td:nth-child(4) {
+        color: #059669;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+    .modal-table td:nth-child(4)::before {
+        content: "Subtotal:"; /* Etiqueta automática */
+        float: left;
+        color: #374151;
     }
 }

@@ -84,6 +84,55 @@ function handle_get_request() {
             $datos = $stmt->fetchAll();
             echo json_encode($datos);
         
+        // --- NUEVO BLOQUE: LEER DETALLE COMPLETO DE UNA COTIZACIÓN ---
+        } elseif ($accion === 'leer_detalle_cotizacion') {
+            
+            $id = $_GET['id'] ?? 0;
+            if (!$id) throw new Exception("ID requerido");
+
+            // 1. Obtener cabecera completa
+            // CAMBIO: Se eliminó 'c.fecha_creacion' para evitar el error
+            $sqlCabecera = "
+                SELECT 
+                    c.id_cotizacion, c.total, c.estado_cotizacion, c.fecha_vencimiento, c.forma_de_pago,
+                    e.nombre_comercial, e.razon_social, e.direccion,
+                    con.nombre as contacto_nombre, con.email as contacto_email
+                FROM Cotizacion c
+                JOIN Contacto con ON c.id_contacto = con.id_contacto
+                JOIN Empresa e ON con.id_empresa = e.id_empresa
+                WHERE c.id_cotizacion = ?
+            ";
+            
+            $stmt = $pdo->prepare($sqlCabecera);
+            $stmt->execute([$id]);
+            $cabecera = $stmt->fetch();
+
+            if (!$cabecera) {
+                echo json_encode(['success' => false, 'error' => 'Cotización no encontrada']);
+                return;
+            }
+
+            // 2. Obtener productos (lineas)
+            $sqlDetalle = "
+                SELECT 
+                    dc.*, 
+                    p.descripcion as nombre_producto,
+                    p.sku
+                FROM DetalleCotizacion dc
+                JOIN Producto p ON dc.id_producto = p.id_producto
+                WHERE dc.id_cotizacion = ?
+            ";
+            $stmtDet = $pdo->prepare($sqlDetalle);
+            $stmtDet->execute([$id]);
+            $productos = $stmtDet->fetchAll();
+
+            // Devolver todo junto
+            echo json_encode([
+                'success' => true,
+                'cotizacion' => $cabecera,
+                'detalles' => $productos
+            ]);
+
         } else {
             throw new Exception("Acción GET no válida.");
         }
