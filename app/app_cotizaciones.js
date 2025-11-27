@@ -316,29 +316,55 @@ function agregarLineaTolva() {
 }
 
 function actualizarCalculoTotal() {
-    let total = 0;
+    let subtotal = 0; // Cambiamos el nombre de 'total' a 'subtotal' para no confundirnos
+
+    // 1. Calcular costo del Servicio de Recolección (si está marcado)
     const checkRecoleccion = document.getElementById('check-recoleccion');
     if (checkRecoleccion.checked) {
         let costo_servicio_mensual = parseFloat(checkRecoleccion.dataset.precio || 0);
         let costo_dias_semanal = 0;
+        
         const diasChecks = document.querySelectorAll('.dia-check:checked');
         diasChecks.forEach(check => {
             costo_dias_semanal += parseFloat(check.dataset.precio || 0);
         });
+
+        // Sumar mensualidad base + días extra al mes
         costo_servicio_mensual += (costo_dias_semanal * 4);
-        total += costo_servicio_mensual;
+        subtotal += costo_servicio_mensual;
+
+        // Calcular sobrepeso
         const bolsas_por_dia = parseFloat(document.getElementById('bolsas-dia').value) || 0;
         const peso_por_bolsa = parseFloat(document.getElementById('peso-bolsa').value) || 0;
         const dias_seleccionados = diasChecks.length;
+
         const bolsas_por_semana = bolsas_por_dia * dias_seleccionados;
         const bolsas_por_mes = bolsas_por_semana * 4;
         const peso_total_mes = bolsas_por_mes * peso_por_bolsa;
+        
         const costo_extra_peso = peso_total_mes * COSTO_POR_KG;
-        total += costo_extra_peso;
+        subtotal += costo_extra_peso;
     }
+
+    // 2. Calcular costo de las Tolvas / Rentas
     document.querySelectorAll('#tolvas-tbody tr').forEach(tr => {
-        total += parseFloat(tr.dataset.qty) * parseFloat(tr.dataset.precio);
+        subtotal += parseFloat(tr.dataset.qty) * parseFloat(tr.dataset.precio);
     });
+
+    // 3. CALCULAR IVA Y TOTAL FINAL
+    const iva = subtotal * 0.16;
+    const total = subtotal + iva;
+
+    // 4. Mostrar en pantalla
+    // Verificamos si existen los elementos (por si usas el modal viejo)
+    if(document.getElementById('subtotal-cotizacion')) {
+        document.getElementById('subtotal-cotizacion').textContent = formatearMoneda(subtotal);
+    }
+    if(document.getElementById('iva-cotizacion')) {
+        document.getElementById('iva-cotizacion').textContent = formatearMoneda(iva);
+    }
+    
+    // Este siempre existe
     document.getElementById('total-cotizacion').textContent = formatearMoneda(total);
 }
 

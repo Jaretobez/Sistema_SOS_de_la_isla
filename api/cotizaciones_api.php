@@ -319,4 +319,37 @@ function handle_post_request() {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
 }
+
+// --- FUNCIÓN AUXILIAR DE LIMPIEZA AUTOMÁTICA ---
+function limpiar_cotizaciones_vencidas() {
+    global $pdo;
+    try {
+        // 1. Seleccionar IDs de cotizaciones vencidas que NO estén Aceptadas
+        // (Buscamos Pendientes, Rechazadas o Canceladas con fecha menor a HOY)
+        $sqlSelect = "
+            SELECT id_cotizacion 
+            FROM Cotizacion 
+            WHERE fecha_vencimiento < CURDATE() 
+            AND estado_cotizacion IN ('Pendiente', 'Rechazada', 'Cancelada')
+        ";
+        $stmt = $pdo->query($sqlSelect);
+        $ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        if (empty($ids)) return; // No hay nada que borrar
+
+        // Convertimos el array de IDs en un string separado por comas (ej: "5, 8, 12")
+        $idsString = implode(',', array_map('intval', $ids));
+
+        // 2. Borrar los detalles primero (para evitar errores de llave foránea)
+        $pdo->exec("DELETE FROM DetalleCotizacion WHERE id_cotizacion IN ($idsString)");
+
+        // 3. Borrar las cotizaciones principales
+        $pdo->exec("DELETE FROM Cotizacion WHERE id_cotizacion IN ($idsString)");
+
+    } catch (Exception $e) {
+        // Silencioso: Si falla la limpieza, no queremos que rompa la carga de la página.
+        // Solo lo ignoramos por ahora.
+    }
+}
+    
 ?>

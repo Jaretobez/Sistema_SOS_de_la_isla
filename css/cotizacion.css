@@ -1,6 +1,7 @@
 /* ============================================
-    ESTILOS GENERALES Y LAYOUT BASE 
-    ============================================ */
+   ESTILOS GENERALES Y LAYOUT BASE 
+   (Igual que Empresas)
+   ============================================ */
 html, body {
     margin: 0;
     padding: 0;
@@ -10,7 +11,6 @@ html, body {
 
 /* El contenedor del contenido (content) */
 .content {
-    
     padding: 2rem;
     background: #f4f6f9;
     min-height: 100vh;
@@ -18,17 +18,12 @@ html, body {
 
 /* Contenedor de panel genérico */
 .panel {
-    
     background: white;
     padding: 1.5rem;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     margin-top: 2.5rem;
 }
-
-/* ============================================
-    ESTILOS ESPECÍFICOS DE COTIZACIÓN
-    ============================================ */
 
 /* ---------- TÍTULO ---------- */
 .panel h2 {
@@ -37,13 +32,16 @@ html, body {
     color: #333;
 }
 
-/* ---------- TABS ---------- */
+/* ============================================
+   ESTILOS ESPECÍFICOS DEL DASHBOARD COTIZACIÓN
+   ============================================ */
 
+/* ---------- TABS (Pestañas Superiores) ---------- */
 .tabs {
     display: flex;
     gap: 10px;
     margin-bottom: 1.5rem;
-    flex-wrap: wrap; /* Añadido para mejor responsividad */
+    flex-wrap: wrap; 
 }
 
 .tab-button {
@@ -54,6 +52,8 @@ html, body {
     cursor: pointer;
     font-size: 1rem;
     transition: all 0.2s ease;
+    font-weight: 500;
+    color: #555;
 }
 
 .tab-button.active {
@@ -67,18 +67,21 @@ html, body {
 /* Contenidos */
 .tab-content {
     display: none;
+    animation: fadeIn 0.3s ease;
 }
-
 .tab-content.active {
     display: block;
 }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
 /* ---------- FORMULARIOS DE BÚSQUEDA ---------- */
-
 .form-busqueda {
     display: flex;
     gap: 10px;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .form-busqueda input[type="search"],
@@ -87,6 +90,7 @@ html, body {
     padding: 0.6rem;
     border-radius: 6px;
     border: 1px solid #ccc;
+    font-size: 1rem;
 }
 
 .form-busqueda button {
@@ -97,14 +101,15 @@ html, body {
     border-radius: 6px;
     cursor: pointer;
     transition: background 0.2s;
+    font-size: 1rem;
 }
 .form-busqueda button:hover {
     background: #1e40af;
 }
 
 /* ============================================
-    ESTILOS DE TABLAS Y BOTONES DINÁMICOS
-    ============================================ */
+   ESTILOS DE TABLAS (Escritorio)
+   ============================================ */
 .tabla-empresas {
     width: 100%;
     border-collapse: collapse;
@@ -122,870 +127,485 @@ html, body {
     text-align: left;
     font-size: 0.95rem;
     color: #555;
+    font-weight: 600;
 }
 
-/* --- ESTILOS PARA DATOS EN FILAS --- */
-
-/* Estilos de Contacto y Empresa (renderizarTablaClientes) */
+/* Datos en filas */
 .info-empresa strong, .info-contacto strong {
     display: block;
     font-size: 1rem;
+    color: #333;
 }
-
 .razon-social, .email {
     font-size: 0.85rem;
     color: #777;
-}
-
-/* Reglas para forzar el salto de línea en palabras largas (correos) */
-.email {
     word-break: break-all;
-    overflow-wrap: break-word; 
-    min-width: 0; 
 }
 
-
-/* Botón principal de Cotizar (tablaClientesBody) */
+/* Botón principal de Cotizar (Verde) */
 .btn-cotizar {
-    background: #059669; /* Verde oscuro */
+    background: #059669; 
     color: white;
     border: none;
-    padding: 8px 12px;
+    padding: 0.6rem 1rem;
     border-radius: 6px;
     cursor: pointer;
     transition: background 0.2s;
     font-size: 0.9rem;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
 }
 .btn-cotizar:hover {
     background: #047857;
 }
 
-/* --- ESTILOS PARA BOTONES DE ACCIÓN (tablaCotizacionesBody) --- */
-
+/* Botones de Acción Circulares */
 .btn-accion-cot {
     border: none;
     padding: 8px 10px;
-    border-radius: 50%; /* Botones circulares */
+    border-radius: 50%;
     cursor: pointer;
     margin: 0 3px;
     font-size: 0.85rem;
     line-height: 1;
-    transition: background 0.2s, color 0.2s;
-}
-
-/* Ver (ojo) */
-.btn-accion-cot.ver {
-    background: #3b82f6; /* Azul */
+    transition: transform 0.2s, opacity 0.2s;
     color: white;
 }
-.btn-accion-cot.ver:hover {
-    background: #2563eb;
-}
+.btn-accion-cot:hover { transform: scale(1.1); }
 
-/* Aceptar (check) */
-.btn-accion-cot.aceptar {
-    background: #10b981; /* Verde */
-    color: white;
-}
-.btn-accion-cot.aceptar:hover {
-    background: #059669;
-}
+.btn-accion-cot.ver { background: #3b82f6; }
+.btn-accion-cot.aceptar { background: #10b981; }
+.btn-accion-cot.rechazar { background: #ef4444; }
+.btn-accion-cot.eliminar { background: #6b7280; }
 
-/* Rechazar (times) */
-.btn-accion-cot.rechazar {
-    background: #ef4444; /* Rojo */
-    color: white;
-}
-.btn-accion-cot.rechazar:hover {
-    background: #dc2626;
-}
-
-/* Eliminar (trash) */
-.btn-accion-cot.eliminar {
-    background: #6b7280; /* Gris */
-    color: white;
-}
-.btn-accion-cot.eliminar:hover {
-    background: #4b5563;
-}
-
-/* --- ESTILOS PARA BADGES DE ESTADO (Ya existentes) --- */
+/* Badges de Estado */
 .badge {
     display: inline-block;
-    padding: 0.3em 0.6em;
+    padding: 0.35em 0.65em;
     font-size: 0.8em;
-    font-weight: bold;
+    font-weight: 600;
     line-height: 1;
     text-align: center;
     white-space: nowrap;
-    vertical-align: baseline;
     border-radius: 0.25rem;
     color: white; 
 }
+.badge.pendiente { background-color: #f59e0b; color: white; } /* Ambar */
+.badge.aceptada { background-color: #10b981; } /* Verde */
+.badge.rechazada, .badge.cancelada { background-color: #ef4444; } /* Rojo */
+.badge.borrador { background-color: #6b7280; } /* Gris */
 
-/* Estado: Pendiente */
-.badge.pendiente {
-    background-color: #ffc107;
-    color: #343a40; 
-}
-/* Estado: Aceptada */
-.badge.aceptada {
-    background-color: #28a745;
-}
-/* Estado: Rechazada */
-.badge.rechazada {
-    background-color: #dc3545;
-}
-/* Estado: Borrador/Pagado */
-.badge.borrador,
-.badge.pagado { 
-    background-color: #6c757d;
-}
-
-/* Texto sin resultados */
-#no-resultados-clientes,
-#no-resultados-cotizaciones {
-    color: #555;
+/* Mensajes sin resultados */
+#no-resultados-clientes, #no-resultados-cotizaciones {
+    color: #666;
     font-size: 1rem;
     text-align: center;
-    padding: 1rem 0;
+    padding: 2rem 0;
+    font-style: italic;
 }
 
 /* ============================================
-    ESTILOS ESPECÍFICOS DEL MODAL (Asumiendo modal_formulario.html)
-    ============================================ */
+   ESTILOS DE MODALES (Unificado con Empresas) 🎨
+   ============================================ */
 
-/* Estilos de tabla dentro del modal */
+/* 1. Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); 
+    z-index: 1000; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1; 
+    transition: opacity 0.3s ease;
+}
+
+/* 2. Contenido del Modal */
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%; 
+    max-width: 750px; /* Un poco más ancho para la tabla de productos */
+    max-height: 90vh; 
+    overflow-y: auto; 
+    position: relative; 
+    animation: slideUp 0.3s ease;
+}
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* 3. Título y Cerrar */
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #2563eb;
+    font-size: 1.5rem;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+.modal-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #9ca3af;
+    transition: color 0.2s;
+}
+.modal-close-btn:hover {
+    color: #374151;
+}
+
+/* 4. Estilos de Formularios (Inputs y Fieldsets) */
+
+/* Fieldset estilizado como en Empresas */
+.modal-fieldset {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: #fff;
+}
+.modal-fieldset legend {
+    font-weight: 600;
+    color: #374151;
+    font-size: 1.1rem;
+    padding: 0 10px;
+}
+
+/* GRIDS para Inputs */
+.modal-input-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 columnas en escritorio */
+    gap: 15px;
+    margin-bottom: 1rem;
+}
+
+/* Labels y Textos */
+.modal-input-group label,
+.modal-fieldset label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.95rem;
+}
+
+/* Inputs, Selects, Textareas (Estilo Unificado) */
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+    width: 100%;
+    padding: 0.7rem 0.8rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background-color: #fff;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #2563eb;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Textos estáticos (Cliente/Contacto seleccionados) */
+#modal-empresa-nombre, 
+#modal-contacto-nombre {
+    display: block;
+    padding: 0.7rem;
+    background: #f3f4f6;
+    border-radius: 6px;
+    color: #111827;
+    font-weight: 500;
+}
+
+/* ============================================
+   ESTILOS ESPECÍFICOS: SECCIÓN RECOLECCIÓN
+   ============================================ */
+
+/* Contenedor del check principal */
+.recoleccion-header {
+    background: #f0f9ff; /* Azul muy suave */
+    border: 1px solid #bae6fd;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.recoleccion-header label {
+    margin: 0;
+    font-size: 1rem;
+    color: #0369a1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+.recoleccion-header input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #0284c7;
+}
+
+/* Días de la semana */
+.recoleccion-dias-container {
+    padding: 10px 15px;
+    background: #f9fafb;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+.recoleccion-dias-checks {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 5px;
+}
+.recoleccion-dias-checks label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    background: white;
+    padding: 5px 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+.recoleccion-dias-checks label:hover {
+    border-color: #2563eb;
+}
+
+/* Radios de Tipo de Residuo */
+.radio-group-residuo {
+    display: flex;
+    gap: 20px;
+    padding: 10px 0;
+}
+.radio-group-residuo label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+/* Inputs de Peso y Cantidad */
+.recoleccion-peso-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 15px;
+    padding: 15px;
+    background: #fffbeb; /* Fondo amarillo suave para diferenciar */
+    border: 1px dashed #fcd34d;
+    border-radius: 6px;
+}
+
+/* ============================================
+   ESTILOS ESPECÍFICOS: TABLA DE TOLVAS (Modal)
+   ============================================ */
+
+.tolva-add-section {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: center;
+    background: #f3f4f6;
+    padding: 10px;
+    border-radius: 6px;
+}
+.tolva-add-section select { flex: 2; }
+.tolva-add-section input { flex: 1; }
+.tolva-add-section button {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 0 1.2rem;
+    height: 42px; /* Altura igual a los inputs */
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+}
+.tolva-add-section button:hover { background: #1d4ed8; }
+
 .modal-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 1rem;
-}
-.modal-table th, .modal-table td {
-    padding: 0.6rem;
-    border: 1px solid #eee;
-    text-align: left;
+    font-size: 0.95rem;
 }
 .modal-table th {
-    background: #f8f8f8;
+    background: #f9fafb;
+    color: #6b7280;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    padding: 10px;
+    border-bottom: 1px solid #e5e7eb;
 }
-
-/* Estilos para el botón de borrar línea en la tabla de tolvas */
+.modal-table td {
+    padding: 10px;
+    border-bottom: 1px solid #f3f4f6;
+    color: #374151;
+}
 .modal-table .btn-borrar-linea {
     background: none;
     border: none;
     color: #ef4444;
-    font-weight: bold;
     cursor: pointer;
-    font-size: 1.2rem;
-    padding: 0;
-}
-.modal-table .btn-borrar-linea:hover {
-    color: #dc2626;
-}
-
-/* Estilos para la sección de cálculo de peso y días (recolección) */
-.recoleccion-details {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-top: 15px;
-    padding: 15px;
-    border: 1px dashed #ccc;
-    border-radius: 8px;
-    background-color: #fffbeb; /* Un fondo suave para diferenciar */
-}
-.recoleccion-details .input-group {
-    flex: 1 1 200px;
-}
-.recoleccion-details label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-    font-size: 0.95rem;
-}
-.recoleccion-details input[type="number"], 
-.recoleccion-details select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-/* Estilo para ocultar secciones dinámicas */
-.hidden {
-    display: none !important;
-}
-
-/* Estilo para el campo de total */
-#total-cotizacion {
-    display: block;
-    margin-top: 15px;
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #059669;
-    text-align: right;
-    border-top: 2px solid #eee;
-    padding-top: 10px;
-}
-.total-label {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #333;
-    display: block;
-    text-align: right;
-    margin-top: 20px;
-}
-
-
-/* ... [Resto del código CSS, sin cambios en estilos generales o de escritorio] ... */
-
-
-/* ============================================
-    DISEÑO RESPONSIVO DE TABLAS (MÓVIL)
-    ============================================ */
-@media (max-width: 900px) {
-    /* RESPONSIVO GENERAL */
-    /* PADDING AJUSTADO PARA EVITAR SOLAPAMIENTO CON BOTÓN DE MENÚ EN MÓVIL */
-    .content {
-        padding: 1rem; 
-        padding-top: 4.5rem; 
-    }
-    .panel {
-        padding: 1.5rem;
-    }
-    
-    /* RESPONSIVO ESPECÍFICO DE ESTA VISTA */
-    .form-busqueda {
-        flex-direction: column;
-    }
-    .form-busqueda button {
-        width: 100%;
-    }
-    .tabs {
-        gap: 5px;
-    }
-    .tab-button {
-        flex: 1 1 auto;
-        text-align: center;
-        padding: 0.6rem 0.5rem;
-        font-size: 0.9rem;
-    }
-
-    /* === RESPONSIVO DE TABLAS (Tablas a Tarjetas) === */
-    .tabla-empresas, 
-    .tabla-empresas thead, 
-    .tabla-empresas tbody, 
-    .tabla-empresas th, 
-    .tabla-empresas td, 
-    .tabla-empresas tr {
-        display: block; 
-    }
-    
-    .tabla-empresas thead tr {
-        position: absolute; 
-        top: -9999px;
-        left: -9999px;
-    }
-
-    .tabla-empresas tr {
-        border: 1px solid #ccc; 
-        margin-bottom: 1rem;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-    
-    .tabla-empresas td {
-        border: none;
-        border-bottom: 1px solid #eee;
-        position: relative;
-        padding-left: 55%; /* Aumentado para dar espacio a la etiqueta */
-        text-align: right;
-        font-size: 0.9rem; /* Reducido ligeramente */
-    }
-
-    .tabla-empresas td:before {
-        content: attr(data-label);
-        position: absolute;
-        left: 10px;
-        width: 50%; /* Aumentado para dar espacio a la etiqueta */
-        padding-right: 10px;
-        white-space: nowrap;
-        text-align: left;
-        font-weight: bold;
-        color: #1f2937; /* Color más oscuro para mejor contraste */
-        font-size: 0.9rem;
-    }
-    
-    /* Centrar la columna de Acciones y quitar el borde */
-    .tabla-empresas td:last-child {
-        text-align: center;
-        border-bottom: none;
-        padding: 10px 10px 15px 10px; /* Más padding abajo para separar tarjetas */
-        display: flex; /* Añadido para controlar los botones internos */
-        justify-content: flex-end;
-        gap: 8px; /* Espacio entre los botones de acción */
-    }
-
-    /* --- Botones de Acción (cotizaciones) y Cotizar (clientes) --- */
-    
-    /* Botón de Cotizar (tabla-clientes) */
-    .btn-cotizar {
-        font-size: 0.85rem;
-        padding: 6px 10px;
-        flex-shrink: 0; /* Evita que el botón se comprima */
-    }
-
-    /* Botones de Acción (tabla-cotizaciones) */
-    .btn-accion-cot {
-        padding: 6px 8px; /* Botones más pequeños */
-        font-size: 0.75rem; /* Icono más pequeño */
-        flex-shrink: 0;
-    }
-    
-    /* Asegurar que las descripciones de las empresas/contactos se vean bien */
-    .info-empresa strong, .info-contacto strong {
-        font-size: 0.95rem; 
-    }
-    .razon-social, .email {
-        font-size: 0.8rem; /* Letra más pequeña para los detalles */
-    }
-}
-
-/* ============================================
-    ESTILOS DEL MODAL DE COTIZACIÓN
-    ============================================ */
-
-/* 1. Overlay (Fondo oscuro) */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6); 
-    z-index: 1000; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 1; 
-    transition: opacity 0.3s ease;
-}
-
-/* 2. Contenido del Modal (La caja blanca) */
-.modal-content {
-    background-color: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    width: 90%; 
-    max-width: 800px; 
-    max-height: 90vh; 
-    overflow-y: auto; 
-    position: relative; /* Necesario para posicionar el botón de cierre */
-}
-
-/* 3. Botón de Cerrar */
-.modal-close-btn {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    background: none;
-    border: none;
-    font-size: 1.8rem;
-    cursor: pointer;
-    color: #666;
+    font-size: 1.1rem;
     transition: color 0.2s;
 }
-.modal-close-btn:hover {
-    color: #333;
-}
-
-/* 4. Estilos de la cabecera y campos */
-.modal-content h2 {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    color: #2563eb;
-}
-
-.modal-fieldset {
-    border: 1px solid #eee;
-    border-radius: 4px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-}
-
-.modal-fieldset legend {
-    padding: 0 5px;
-    font-weight: bold;
-    color: #333;
-}
-
-.modal-input-group {
-    margin-bottom: 1rem;
-}
-
-.modal-input-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-}
-
-.modal-full-width-select {
-    width: 100%; 
-    padding: 0.5rem; 
-    box-sizing: border-box;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-/* 5. Estilos Específicos de Recolección (Días, Bolsas, Peso) */
-.recoleccion-dias-container {
-    padding-left: 20px;
-    margin: 1rem 0;
-}
-.recoleccion-dias-container p {
-    margin: 0.5rem 0;
-}
-.recoleccion-dias-checks {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.recoleccion-residuo-group {
-    padding-left: 20px;
-    margin-top: 1rem;
-}
-.recoleccion-peso-group {
-    padding-left: 20px;
-    margin-top: 1rem;
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    gap: 10px;
-}
-.recoleccion-peso-group input[type="number"], 
-.recoleccion-peso-group select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-/* Estilo para ocultar secciones dinámicas */
-.hidden {
-    display: none !important;
-}
-
-/* Estilo para el campo de total */
-#total-cotizacion {
-    display: block;
-    margin-top: 15px;
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #059669;
-    text-align: right;
-    border-top: 2px solid #eee;
-    padding-top: 10px;
-}
-.total-label {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #333;
-    display: block;
-    text-align: right;
-    margin-top: 20px;
-}
-
-
-/* ... [Resto del código CSS, sin cambios en estilos generales o de escritorio] ... */
-
+.modal-table .btn-borrar-linea:hover { color: #dc2626; }
 
 /* ============================================
-    DISEÑO RESPONSIVO DE TABLAS (MÓVIL)
-    ============================================ */
-@media (max-width: 900px) {
-    /* RESPONSIVO GENERAL */
-    /* PADDING AJUSTADO PARA EVITAR SOLAPAMIENTO CON BOTÓN DE MENÚ EN MÓVIL */
-    .content {
-        padding: 1rem; 
-    }
-    .panel {
-        padding: 2rem;
-    }
-    
-    /* RESPONSIVO ESPECÍFICO DE ESTA VISTA */
-    .form-busqueda {
-        flex-direction: column;
-    }
-    .form-busqueda button {
-        width: 100%;
-    }
-    .tabs {
-        gap: 5px;
-    }
-    .tab-button {
-        flex: 1 1 auto;
-        text-align: center;
-        padding: 0.6rem 0.5rem;
-        font-size: 0.9rem;
-    }
-
-    /* === RESPONSIVO DE TABLAS (Tablas a Tarjetas) === */
-    .tabla-empresas, 
-    .tabla-empresas thead, 
-    .tabla-empresas tbody, 
-    .tabla-empresas th, 
-    .tabla-empresas td, 
-    .tabla-empresas tr {
-        display: block; 
-    }
-    
-    .tabla-empresas thead tr {
-        position: absolute; 
-        top: -9999px;
-        left: -9999px;
-    }
-
-    .tabla-empresas tr {
-        border: 1px solid #ccc; 
-        margin-bottom: 1rem;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-    
-    .tabla-empresas td {
-        border: none;
-        border-bottom: 1px solid #eee;
-        position: relative;
-        padding-left: 55%; /* Aumentado para dar espacio a la etiqueta */
-        text-align: right;
-        font-size: 0.9rem; /* Reducido ligeramente */
-    }
-
-    .tabla-empresas td:before {
-        content: attr(data-label);
-        position: absolute;
-        left: 10px;
-        width: 50%; /* Aumentado para dar espacio a la etiqueta */
-        padding-right: 10px;
-        white-space: nowrap;
-        text-align: left;
-        font-weight: bold;
-        color: #1f2937; /* Color más oscuro para mejor contraste */
-        font-size: 0.9rem;
-    }
-    
-    /* Centrar la columna de Acciones y quitar el borde */
-    .tabla-empresas td:last-child {
-        text-align: center;
-        border-bottom: none;
-        padding: 10px 10px 15px 10px; /* Más padding abajo para separar tarjetas */
-        display: flex; /* Añadido para controlar los botones internos */
-        justify-content: flex-end;
-        gap: 8px; /* Espacio entre los botones de acción */
-    }
-
-    /* --- Botones de Acción (cotizaciones) y Cotizar (clientes) --- */
-    
-    /* Botón de Cotizar (tabla-clientes) */
-    .btn-cotizar {
-        font-size: 0.85rem;
-        padding: 6px 10px;
-        flex-shrink: 0; /* Evita que el botón se comprima */
-    }
-
-    /* Botones de Acción (tabla-cotizaciones) */
-    .btn-accion-cot {
-        padding: 6px 8px; /* Botones más pequeños */
-        font-size: 0.75rem; /* Icono más pequeño */
-        flex-shrink: 0;
-    }
-    
-    /* Asegurar que las descripciones de las empresas/contactos se vean bien */
-    .info-empresa strong, .info-contacto strong {
-        font-size: 0.95rem; 
-    }
-    .razon-social, .email {
-        font-size: 0.8rem; /* Letra más pequeña para los detalles */
-    }
-}
-
-/* ============================================
-    ESTILOS DEL MODAL DE COTIZACIÓN
-    ============================================ */
-
-/* 1. Overlay (Fondo oscuro) */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6); 
-    z-index: 1000; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 1; 
-    transition: opacity 0.3s ease;
-}
-
-/* 2. Contenido del Modal (La caja blanca) */
-.modal-content {
-    background-color: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    width: 90%; 
-    max-width: 800px; 
-    max-height: 90vh; 
-    overflow-y: auto; 
-    position: relative; /* Necesario para posicionar el botón de cierre */
-}
-
-/* 3. Botón de Cerrar */
-.modal-close-btn {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    background: none;
-    border: none;
-    font-size: 1.8rem;
-    cursor: pointer;
-    color: #666;
-    transition: color 0.2s;
-}
-.modal-close-btn:hover {
-    color: #333;
-}
-
-/* 4. Estilos de la cabecera y campos */
-.modal-content h2 {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    color: #2563eb;
-}
-
-.modal-fieldset {
-    border: 1px solid #eee;
-    border-radius: 4px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-}
-
-.modal-fieldset legend {
-    padding: 0 5px;
-    font-weight: bold;
-    color: #333;
-}
-
-.modal-input-group {
-    margin-bottom: 1rem;
-}
-
-.modal-input-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-}
-
-.modal-full-width-select {
-    width: 100%; 
-    padding: 0.5rem; 
-    box-sizing: border-box;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-/* 5. Estilos Específicos de Recolección (Días, Bolsas, Peso) */
-.recoleccion-dias-container {
-    padding-left: 20px;
-    margin: 1rem 0;
-}
-.recoleccion-dias-container p {
-    margin: 0.5rem 0;
-}
-.recoleccion-dias-checks {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.recoleccion-residuo-group {
-    padding-left: 20px;
-    margin-top: 1rem;
-}
-.recoleccion-peso-group {
-    padding-left: 20px;
-    margin-top: 1rem;
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    gap: 10px;
-}
-.recoleccion-peso-group input[type="number"], 
-.recoleccion-peso-group select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-/* Estilo para ocultar secciones dinámicas */
-.hidden {
-    display: none !important;
-}
-
-/* Estilo para el campo de total */
-#total-cotizacion {
-    display: block;
-    margin-top: 15px;
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #059669;
-    text-align: right;
-    border-top: 2px solid #eee;
-    padding-top: 10px;
-}
-.total-label {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #333;
-    display: block;
-    text-align: right;
-    margin-top: 20px;
-}
-
-/* Media Query para Responsividad */
-@media (max-width: 600px) {
-    .modal-content {
-        padding: 15px;
-    }
-    .recoleccion-peso-group {
-        grid-template-columns: 1fr;
-    }
-    .tolva-add-section {
-        flex-direction: column;
-    }
-    .tolva-add-section select,
-    .tolva-add-section input[type="number"],
-    .tolva-add-section button {
-        flex: auto;
-        width: 100%;
-    }
-}
-
-/* ============================================
-   ESTILOS ADICIONALES PARA MODAL VER DETALLE
+   SECCIÓN DE TOTALES Y BOTÓN FINAL
    ============================================ */
-
-.detalle-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Dos columnas */
-    gap: 15px;
+.total-section {
     background: #f9fafb;
     padding: 15px;
     border-radius: 8px;
-    border: 1px solid #eee;
+    text-align: right;
+    border: 1px solid #e5e7eb;
 }
 
+.btn-guardar-cotizacion {
+    width: 100%;
+    padding: 1rem;
+    background-color: #059669; /* Verde fuerte */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+}
+.btn-guardar-cotizacion:hover {
+    background-color: #047857;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.btn-guardar-cotizacion:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* Utilidad oculto */
+.hidden { display: none !important; }
+
+/* ============================================
+   ESTILOS PARA MODAL DE "VER DETALLE" (Lectura)
+   ============================================ */
+.detalle-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    background: #f9fafb;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 20px;
+}
 .info-bloque strong {
-    display: block;
+    color: #6b7280;
     font-size: 0.85rem;
-    color: #777;
+    text-transform: uppercase;
+    display: block;
     margin-bottom: 4px;
 }
-
 .info-valor {
-    font-size: 1rem;
-    color: #333;
+    color: #111827;
     font-weight: 500;
+    font-size: 1rem;
 }
 
 /* ============================================
-   DISEÑO RESPONSIVO MÓVIL (MODALES)
+   RESPONSIVO (MÓVIL)
    ============================================ */
-@media (max-width: 600px) {
-
-    /* 1. Ajuste de la rejilla de información (Cliente/Fecha) */
+@media (max-width: 900px) {
+    .content { padding: 1rem; padding-top: 4.5rem; }
+    .panel { padding: 1rem; margin-top: 1rem; }
+    
+    /* Inputs a 1 columna en móvil */
+    .modal-input-group,
+    .recoleccion-peso-group,
     .detalle-grid {
-        grid-template-columns: 1fr; /* Una sola columna */
+        grid-template-columns: 1fr;
+        gap: 10px;
     }
 
-    /* 2. Transformar la tabla de productos en "Tarjetas" */
-    .modal-table, 
-    .modal-table tbody {
+    /* Tabla Principal (Tarjetas) */
+    .tabla-empresas thead { display: none; }
+    .tabla-empresas tr { 
+        display: block; 
+        border: 1px solid #e5e7eb;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .tabla-empresas td {
+        display: block;
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+    }
+    .tabla-empresas td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        font-weight: 600;
+        color: #4b5563;
+    }
+    .tabla-empresas td:last-child {
+        display: flex;
+        justify-content: flex-end;
+        gap: 5px;
+        padding: 10px;
+    }
+
+    /* Modal Tabla Tolvas en Móvil (Estilo Tarjeta Simple) */
+    .modal-table, .modal-table tbody, .modal-table tr, .modal-table td {
         display: block;
         width: 100%;
     }
-
-    /* Ocultamos los encabezados de la tabla original */
-    .modal-table thead {
-        display: none; 
-    }
-
+    .modal-table thead { display: none; }
     .modal-table tr {
-        display: block;
-        margin-bottom: 1rem;
-        background: #fff;
+        margin-bottom: 10px;
         border: 1px solid #e5e7eb;
-        border-radius: 8px;
+        border-radius: 6px;
         padding: 10px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        background: #f9fafb;
     }
-
     .modal-table td {
-        display: block;
-        text-align: right; /* Alineamos valores a la derecha */
-        padding: 6px 0;
-        border: none; /* Quitamos bordes de celda */
-        border-bottom: 1px dashed #f3f4f6;
-        font-size: 0.95rem;
+        text-align: right;
+        padding: 5px 0;
+        border-bottom: 1px dashed #e5e7eb;
     }
-
-    .modal-table td:last-child {
-        border-bottom: none;
-    }
-
-    /* --- Estilos específicos por columna --- */
+    .modal-table td:last-child { border-bottom: none; }
     
-    /* Columna 1: Descripción (Nombre del producto) */
-    .modal-table td:nth-child(1) {
-        text-align: left;
-        font-weight: bold;
-        color: #2563eb;
-        font-size: 1rem;
-        margin-bottom: 5px;
-    }
-
-    /* Columna 2: Cantidad */
-    .modal-table td:nth-child(2)::before {
-        content: "Cantidad:"; /* Etiqueta automática */
-        float: left;
-        color: #6b7280;
-        font-weight: 500;
-    }
-
-    /* Columna 3: Precio Unitario */
-    .modal-table td:nth-child(3)::before {
-        content: "P. Unitario:"; /* Etiqueta automática */
-        float: left;
-        color: #6b7280;
-        font-weight: 500;
-    }
-
-    /* Columna 4: Total */
-    .modal-table td:nth-child(4) {
-        color: #059669;
-        font-weight: bold;
-        font-size: 1.1rem;
-    }
-    .modal-table td:nth-child(4)::before {
-        content: "Subtotal:"; /* Etiqueta automática */
-        float: left;
-        color: #374151;
-    }
+    .tolva-add-section { flex-direction: column; }
+    .tolva-add-section select, .tolva-add-section input, .tolva-add-section button { width: 100%; }
 }
