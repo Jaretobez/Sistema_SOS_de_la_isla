@@ -1,0 +1,227 @@
+/* ============================================
+    IMPORTACIÓN DE ESTILOS BASE (Mismos que cotizaciones.css)
+    ============================================ */
+/* Se asume que este archivo se importa después de un CSS de estilos base 
+   o que contiene los estilos base, como se muestra en cotizaciones.css */
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #f4f6f9; 
+}
+
+.content {
+    padding: 2rem;
+    background: #f4f6f9;
+    min-height: 100vh;
+}
+
+.panel {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.panel h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.4rem;
+    color: #333;
+}
+
+/* Formularios de Búsqueda y Filtro */
+.form-busqueda {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+.form-busqueda input[type="search"],
+.form-busqueda select {
+    flex: 1;
+    padding: 0.6rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.form-busqueda button {
+    padding: 0.6rem 1rem;
+    border: none;
+    background: #2563eb;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.form-busqueda button:hover {
+    background: #1e40af;
+}
+
+/* Tablas */
+.tabla-empresas {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.tabla-empresas th,
+.tabla-empresas td {
+    padding: 0.8rem;
+    border-bottom: 1px solid #ddd;
+}
+
+.tabla-empresas th {
+    background: #f2f2f2;
+    text-align: left;
+    font-size: 0.95rem;
+    color: #555;
+}
+
+/* Texto de la primera columna (Nombre de la empresa) */
+.tabla-empresas td strong {
+    font-size: 1rem;
+}
+
+/* ============================================
+    ESTILOS ESPECÍFICOS DE FACTURACIÓN
+    ============================================ */
+
+/* --- BADGES DE ESTADO (Añadiendo las clases 'pendiente' y 'pagado' ya definidas) --- */
+.badge {
+    display: inline-block;
+    padding: 0.3em 0.6em;
+    font-size: 0.8em;
+    font-weight: bold;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+    color: white; 
+}
+
+/* Estado: Pendiente */
+.badge.pendiente {
+    background-color: #ffc107; /* Amarillo/Naranja */
+    color: #343a40; 
+}
+/* Estado: Pagado */
+.badge.pagado { 
+    background-color: #059669; /* Verde (como el de 'Aceptada' en cotizaciones) */
+}
+
+/* --- BOTÓN DE ACCIÓN 'Marcar como Pagado' --- */
+.btn-pagar {
+    background: #10b981; /* Verde más claro */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.btn-pagar:hover:not(.disabled) {
+    background: #059669;
+}
+
+/* Estilo para el botón de pagar cuando está deshabilitado ('Pagado') */
+.btn-pagar.disabled {
+    background: #6c757d; /* Gris */
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+
+/* ============================================
+    DISEÑO RESPONSIVO DE TABLAS (MÓVIL)
+    (Replicando el comportamiento de tarjetas)
+    ============================================ */
+@media (max-width: 900px) {
+    /* RESPONSIVO GENERAL */
+    .content {
+        padding: 1rem; 
+    }
+    .panel {
+        padding: 2rem;
+    }
+    
+    /* RESPONSIVO ESPECÍFICO DE ESTA VISTA */
+    .form-busqueda {
+        flex-direction: column;
+    }
+    .form-busqueda button {
+        width: 100%;
+    }
+
+    /* === RESPONSIVO DE TABLAS (Tablas a Tarjetas) === */
+    .tabla-empresas, 
+    .tabla-empresas thead, 
+    .tabla-empresas tbody, 
+    .tabla-empresas th, 
+    .tabla-empresas td, 
+    .tabla-empresas tr {
+        display: block; 
+    }
+    
+    .tabla-empresas thead tr {
+        position: absolute; 
+        top: -9999px;
+        left: -9999px;
+    }
+
+    .tabla-empresas tr {
+        border: 1px solid #ccc; 
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    
+    .tabla-empresas td {
+        border: none;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        padding-left: 55%; /* Espacio para la etiqueta */
+        text-align: right;
+        font-size: 0.9rem; 
+    }
+
+    /* Etiquetas Móviles */
+    .tabla-empresas tr td:nth-of-type(1):before { content: "Empresa"; }
+    .tabla-empresas tr td:nth-of-type(2):before { content: "Monto Mensual"; }
+    .tabla-empresas tr td:nth-of-type(3):before { content: "Fecha Vencimiento"; }
+    .tabla-empresas tr td:nth-of-type(4):before { content: "Estado de Pago"; }
+    .tabla-empresas tr td:nth-of-type(5):before { content: "Acciones"; }
+
+    .tabla-empresas td:before {
+        position: absolute;
+        left: 10px;
+        width: 50%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: bold;
+        color: #1f2937;
+        font-size: 0.9rem;
+    }
+    
+    /* Centrar la columna de Acciones y quitar el borde */
+    .tabla-empresas td:last-child {
+        text-align: center;
+        border-bottom: none;
+        padding: 10px 10px 15px 10px; 
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+    
+    /* Botón Pagar en móvil */
+    .btn-pagar {
+        font-size: 0.85rem;
+        padding: 6px 10px;
+        flex-shrink: 0; 
+    }
+}

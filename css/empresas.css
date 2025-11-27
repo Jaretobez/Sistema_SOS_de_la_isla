@@ -1,0 +1,480 @@
+/* ============================================
+   ESTILOS GENERALES Y LAYOUT BASE
+   ============================================ */
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #f4f6f9; 
+}
+
+/* El contenedor del contenido (content) */
+.content {
+    padding: 2rem;
+    background: #f4f6f9;
+    min-height: 100vh;
+}
+
+/* Contenedor de panel genérico */
+.panel {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* ---------- TÍTULO ---------- */
+.panel h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.4rem;
+    color: #333;
+}
+
+/* ============================================
+   ESTILOS ESPECÍFICOS DE EMPRESAS (Tabla y Botones)
+   ============================================ */
+
+/* ---------- BOTÓN AÑADIR NUEVO ---------- */
+.btn-anadir {
+    background: #2563eb; /* Azul de botones principales */
+    color: white;
+    border: none;
+    padding: 0.7rem 1.3rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s;
+    margin-bottom: 1rem;
+    display: inline-block;
+}
+.btn-anadir:hover {
+    background: #1e40af;
+}
+
+/* ---------- FORMULARIO DE BÚSQUEDA ---------- */
+.form-busqueda {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+}
+
+.form-busqueda input[type="search"] {
+    flex: 1;
+    padding: 0.6rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+.form-busqueda button {
+    padding: 0.6rem 1rem;
+    border: none;
+    background: #2563eb;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 1rem;
+}
+.form-busqueda button:hover {
+    background: #1e40af;
+}
+
+/* ============================================
+   ESTILOS DE TABLAS (Escritorio)
+   ============================================ */
+.tabla-empresas {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.tabla-empresas th,
+.tabla-empresas td {
+    padding: 0.8rem;
+    border-bottom: 1px solid #ddd;
+}
+
+.tabla-empresas th {
+    background: #f2f2f2;
+    text-align: left;
+    font-size: 0.95rem;
+    color: #555;
+}
+
+/* --- Estilos de Contenido de Fila --- */
+td[data-label="Empresa"] strong {
+    display: block;
+    font-size: 1rem;
+}
+.razon-social {
+    font-size: 0.85rem;
+    color: #777;
+}
+
+/* --- Estilos de Botones de Acción --- */
+td[data-label="Acciones"] {
+    text-align: center;
+}
+.btn-accion {
+    border: none;
+    padding: 8px 10px;
+    border-radius: 50%; 
+    cursor: pointer;
+    margin: 0 3px;
+    font-size: 0.85rem;
+    line-height: 1;
+    transition: background 0.2s;
+    color: white; 
+}
+.btn-accion.ver { background: #3b82f6; }
+.btn-accion.ver:hover { background: #2563eb; }
+.btn-accion.modificar { background: #f59e0b; }
+.btn-accion.modificar:hover { background: #d97706; }
+.btn-accion.eliminar { background: #ef4444; }
+.btn-accion.eliminar:hover { background: #dc2626; }
+
+/* Texto sin resultados */
+#no-resultados {
+    color: #555;
+    font-size: 1rem;
+    text-align: center;
+    padding: 1rem 0;
+}
+
+/* ============================================
+   ESTILOS DE MODAL (Formulario de Empresa) 🎨
+   ============================================ */
+
+/* 1. Overlay (Fondo oscuro) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); 
+    z-index: 1000; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1; 
+    transition: opacity 0.3s ease;
+}
+
+/* 2. Contenido del Modal (La caja blanca) */
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%; 
+    max-width: 700px; 
+    max-height: 90vh; 
+    overflow-y: auto; 
+    position: relative; 
+}
+
+/* 3. Título y Botón de Cerrar */
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #2563eb;
+    font-size: 1.5rem;
+}
+.modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.2s;
+}
+.modal-close-btn:hover {
+    color: #333;
+}
+
+/* 4. Fieldset y Leyenda (Separadores de sección) */
+fieldset {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1.5rem 1rem 0.5rem 1rem;
+    margin-bottom: 1.5rem;
+}
+legend {
+    font-weight: bold;
+    color: #333;
+    font-size: 1.1rem;
+    padding: 0 10px;
+}
+
+/* 5. Estilos de los campos de entrada (Mejorados con Grid) */
+
+/* 🟢 GRUPO DE INPUTS: Usa GRID para columnas 🟢 */
+.form-input-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 columnas iguales en escritorio */
+    gap: 15px; 
+    margin-bottom: 1rem;
+}
+
+/* Estilo para la Dirección (ocupa el ancho completo en el Fieldset) */
+fieldset > div:not(.form-input-group) {
+    margin-bottom: 1rem;
+}
+
+/* Estilos para Labels */
+.form-input-group label,
+fieldset > div > label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95rem; 
+}
+
+/* Estilos para INPUTS, SELECTS, TEXTAREA */
+input:not([type="hidden"]),
+select,
+textarea {
+    width: 100%;
+    padding: 0.7rem 0.5rem; 
+    border: 1px solid #ccc;
+    border-radius: 6px; 
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-size: 1rem;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #2563eb; 
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); 
+    background-color: #f7faff; 
+}
+
+/* 6. Estilos de Contactos */
+#contactos-list {
+    padding: 0;
+    margin-bottom: 15px;
+    background-color: transparent; 
+    border: none;
+}
+
+.contacto-block {
+    border: 1px solid #e0e0e0;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    position: relative;
+    background-color: #fff; 
+}
+.contacto-block:first-child {
+    border: 2px solid #2563eb; 
+}
+
+.contacto-block-label {
+    font-weight: bold;
+    color: #2563eb;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #e0e0e0;
+}
+
+/* 🟢 Grid para los campos de contacto (3 columnas) 🟢 */
+.contacto-block-inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+    gap: 15px;
+}
+.contacto-block-inputs input,
+.contacto-block-inputs select {
+    margin-bottom: 0;
+}
+
+.btn-remove-contacto {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    line-height: 1;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: background 0.2s;
+}
+.btn-remove-contacto:hover {
+    background: #dc2626;
+}
+
+/* Botón Añadir Contacto Adicional */
+#btn-add-contacto {
+    background: #10b981; 
+    color: white;
+    border: none;
+    padding: 0.7rem 1.2rem;
+    border-radius: 6px; 
+    cursor: pointer;
+    font-size: 0.95rem;
+    margin-top: 5px;
+    transition: background 0.2s;
+    display: inline-flex; 
+    align-items: center;
+    gap: 8px;
+}
+#btn-add-contacto:hover {
+    background: #059669;
+}
+
+/* Botón Guardar */
+#btn-guardar-empresa {
+    padding: 0.8rem; 
+    background-color: #28a745; 
+    color:white; 
+    border:none; 
+    border-radius: 6px; 
+    width:100%; 
+    font-size: 1.1rem; 
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 1.5rem;
+}
+#btn-guardar-empresa:hover {
+    background-color: #1e7e34;
+}
+#btn-guardar-empresa:disabled {
+    background-color: #999;
+    cursor: not-allowed;
+}
+
+/* ============================================
+   DISEÑO RESPONSIVO DE TABLAS (MÓVIL)
+   ============================================ */
+@media (max-width: 900px) {
+    /* RESPONSIVO GENERAL */
+    .content {
+        padding: 1rem; 
+    }
+    .panel {
+        padding: 2rem;
+    }
+    
+    /* RESPONSIVO ESPECÍFICO DE VISTA */
+    .form-busqueda {
+        flex-direction: column;
+    }
+    .form-busqueda button {
+        width: 100%;
+    }
+    .btn-anadir {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* === RESPONSIVO DE TABLAS (Tablas a Tarjetas) === */
+    .tabla-empresas, 
+    .tabla-empresas thead, 
+    .tabla-empresas tbody, 
+    .tabla-empresas th, 
+    .tabla-empresas td, 
+    .tabla-empresas tr {
+        display: block; 
+    }
+    
+    .tabla-empresas thead tr {
+        position: absolute; 
+        top: -9999px;
+        left: -9999px;
+    }
+
+    .tabla-empresas tr {
+        border: 1px solid #ccc; 
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    
+    .tabla-empresas td {
+        border: none;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        padding-left: 55%; 
+        text-align: right;
+        font-size: 0.9rem; 
+    }
+
+    .tabla-empresas td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        width: 50%; 
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: bold;
+        color: #1f2937; 
+        font-size: 0.9rem;
+    }
+    
+    /* Centrar la columna de Acciones y quitar el borde */
+    .tabla-empresas td:last-child {
+        text-align: center;
+        border-bottom: none;
+        padding: 10px; 
+        display: flex; 
+        justify-content: flex-end; /* Alineación a la derecha */
+        gap: 8px; 
+    }
+
+    /* Botones de Acción más pequeños */
+    .btn-accion {
+        padding: 6px 8px; 
+        font-size: 0.75rem; 
+        flex-shrink: 0;
+    }
+
+    /* Asegurar que las descripciones de las empresas/contactos se vean bien */
+    td[data-label="Empresa"] strong, td[data-label="Contacto"] {
+        font-size: 0.95rem; 
+    }
+    .razon-social, td[data-label="Email"] {
+        font-size: 0.8rem; 
+    }
+}
+
+/* ============================================
+   DISEÑO RESPONSIVO DE MODAL (MÓVIL)
+   ============================================ */
+@media (max-width: 600px) {
+    .modal-content {
+        padding: 15px;
+    }
+    
+    /* 🟢 Hacemos que los grupos de 2 columnas colapsen a 1 🟢 */
+    .form-input-group {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    /* El bloque de contactos pasa a una sola columna */
+    .contacto-block-inputs {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    /* Esto asegura que los divs individuales dentro del form-input-group no rompan el layout */
+    .form-input-group > div {
+        grid-column: span 1;
+    }
+}

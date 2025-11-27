@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // 🟢 CORRECCIÓN 1: Si 'index.html' está en la raíz, subimos un nivel (../).
+            if (localStorage.getItem("usuario")) {
+                window.location.href = "../index.html"; 
+            }
+        });
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <style>
+        /* -------------------------------------------------------------------------- */
+/* --- ESTILOS GENERALES Y TIPOGRAFÍA --- */
+/* -------------------------------------------------------------------------- */
+
+body {
+    /* Usamos Inter como una fuente moderna y legible */
+    font-family: 'Inter', sans-serif;
+    /* Fondo limpio y sutil para un look corporativo */
+    background-color: #f4f6f9; 
+    
+    /* Configuración de Flexbox para centrar el contenedor */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Usamos min-height para mejor compatibilidad móvil */
+    margin: 0;
+    padding: 20px; /* Padding para evitar que el contenedor toque los bordes en móvil */
+}
+
+/* Título de la tarjeta/formulario */
+h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    /* Un color de texto oscuro y profesional */
+    color: #34495e; 
+    font-weight: 700;
+    font-size: 1.75rem;
+}
+
+/* -------------------------------------------------------------------------- */
+/* --- CONTENEDOR DEL LOGIN --- */
+/* -------------------------------------------------------------------------- */
+
+.login-container {
+    background: #ffffff;
+    /* Borde más sutil y moderno */
+    border-radius: 12px; 
+    padding: 40px;
+    /* Ancho moderado en escritorio */
+    width: 100%;
+    max-width: 400px; 
+    /* Sombra elegante y con profundidad */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); 
+    /* Animación de entrada suave */
+    transition: transform 0.3s ease-in-out;
+}
+
+/* -------------------------------------------------------------------------- */
+/* --- CAMPOS DE ENTRADA Y GRUPOS --- */
+/* -------------------------------------------------------------------------- */
+
+.input-group {
+    margin-bottom: 25px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 6px;
+    /* Color de etiqueta más legible */
+    color: #34495e; 
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #dfe6e9; /* Borde más claro */
+    border-radius: 8px; /* Borde redondeado */
+    outline: none;
+    font-size: 1rem;
+    color: #34495e;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Efecto de foco profesional */
+.input-group input:focus {
+    border-color: #3f51b5; /* Color primario al enfocarse */
+    box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.2);
+}
+
+/* -------------------------------------------------------------------------- */
+/* --- BOTÓN DE ACCIÓN --- */
+/* -------------------------------------------------------------------------- */
+
+button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    /* Color primario corporativo: Índigo */
+    background-color: #3f51b5; 
+    color: white;
+    font-weight: 600;
+    font-size: 1.05rem;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(63, 81, 181, 0.4);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Efecto hover/activo */
+button:hover {
+    /* Un tono más claro del índigo */
+    background-color: #5c6bc0; 
+    box-shadow: 0 6px 20px rgba(63, 81, 181, 0.5);
+}
+
+/* Mensajes de error/info */
+.mensaje {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    /* Color de alerta sutil */
+    color: #c0392b; 
+    background-color: #fbe0e0;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* -------------------------------------------------------------------------- */
+/* --- RESPONSIVIDAD (MÓVILES) --- */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 600px) {
+    /* Alinear el contenido del body al inicio (arriba) en móviles */
+    body {
+        align-items: flex-start; /* Mueve el formulario hacia arriba */
+        padding-top: 5vh; /* Añade un pequeño espacio superior */
+    }
+
+    /* Ajusta el contenedor para ocupar más espacio en pantallas pequeñas */
+    .login-container {
+        max-width: 90%; 
+        padding: 30px 20px; /* Reduce el padding en móvil */
+        margin: 0 auto;
+        /* Elimina sombra en móvil para un look más limpio */
+        box-shadow: none; 
+    }
+
+    h2 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+
+    .input-group {
+        margin-bottom: 20px;
+    }
+
+    .input-group input {
+        padding: 10px 12px;
+    }
+
+    button {
+        padding: 12px;
+        font-size: 1rem;
+        box-shadow: 0 4px 10px rgba(63, 81, 181, 0.3);
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Iniciar Sesión</h2>
+        <form id="formLogin">
+            <div class="input-group">
+                <label for="correo">Correo electrónico</label>
+                <input type="email" id="correo" name="correo" required>
+            </div>
+
+            <div class="input-group">
+                <label for="contrasena">Contraseña</label>
+                <input type="password" id="contrasena" name="contrasena" required>
+            </div>
+
+            <button type="submit">Entrar</button>
+        </form>
+        <div id="mensaje" class="mensaje"></div>
+    </div>
+
+    <!-- 🟢 CORRECCIÓN 2: Ruta del script de login 🟢 -->
+    <script src="../js/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+/* ============================================
+    ESTILOS ESPECÍFICOS DEL DASHBOARD
+    Aplicados a index.html (Dashboard de Ventas)
+============================================ */
+
+/* ------------------- GENERAL Y PANELES ------------------- */
+/*
+    NOTA: Las clases .content y .panel ya están definidas
+    en cotizacion.css. Solo aseguramos el layout general.
+*/
+
+/* Sobreescribimos el panel de la tabla para que se vea como una tarjeta */
+.recent-quotes-section {
+    /* Mantiene el padding y el fondo blanco del .panel implícitamente */
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05); /* Sombra consistente con .panel */
+}
+
+
+/* ---------- CABECERA DEL DASHBOARD (Título y Botón) ---------- */
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.dashboard-header h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    color: #333;
+}
+
+/* Estilo del botón principal "Añadir Empresa" */
+.dashboard-header .add-button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    background: #2563eb; /* Azul corporativo */
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dashboard-header .add-button:hover {
+    background: #1e40af;
+}
+
+/* ---------- SECCIÓN DE TARJETAS (KPIs) ---------- */
+
+.cards-section {
+    display: grid;
+    /* 3 columnas para escritorio */
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 20px;
+    margin-bottom: 2rem;
+}
+
+.card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: transform 0.2s;
+    border-left: 5px solid transparent; 
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+.card-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    color: white;
+}
+
+/* Colores de las tarjetas */
+.card-icon.pending {
+    background: #f59e0b; /* Amarillo/Naranja */
+}
+.card-icon.clients {
+    background: #3b82f6; /* Azul */
+}
+.card-icon.suspended {
+    background: #ef4444; /* Rojo */
+}
+
+.card-content h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #555;
+    font-weight: 500;
+}
+
+.card-number {
+    margin: 5px 0 0 0;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+}
+
+/* ---------- TABLA DE COTIZACIONES RECIENTES ---------- */
+
+.recent-quotes-section h3 {
+    font-size: 1.4rem;
+    color: #333;
+    margin-top: 0; /* Para que no tenga margen superior dentro del panel */
+    margin-bottom: 1rem;
+}
+
+/* NOTA: La clase .tabla-empresas (usada en index.html) 
+    ya tiene todos los estilos de escritorio y la lógica 
+    responsiva de 'cotizacion.css' para convertir a tarjetas.
+*/
+
+/* Estilo para que el nombre del cliente se vea bien dentro de la tabla */
+.tabla-empresas .cliente-nombre {
+    font-weight: 600;
+    color: #333;
+}
+
+
+/* ============================================
+    DISEÑO RESPONSIVO DEL DASHBOARD
+============================================ */
+@media (max-width: 900px) {
+
+    /* Encabezado */
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-top: 3rem;
+        margin-bottom: 1.5rem;
+    }
+    .dashboard-header h2 {
+        margin-bottom: 0.5rem;
+        font-size: 1.4rem;
+    }
+    .dashboard-header .add-button {
+        width: 100%;
+        justify-content: center;
+        padding: 0.6rem;
+        font-size: 0.95rem;
+    }
+
+    /* Tarjetas (KPIs) */
+    .cards-section {
+        grid-template-columns: 1fr; 
+        gap: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .card {
+        padding: 1rem;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .card-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        flex-shrink: 0; 
+    }
+
+    .card-number {
+        font-size: 1.5rem;
+    }
+    
+    .card-content h3 {
+        font-size: 0.9rem;
+    }
+
+    /* Título de Cotizaciones Recientes */
+    .recent-quotes-section h3 {
+        font-size: 1.2rem;
+        margin-bottom: 0.8rem;
+    }
+
+    /* Ajuste para el contenido responsivo de la tabla de cotizaciones */
+    #tabla-recientes-body td {
+        padding-left: 55%; /* Espacio para el data-label */
+        text-align: right;
+    }
+    #tabla-recientes-body td:before {
+        text-align: left;
+        width: 50%;
+    }
+}

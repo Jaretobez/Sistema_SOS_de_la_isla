@@ -1,49 +1,74 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- 🟢 RUTAS CORREGIDAS: Usan ../js/ 🟢 -->
+    <script src="../js/auth.js"></script> 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Facturación</title>
+    <!-- Título ajustado al contenido -->
+    <title>Gestión de Facturación</title> 
     
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- 🟢 RUTAS CORREGIDAS 🟢 -->
+    <link rel="stylesheet" href="../css/menu.css"> 
+    <link rel="stylesheet" href="../css/facturacion.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
 
     <nav id="sidebar-placeholder" class="sidebar"></nav>
 
-    <main class="content">
-        <div class="panel">
-            <h2>Gestión de Facturación</h2>
+    <!-- 🟢 WRAPPER PRINCIPAL para el efecto PUSH 🟢 -->
+    <div id="main-wrapper" class="main-wrapper"> 
+        
+        <!-- BOTÓN DE TOGGLE reubicado dentro del wrapper -->
+        <button id="btn-toggle-menu" class="menu-toggle">
+            <i class="fa fa-bars"></i>
+        </button>
 
-            <form id="form-busqueda" class="form-busqueda">
-                <input type="search" id="busqueda" placeholder="Buscar por nombre de empresa...">
-                <select id="filtro-pago">
-                    <option value="">Todos los Estados</option>
-                    <option value="Pendiente">Pendiente</option>
-                    <option value="Pagado">Pagado</option>
-                </select>
-                <button type"submit">Buscar</button>
-            </form>
+        <main class="content">
+            <div class="panel">
+                <!-- Título ajustado al contenido -->
+                <h2>Servicios Activos y Facturación</h2> 
 
-            <table class="tabla-empresas">
-                <thead>
-                    <tr>
-                        <th>Empresa</th>
-                        <th>Monto a Pagar</th>
-                        <th>Fecha de Facturación</th>
-                        <th>Estado de Pago</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="tabla-body">
+                <!-- Filtros y Búsqueda para Facturación -->
+                <form id="form-busqueda" class="form-busqueda">
+                    <input type="search" id="busqueda" placeholder="Buscar empresa o monto...">
+                    <select id="filtro-pago">
+                        <option value="">Mostrar Todos</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Pagado">Pagado</option>
+                    </select>
+                    <button type="submit">Buscar</button>
+                </form>
+
+                <!-- 🟢 TABLA AJUSTADA PARA SERVICIOS 🟢 -->
+                <table class="tabla-empresas">
+                    <thead>
+                        <tr>
+                            <th scope="col">Empresa</th>
+                            <th scope="col">Monto Mensual</th>
+                            <th scope="col">Fecha Vencimiento</th>
+                            <th scope="col">Estado de Pago</th>
+                            <th scope="col">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-body">
+                    <!-- Contenido se carga aquí por JS -->
                     </tbody>
-            </table>
-            <p id="no-resultados" style="display: none; text-align: center; padding: 1rem;">
-                No se encontraron facturas pendientes.
-            </p>
-        </div>
-    </main>
+                </table>
+                
+                <p id="no-resultados" style="display: none; text-align: center; padding: 1rem;">
+                    No hay servicios activos para mostrar.
+                </p>
+            </div>
+        </main>
+    </div> <!-- Cierre de #main-wrapper -->
 
-    <script src="main.js"></script> <script src="app_facturacion.js"></script> </body>
+    <div id="modal-form-placeholder"></div>
+    <div id="modal-view-placeholder"></div>
+
+    <!-- 🟢 RUTAS CORREGIDAS 🟢 -->
+    <script src="../main.js"></script> 
+    <script src="../app/app_facturacion.js"></script> 
+</body>
 </html>

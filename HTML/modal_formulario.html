@@ -1,4 +1,4 @@
-<div id="modal-overlay" class="modal-overlay">
+<div class="modal-overlay">
     <div class="modal-content">
         
         <button id="modal-close-btn" class="modal-close-btn">&times;</button>
@@ -6,16 +6,20 @@
 
         <form id="form-cotizacion">
             
-            <fieldset style="border:1px solid #eee; border-radius:4px; padding:1rem; margin-bottom:1rem;">
-                <legend style="padding:0 5px;">Cliente</legend>
+            <fieldset class="modal-fieldset">
+                <legend>Cliente</legend>
                 <input type="hidden" id="modal-empresa-id">
                 <input type="hidden" id="modal-contacto-id">
-                <div><strong>Empresa:</strong> <span id="modal-empresa-nombre"></span></div>
-                <div><strong>Contacto:</strong> <span id="modal-contacto-nombre"></span></div>
+                <div class="modal-input-group">
+                    <strong>Empresa:</strong> <span id="modal-empresa-nombre"></span>
+                </div>
+                <div class="modal-input-group">
+                    <strong>Contacto:</strong> <span id="modal-contacto-nombre"></span>
+                </div>
             </fieldset>
 
-            <fieldset style="border:1px solid #eee; border-radius:4px; padding:1rem; margin-bottom:1rem;">
-                <legend style="padding:0 5px;">Servicio de Recolección</legend>
+            <fieldset class="modal-fieldset">
+                <legend>Servicio de Recolección</legend>
                 
                 <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                     <label for="check-recoleccion">
@@ -24,9 +28,9 @@
                     </label>
                 </div>
                 
-                <div id="dias-recoleccion" class="hidden" style="padding-left: 20px;">
-                    <p style="margin:0.5rem 0;">Días de recolección (+$130.00 c/u):</p>
-                    <div style="display:flex; gap: 10px; flex-wrap: wrap;">
+                <div id="dias-recoleccion" class="hidden recoleccion-dias-container">
+                    <p>Días de recolección (+$130.00 c/u):</p>
+                    <div class="recoleccion-dias-checks">
                         <label><input type="checkbox" class="dia-check" data-precio="130" data-dia="lunes"> Lun</label>
                         <label><input type="checkbox" class="dia-check" data-precio="130" data-dia="martes"> Mar</label>
                         <label><input type="checkbox" class="dia-check" data-precio="130" data-dia="miercoles"> Mié</label>
@@ -35,9 +39,9 @@
                     </div>
                 </div>
 
-                <div id="tipo-residuo-group" class="hidden" style="padding-left: 20px; margin-top: 1rem;">
-                    <p style="margin:0.5rem 0;">Tipo de Residuo:</p>
-                    <div style="display:flex; gap: 20px;">
+                <div id="tipo-residuo-group" class="hidden recoleccion-residuo-group">
+                    <p>Tipo de Residuo:</p>
+                    <div style="display:flex; gap: 20px; flex-wrap: wrap;">
                         <label>
                             <input type="radio" id="tipo-urbano" name="tipo_residuo" value="Urbano" checked>
                             Recolección de Residuos Solidos Urbanos
@@ -49,56 +53,56 @@
                     </div>
                 </div>
 
-                <div id="bolsas-peso-group" class="hidden" style="padding-left: 20px; margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div id="bolsas-peso-group" class="hidden recoleccion-peso-group">
                     <div>
-                        <label for="bolsas-dia" style="display:block; margin-bottom: 5px;">Cantidad de Bolsas (por día)</label>
-                        <input type="number" id="bolsas-dia" value="1" min="1" style="width:100%; padding:0.5rem; box-sizing: border-box;">
+                        <label for="bolsas-dia">Cantidad de Bolsas (por día)</label>
+                        <input type="number" id="bolsas-dia" value="1" min="1">
                     </div>
                     <div>
-                        <label for="peso-bolsa" style="display:block; margin-bottom: 5px;">Peso en KG (por bolsa)</label>
-                        <input type="number" id="peso-bolsa" value="1" min="1" style="width:100%; padding:0.5rem; box-sizing: border-box;">
+                        <label for="peso-bolsa">Peso en KG (por bolsa)</label>
+                        <input type="number" id="peso-bolsa" value="1" min="1">
                     </div>
                 </div>
-                </fieldset>
+            </fieldset>
             
-            <fieldset style="border:1px solid #eee; border-radius:4px; padding:1rem; margin-bottom:1rem;">
-                <legend style="padding:0 5px;">Renta de Tolvas</legend>
-                <div style="display:flex; gap:10px; margin-bottom:10px;">
-                    <select id="select-tolva" style="flex:3; padding:0.5rem;">
+            <fieldset class="modal-fieldset">
+                <legend>Renta de Tolvas</legend>
+                <div class="tolva-add-section">
+                    <select id="select-tolva">
                         <option value="">-- Seleccionar tolva --</option>
                     </select>
-                    <input type="number" id="input-tolva-qty" value="1" min="1" style="flex:1; padding:0.5rem;">
-                    <button type="button" id="btn-add-tolva" style="flex:1; padding:0.5rem;">Agregar</button>
+                    <input type="number" id="input-tolva-qty" value="1" min="1">
+                    <button type="button" id="btn-add-tolva">Agregar</button>
                 </div>
-                <table style="width:100%; border-collapse: collapse;">
+                <table class="modal-table">
                     <thead>
-                        <tr style="border-bottom:1px solid #ccc; text-align:left;">
-                            <th style="padding:0.25rem;">Producto</th>
-                            <th style="padding:0.25rem;">Cant.</th>
-                            <th style="padding:0.25rem;">P.U.</th>
-                            <th style="padding:0.25rem;">Subtotal</th>
-                            <th style="padding:0.25rem;"></th>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cant.</th>
+                            <th>P.U.</th>
+                            <th>Subtotal</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody id="tolvas-tbody"></tbody>
                 </table>
             </fieldset>
 
-            <fieldset style="border:1px solid #eee; border-radius:4px; padding:1rem; margin-bottom:1rem;">
-                <legend style="padding:0 5px;">Total y Forma de Pago</legend>
-                <div style="margin-bottom: 1rem;">
+            <fieldset class="modal-fieldset">
+                <legend>Total y Forma de Pago</legend>
+                <div class="modal-input-group">
                     <label for="forma-pago">Forma de Pago</label>
-                    <select id="forma-pago" style="width:100%; padding:0.5rem;">
+                    <select id="forma-pago" class="modal-full-width-select">
                         <option value="transferencia">Transferencia</option>
                         <option value="efectivo">Efectivo</option>
                     </select>
                 </div>
-                <div style="text-align: right; font-size: 1.5rem; font-weight: bold;">
+                <div class="total-section">
                     TOTAL: $<span id="total-cotizacion">0.00</span>
                 </div>
             </fieldset>
 
-            <button type="submit" style="padding: 0.75rem; background-color: #28a745; color:white; border:none; border-radius: 4px; width:100%; font-size: 1rem;">
+            <button type="submit" class="btn-guardar-cotizacion">
                 Guardar Cotización
             </button>
         </form>

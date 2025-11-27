@@ -1,0 +1,181 @@
+/* ============================================
+    ESTILOS GENERALES DEL LAYOUT Y MENÚ
+    ============================================ */
+
+/* El contenido principal que se mueve con el menú (de general.css) */
+.main-wrapper {
+    /* Por defecto no se mueve */
+    transform: translateX(0); 
+    /* Aplicar la transición para el efecto 'push' */
+    transition: transform 0.3s ease;
+    min-height: 100vh;
+    /* Consolidado: de general.css */
+    padding: 0; 
+}
+
+
+/* ============================================
+    MENÚ LATERAL (SIDEBAR)
+    ============================================ */
+.sidebar {
+    position: fixed; /* Fijo para que no se mueva al hacer scroll */
+    left: 0;
+    top: 0;
+    width: 250px;
+    height: 100%;
+    background: #e91e63;
+    z-index: 1000;
+    /* Iniciar oculto (se desplaza a la izquierda) */
+    transform: translateX(-250px); 
+    transition: transform 0.3s ease;
+}
+
+/* CLASE aplicada al BODY para MOVER el SIDEBAR */
+body.sidebar-open .sidebar {
+    transform: translateX(0);
+}
+
+/* CLASE aplicada al BODY para MOVER el CONTENIDO (Efecto Push) */
+body.sidebar-open .main-wrapper {
+    transform: translateX(250px);
+}
+
+
+/* Header del usuario */
+.sidebar-header {
+    padding: 20px;
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-header p {
+    margin-top: 5px;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* Lista del menú */
+.sidebar-menu {
+    list-style: none;
+    margin: 20px 0;
+    padding: 0 15px;
+}
+
+.sidebar-menu li {
+    margin-bottom: 8px;
+}
+
+.sidebar-menu li a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    color: #fff;
+    background: #c2185b; 
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.sidebar-menu li a:hover {
+    background: #b01552;
+}
+
+.sidebar-menu li.active a {
+    background: #00b894; /* Color de acento */
+}
+
+/* Botón de Logout */
+.logout-btn {
+    position: absolute;
+    bottom: 20px;
+    width: calc(100% - 30px);
+    margin: 0 15px;
+    background: #f44336;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s ease;
+}
+
+.logout-btn:hover {
+    background: #d32f2f;
+}
+
+
+/* ============================================
+    BOTÓN DE TOGGLE
+    ============================================ */
+.menu-toggle {
+    /* El botón se posiciona ABSOLUTO dentro del main-wrapper */
+    position: absolute; 
+    top: 15px;
+    left: 15px;
+    background: #2563eb; 
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 100;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+}
+
+/* ============================================
+   AJUSTE DEL LOGO AL ANCHO COMPLETO
+   ============================================ */
+
+/* 1. Modificar el contenedor (h3) */
+.sidebar-header h3 {
+    /* Eliminar/Sobrescribir los estilos de alineación previa */
+    display: block !important; 
+    
+    /* Asegurar que no tenga margen/padding interno */
+    margin: 0;
+    padding: 0;
+    
+    /* Opcional: Asegura que el texto (si estuviera) no se desborde */
+    text-align: center; 
+}
+
+/* 2. Modificar la imagen (.sidebar-logo) */
+.sidebar-header h3 .sidebar-logo {
+    /* Hacer que la imagen ocupe el 100% del ancho del contenedor h3 */
+    width: 100% !important; 
+    
+    /* Autoajustar la altura para mantener las proporciones */
+    height: auto !important; 
+    
+    /* Eliminar el margen y padding residual */
+    margin: 0;
+    padding: 0;
+    
+    /* Opcional: Esto ayuda a que la imagen respete los bordes */
+    display: block; 
+}
+
+#user-name {
+    /* Darle un poco más de énfasis visual */
+    font-size: 1rem; /* Ligeramente más grande */
+    font-weight: 600; /* Negrita semi-oscura */
+    opacity: 1; /* Quitar la transparencia para destacarlo */
+    color: #ffffff; /* Asegurar el blanco puro */
+    
+    /* Añadir un pequeño prefijo o indicador visual (opcional) */
+    /* Para esto, usamos el pseudo-elemento ::before */
+    margin-top: 10px; /* Separarlo un poco más del logo */
+}
+
+/* Indicador visual: un pequeño círculo o icono de usuario */
+#user-name::before {
+    content: "\f007"; /* Código de Font Awesome para el icono de usuario (fa-user) */
+    font-family: "Font Awesome 6 Free"; /* O la familia que estés usando (ej: 'Font Awesome 5 Free') */
+    font-weight: 900; /* Para el estilo 'Solid' */
+    margin-right: 8px;
+    font-size: 0.9rem;
+    color: #00b894; /* Color de acento (similar al del menú activo) */
+}
