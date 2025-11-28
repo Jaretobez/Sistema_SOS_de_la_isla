@@ -555,29 +555,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
     
-    function actualizarCalculoTotal() {
-        let total = 0;
-        const checkRecoleccion = document.getElementById('check-recoleccion');
-        if (checkRecoleccion.checked) {
-            let costo_base_servicio = parseFloat(checkRecoleccion.dataset.precio || 0);
-            let costo_dias_semanal = 0;
-            const diasChecks = document.querySelectorAll('.dia-check:checked');
-            diasChecks.forEach(check => {
-                costo_dias_semanal += parseFloat(check.dataset.precio || 0);
-            });
-            costo_servicio_mensual += (costo_dias_semanal * 4);
-            total += costo_servicio_mensual;
-            const bolsas_por_dia = parseFloat(document.getElementById('bolsas-dia').value) || 0;
-            const peso_por_bolsa = parseFloat(document.getElementById('peso-bolsa').value) || 0;
-            const dias_seleccionados = diasChecks.length;
-            const costo_extra_peso = (bolsas_por_dia * dias_seleccionados * 4) * peso_por_bolsa * COSTO_POR_KG;
-            total += costo_extra_peso;
-        }
-        document.querySelectorAll('#tolvas-tbody tr').forEach(tr => {
-            total += parseFloat(tr.dataset.qty) * parseFloat(tr.dataset.precio);
-        });
-        document.getElementById('total-cotizacion').textContent = formatearMoneda(total);
-    }
+  
     
     function agregarLineaTolva() {
         const select = document.getElementById('select-tolva');
@@ -603,55 +581,170 @@ document.addEventListener("DOMContentLoaded", () => {
         actualizarCalculoTotal();
     }
 
-    function abrirModalCotizar(id) {
-        modalCotizarPlaceholder.innerHTML = modalCotizarHTML;
+
+    function actualizarCalculoTotal() {
+    let total = 0;
+    const checkRecoleccion = document.getElementById('check-recoleccion');
+    
+    // Validamos que el elemento exista para evitar errores
+    if (checkRecoleccion && checkRecoleccion.checked) {
+        // Obtenemos el precio del dataset (que inyectamos al abrir) o usamos 0 si falla
+        let costo_base = parseFloat(checkRecoleccion.dataset.precio || 0);
+        
+        let costo_dias_semanal = 0;
+        const diasChecks = document.querySelectorAll('.dia-check:checked');
+        
+        diasChecks.forEach(check => {
+            costo_dias_semanal += parseFloat(check.dataset.precio || 0);
+        });
+
+        // Fórmula: Costo Base + (Costo por días extra * 4 semanas)
+        let costo_servicio_mensual = costo_base + (costo_dias_semanal * 4);
+        
+        // Sumamos al total general
+        total += costo_servicio_mensual;
+
+        // --- CÁLCULO DE PESO EXTRA ---
+        const bolsas_por_dia = parseFloat(document.getElementById('bolsas-dia').value) || 0;
+        const peso_por_bolsa = parseFloat(document.getElementById('peso-bolsa').value) || 0;
+        const dias_seleccionados = diasChecks.length;
+        
+        // Fórmula: (Bolsas * DíasSemana * 4semanas) * Peso * CostoKg
+        const costo_extra_peso = (bolsas_por_dia * dias_seleccionados * 4) * peso_por_bolsa * COSTO_POR_KG;
+        
+        total += costo_extra_peso;
+    }
+
+    // --- CÁLCULO DE TOLVAS/RENTAS ---
+    const filasTolvas = document.querySelectorAll('#tolvas-tbody tr');
+    filasTolvas.forEach(tr => {
+        const qty = parseFloat(tr.dataset.qty) || 0;
+        const precio = parseFloat(tr.dataset.precio) || 0;
+        total += (qty * precio);
+    });
+
+    // Actualizamos el texto en pantalla
+    const elementoTotal = document.getElementById('total-cotizacion');
+    if (elementoTotal) {
+        elementoTotal.textContent = formatearMoneda(total);
+    }
+}
+
+   function abrirModalCotizar(id) {
+    // 1. Inyectar HTML (Usamos la variable de perfil)
+    modalCotizarPlaceholder.innerHTML = modalCotizarHTML;
+    
+    // 2. Llenar datos de empresa (Usamos los datos ya cargados en perfil)
+    if (empresaData) {
         document.getElementById("modal-empresa-id").value = empresaData.id_empresa;
         document.getElementById("modal-empresa-nombre").textContent = empresaData.nombre_comercial;
-        const selectContacto = document.createElement('select');
-        selectContacto.id = "modal-contacto-select";
-        selectContacto.style.cssText = "width:100%; padding:0.5rem;";
-        if (contactosData.length > 0) {
-            contactosData.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c.id_contacto;
-                opt.textContent = `${c.nombre} (${c.email})`;
-                selectContacto.appendChild(opt);
-            });
-        } else {
-            selectContacto.innerHTML = "<option value=''>Sin contactos</option>";
-        }
-        document.getElementById("modal-contacto-nombre").replaceWith(selectContacto);
-        const selectTolva = document.getElementById("select-tolva");
-        listaProductos.filter(p => p.unidad === "renta").forEach(p => {
-            const option = document.createElement('option');
-            option.value = p.id_producto;
-            option.textContent = `${p.descripcion} (${formatearMoneda(p.precio_unitario)})`;
-            option.dataset.precio = p.precio_unitario;
-            selectTolva.appendChild(option);
+    }
+
+    // 3. Select de Contactos (Adaptado a la estructura de contactos de Perfil)
+    const selectContacto = document.createElement('select');
+    selectContacto.id = "modal-contacto-select";
+    selectContacto.style.cssText = "width:100%; padding:0.5rem;";
+    
+    if (contactosData && contactosData.length > 0) {
+        contactosData.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id_contacto;
+            opt.textContent = `${c.nombre} (${c.email})`;
+            selectContacto.appendChild(opt);
         });
-        document.getElementById("modal-close-btn").addEventListener("click", cerrarModalCotizar);
-        document.getElementById("form-cotizacion").addEventListener("submit", manejarSubmitCotizacion);
-        document.getElementById("check-recoleccion").addEventListener("change", function() {
+    } else {
+        selectContacto.innerHTML = "<option value=''>Sin contactos</option>";
+    }
+    // Reemplaza el input estático si existe
+    const inputContacto = document.getElementById("modal-contacto-nombre");
+    if(inputContacto) inputContacto.replaceWith(selectContacto);
+
+
+    // 4. Select de Tolvas (Productos de Renta)
+    const selectTolva = document.getElementById("select-tolva");
+    // Filtramos explícitamente las rentas o tolvas
+    const productosTolva = listaProductos.filter(p => p.unidad === "renta" || p.descripcion.toLowerCase().includes('tolva'));
+    
+    productosTolva.forEach(p => {
+        const option = document.createElement('option');
+        option.value = p.id_producto;
+        option.textContent = `${p.descripcion} (${formatearMoneda(p.precio_unitario)})`;
+        option.dataset.precio = p.precio_unitario;
+        selectTolva.appendChild(option);
+    });
+
+    // 🟢 5. CORRECCIÓN DEFINITIVA: ENCONTRAR EL PRECIO REAL DEL SERVICIO 🟢
+    const checkRecoleccion = document.getElementById("check-recoleccion");
+    
+    if (checkRecoleccion) {
+        // A) Intentamos buscar por SKU 'P-001' primero
+        let productoServicio = listaProductos.find(p => p.sku === 'P-001'); 
+        
+        // B) Si no existe el SKU, buscamos por nombre (evitando las tolvas)
+        if (!productoServicio) {
+             productoServicio = listaProductos.find(p => {
+                 const desc = p.descripcion.toLowerCase();
+                 // Debe decir 'recolección' o 'servicio' Y NO ser 'tolva' ni 'renta'
+                 return (desc.includes('recolección') || desc.includes('servicio')) 
+                        && !desc.includes('renta') 
+                        && !desc.includes('tolva');
+             });
+        }
+
+        if (productoServicio) {
+            console.log("Servicio de Recolección detectado:", productoServicio.descripcion, "Precio:", productoServicio.precio_unitario);
+            
+            // Asignamos el precio real al checkbox
+            checkRecoleccion.dataset.precio = productoServicio.precio_unitario;
+            
+            // Actualizamos la etiqueta visual para que veas el precio correcto
+            const label = document.querySelector('label[for="check-recoleccion"]');
+            if (label) {
+                const textoLimpio = "Incluir servicio de recolección"; 
+                label.innerHTML = `${textoLimpio} <strong>(${formatearMoneda(productoServicio.precio_unitario)})</strong>`;
+            }
+        } else {
+            console.warn("ADVERTENCIA: No se encontró un producto de 'Servicio de Recolección' válido en la BD.");
+        }
+    }
+
+    // 6. Listeners (Eventos)
+    document.getElementById("modal-close-btn").addEventListener("click", cerrarModalCotizar);
+    document.getElementById("form-cotizacion").addEventListener("submit", manejarSubmitCotizacion);
+    
+    // Listener del Checkbox Principal
+    if (checkRecoleccion) {
+        checkRecoleccion.addEventListener("change", function() {
             const estaMarcado = this.checked;
             document.getElementById("dias-recoleccion").classList.toggle('hidden', !estaMarcado);
             document.getElementById("tipo-residuo-group").classList.toggle('hidden', !estaMarcado);
             document.getElementById("bolsas-peso-group").classList.toggle('hidden', !estaMarcado);
+            
             if (!estaMarcado) {
                 document.querySelectorAll('.dia-check').forEach(check => check.checked = false);
+                // Limpiamos inputs para evitar cálculos erróneos ocultos
+                document.getElementById('bolsas-dia').value = "";
+                document.getElementById('peso-bolsa').value = "";
             }
             actualizarCalculoTotal();
         });
-        document.querySelectorAll(".dia-check").forEach(check => check.addEventListener("change", actualizarCalculoTotal));
-        document.getElementById("bolsas-dia").addEventListener("input", actualizarCalculoTotal);
-        document.getElementById("peso-bolsa").addEventListener("input", actualizarCalculoTotal);
-        document.getElementById("btn-add-tolva").addEventListener("click", agregarLineaTolva);
-        document.getElementById("tolvas-tbody").addEventListener("click", (e) => {
-            if (e.target.classList.contains("btn-borrar-linea")) {
-                e.target.closest("tr").remove();
-                actualizarCalculoTotal();
-            }
-        });
     }
+
+    // Listeners de recálculo en tiempo real
+    document.querySelectorAll(".dia-check").forEach(check => check.addEventListener("change", actualizarCalculoTotal));
+    document.getElementById("bolsas-dia").addEventListener("input", actualizarCalculoTotal);
+    document.getElementById("peso-bolsa").addEventListener("input", actualizarCalculoTotal);
+    
+    // Listeners para Tolvas
+    document.getElementById("btn-add-tolva").addEventListener("click", agregarLineaTolva);
+    
+    document.getElementById("tolvas-tbody").addEventListener("click", (e) => {
+        if (e.target.classList.contains("btn-borrar-linea")) {
+            e.target.closest("tr").remove();
+            actualizarCalculoTotal();
+        }
+    });
+}
 
 
     // --- Ejecutar la carga inicial ---

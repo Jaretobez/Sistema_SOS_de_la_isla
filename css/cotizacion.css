@@ -609,3 +609,128 @@ textarea:focus {
     .tolva-add-section { flex-direction: column; }
     .tolva-add-section select, .tolva-add-section input, .tolva-add-section button { width: 100%; }
 }
+
+/* =======================================================
+   NUEVOS ESTILOS: MODAL VER COTIZACIÓN (DISEÑO DE 3 BLOQUES)
+   ======================================================= */
+
+/* 1. BLOQUE SERVICIO (AZUL) */
+/* Este ID o clase debes ponérselo al div que encierra el Servicio de Recolección */
+#view-servicio-container, 
+.bloque-servicio-azul {
+    background-color: #eff6ff; /* Fondo Azul muy claro */
+    border: 2px solid #60a5fa; /* Borde Azul medio */
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    text-align: center; /* Centramos para darle orden */
+}
+
+#view-servicio-nombre {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e40af; /* Azul fuerte para el título */
+    margin-bottom: 5px;
+    display: block;
+}
+
+#view-servicio-detalle {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* El precio del servicio (Hacerlo "chico" como pediste) */
+#view-servicio-total {
+    font-size: 1.2rem; /* Tamaño normal, no gigante */
+    font-weight: 600;
+    color: #3b82f6;
+    background: white;
+    padding: 2px 10px;
+    border-radius: 15px;
+    border: 1px solid #bfdbfe;
+    display: inline-block;
+}
+
+/* Ocultar la etiqueta "Total Mensual" si está en un span/label separado */
+/* Nota: Si el texto está suelto en el HTML, tendrás que borrarlo manualmente del HTML */
+.label-total-mensual {
+    display: none; 
+}
+
+
+/* 2. BLOQUE RENTAS (AMARILLO) */
+/* Envolveremos la tabla en este estilo o se lo aplicamos al contenedor de la tabla */
+.bloque-rentas-amarillo {
+    background-color: #fefce8; /* Fondo Amarillo claro */
+    border: 2px solid #facc15; /* Borde Amarillo fuerte */
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 25px;
+}
+
+.bloque-rentas-amarillo h3, 
+.titulo-rentas {
+    color: #a16207; /* Texto Ocre/Dorado */
+    font-size: 1rem;
+    text-transform: uppercase;
+    border-bottom: 1px dashed #fde047;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+/* Forzamos el estilo de la tabla dentro del bloque amarillo */
+.bloque-rentas-amarillo table th {
+    background-color: #fef08a !important; /* Cabecera Amarilla */
+    color: #854d0e !important;
+    border-bottom: 1px solid #eab308 !important;
+}
+
+
+/* 3. BLOQUE TOTAL GLOBAL (VERDE GIGANTE) */
+/* Este es el cambio más importante */
+.bloque-total-verde {
+    background-color: #dcfce7; /* Fondo Verde menta */
+    border: 4px solid #16a34a; /* Borde Verde fuerte y grueso */
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    margin-top: 30px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    animation: pulseGreen 2s infinite; /* Efecto suave para llamar la atención */
+}
+
+/* Etiqueta "TOTAL GLOBAL" */
+.label-total-global {
+    display: block;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #15803d;
+    margin-bottom: 5px;
+}
+
+/* El NÚMERO gigante */
+#view-total {
+    display: block;
+    font-size: 3.5rem; /* ¡Muy Grande! */
+    font-weight: 900;
+    color: #14532d; /* Verde muy oscuro */
+    line-height: 1;
+    text-shadow: 2px 2px 0px rgba(255,255,255,0.5);
+}
+
+@keyframes pulseGreen {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4); }
+    70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(22, 163, 74, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+}
+
+/* Ajuste Responsivo para que el número no rompa la pantalla en celular */
+@media (max-width: 600px) {
+    #view-total {
+        font-size: 2.5rem;
+    }
+}
