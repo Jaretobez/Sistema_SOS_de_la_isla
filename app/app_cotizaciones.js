@@ -54,14 +54,29 @@ function initCotizacionesApp() {
     // --- 3. Inicialización de Listeners ---
     
     // Lógica de Pestañas
-    tabButtons.forEach(button => {
-        button.addEventListener("click", () => {
-            tabButtons.forEach(btn => btn.classList.remove("active"));
-            tabContents.forEach(content => content.classList.remove("active"));
-            button.classList.add("active");
-            document.getElementById(button.dataset.tab).classList.add("active");
-        });
-    });
+        tabButtons.forEach(button => {
+                button.addEventListener("click", () => {
+                    // 🟢 VALIDACIÓN NUEVA: Si el botón no es una pestaña real (como Cotización Rápida), ignorar.
+                    if (!button.dataset.tab) return; 
+
+                    // Quitar clase active a todos los botones que sean tabs
+                    tabButtons.forEach(btn => {
+                        if(btn.dataset.tab) btn.classList.remove("active");
+                    });
+
+                    // Ocultar todos los contenidos
+                    tabContents.forEach(content => content.classList.remove("active"));
+                    
+                    // Activar el botón clickeado
+                    button.classList.add("active");
+                    
+                    // Mostrar el contenido correspondiente (Validando que exista)
+                    const tabDestino = document.getElementById(button.dataset.tab);
+                    if (tabDestino) {
+                        tabDestino.classList.add("active");
+                    }
+                });
+            });
 
     // Lógica de Clientes
     formBusquedaClientes.addEventListener("submit", (e) => e.preventDefault());
@@ -101,6 +116,11 @@ function initCotizacionesApp() {
     });
 }
 
+// 🟢 NUEVO LISTENER PARA COTIZACIÓN RÁPIDA 🟢
+    const btnRapida = document.getElementById("btn-cotizacion-rapida");
+    if (btnRapida) {
+        btnRapida.addEventListener("click", abrirModalRapida);
+    }
 
 // --- FUNCIONES DE LÓGICA ---
 
@@ -1078,4 +1098,104 @@ async function generarPDFProfesional() {
 function formatearFolio(id) {
     const year = new Date().getFullYear(); // Usa el año actual
     return `COM_${id}_${year}`;
+}
+
+
+/**
+ * 🟢 FUNCION: COTIZACIÓN RÁPIDA (SOLO CÁLCULO)
+ * Reutiliza el modal pero sin vincular cliente y sin permitir guardar.
+ */
+function abrirModalRapida() {
+    // 1. Inyectar HTML del modal (El mismo que usas siempre)
+    modalPlaceholder.innerHTML = modalHTML;
+
+    // 2. Modificar Visualmente para indicar que es modo "Rápido"
+    document.getElementById("modal-empresa-id").value = "0"; // ID ficticio
+    
+    // Cambiar etiqueta de Nombre de Empresa
+    const lblEmpresa = document.getElementById("modal-empresa-nombre");
+    lblEmpresa.textContent = "COTIZACIÓN RÁPIDA / MOSTRADOR";
+    lblEmpresa.style.backgroundColor = "#eef2ff";
+    lblEmpresa.style.color = "#4338ca";
+    lblEmpresa.style.border = "1px dashed #4338ca";
+    
+    // Ocultar/Modificar contacto
+    const lblContacto = document.getElementById("modal-contacto-nombre");
+    lblContacto.textContent = "Sin contacto vinculado";
+    lblContacto.style.color = "#999";
+
+    // 3. Llenar Select de Tolvas (Igual que en abrirModal normal)
+    const selectTolva = document.getElementById("select-tolva");
+    const productosTolva = listaProductos.filter(p => p.unidad === "renta");
+    
+    // Limpiar opciones previas si las hubiera y poner default
+    selectTolva.innerHTML = '<option value="">Seleccione una tolva...</option>';
+    
+    productosTolva.forEach(p => {
+        const option = document.createElement('option');
+        option.value = p.id_producto;
+        option.textContent = `${p.descripcion} (${formatearMoneda(p.precio_unitario)})`;
+        option.dataset.precio = p.precio_unitario;
+        selectTolva.appendChild(option);
+    });
+
+    // 4. CONFIGURAR LISTENERS DE CÁLCULO (Crucial para que funcione la calculadora)
+    
+    // Botón cerrar
+    document.getElementById("modal-close-btn").addEventListener("click", cerrarModal);
+
+    // Checkbox Recolección
+    document.getElementById("check-recoleccion").addEventListener("change", function() {
+        const estaMarcado = this.checked;
+        document.getElementById("dias-recoleccion").classList.toggle('hidden', !estaMarcado);
+        document.getElementById("tipo-residuo-group").classList.toggle('hidden', !estaMarcado);
+        document.getElementById("bolsas-peso-group").classList.toggle('hidden', !estaMarcado);
+        
+        if (!estaMarcado) {
+            document.querySelectorAll('.dia-check').forEach(check => check.checked = false);
+        }
+        actualizarCalculoTotal();
+    });
+
+    // Inputs que afectan el total
+    document.querySelectorAll(".dia-check").forEach(check => check.addEventListener("change", actualizarCalculoTotal));
+    document.getElementById("bolsas-dia").addEventListener("input", actualizarCalculoTotal);
+    document.getElementById("peso-bolsa").addEventListener("input", actualizarCalculoTotal);
+    
+    // Lógica de Tolvas
+    document.getElementById("btn-add-tolva").addEventListener("click", agregarLineaTolva);
+    document.getElementById("tolvas-tbody").addEventListener("click", (e) => {
+        if (e.target.classList.contains("btn-borrar-linea")) {
+            e.target.closest("tr").remove();
+            actualizarCalculoTotal();
+        }
+    });
+
+    // Forma de Pago (IVA)
+    const selectPago = document.getElementById("forma-pago");
+    if (selectPago) {
+        selectPago.addEventListener("change", actualizarCalculoTotal);
+    }
+
+    // 5. 🛑 BLOQUEAR EL GUARDADO 🛑
+    // Como es rápida, eliminamos el botón de submit para que no intenten guardar en BD
+    const form = document.getElementById("form-cotizacion");
+    const btnGuardar = form.querySelector('button[type="submit"]');
+    
+    // Reemplazamos el botón de guardar por uno que solo cierra
+    const btnCerrar = document.createElement("button");
+    btnCerrar.type = "button";
+    btnCerrar.className = "btn-guardar-cotizacion"; // Usamos misma clase para estilo
+    btnCerrar.style.backgroundColor = "#6b7280"; // Gris
+    btnCerrar.textContent = "Cerrar Calculadora";
+    btnCerrar.onclick = cerrarModal;
+    
+    // Reemplazar en el DOM
+    btnGuardar.replaceWith(btnCerrar);
+
+    // Evitar submit del form por si acaso
+    form.onsubmit = (e) => e.preventDefault();
+
+    // 6. Cálculo inicial
+    actualizarCalculoTotal();
 }
