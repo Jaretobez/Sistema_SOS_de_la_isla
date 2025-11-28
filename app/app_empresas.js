@@ -259,11 +259,18 @@ document.addEventListener("DOMContentLoaded", () => {
             const nombre = bloque.querySelector(".cont-nombre").value;
             const email = bloque.querySelector(".cont-email").value;
             const telefono = bloque.querySelector(".cont-telefono").value; 
+            
+            // OJO AQUÍ: Obtenemos el valor crudo del ID
+            const idRaw = bloque.querySelector(".cont-id").value;
+
+            // CORRECCIÓN: Si es string vacío, lo convertimos a NULL
+            const idContactoLimpio = (idRaw && idRaw.trim() !== "") ? idRaw : null;
+
             const cargo = bloque.querySelector(".cont-cargo") ? bloque.querySelector(".cont-cargo").value : null; 
             
             if (nombre && email) { 
                 contactosData.push({
-                    id_contacto: bloque.querySelector(".cont-id").value, 
+                    id_contacto: idContactoLimpio, // Usamos la variable limpia
                     nombre: nombre,
                     email: email,
                     telefono: telefono,

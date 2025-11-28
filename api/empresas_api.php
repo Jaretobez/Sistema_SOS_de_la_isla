@@ -192,9 +192,16 @@ function handle_post_request() {
             // 2. Sincronizar Contactos
             $ids_contactos_enviados = []; 
             
+
+            // 2. Sincronizar Contactos
+            $ids_contactos_enviados = []; 
+
             foreach ($data->contactos as $contacto) {
+                // Si tiene ID y NO está vacío (es una edición)
                 if (isset($contacto->id_contacto) && !empty($contacto->id_contacto)) {
-                    $ids_contactos_enviados[] = $contacto->id_contacto;
+                    
+                    $ids_contactos_enviados[] = $contacto->id_contacto; // Agregar a la lista segura
+                    
                     $sql_c = "UPDATE Contacto SET nombre = ?, email = ?, telefono = ? WHERE id_contacto = ? AND id_empresa = ?";
                     $pdo->prepare($sql_c)->execute([
                         $contacto->nombre, 
@@ -203,26 +210,44 @@ function handle_post_request() {
                         $contacto->id_contacto, 
                         $emp->id_empresa
                     ]);
+
                 } else {
+                    // Es un contacto NUEVO (INSERT)
                     $sql_c = "INSERT INTO Contacto (id_empresa, nombre, email, telefono, fecha_registro_contacto) VALUES (?, ?, ?, ?, CURDATE())";
-                    $pdo->prepare($sql_c)->execute([
+                    $stmt_insert = $pdo->prepare($sql_c);
+                    $stmt_insert->execute([
                         $emp->id_empresa, 
                         $contacto->nombre, 
                         $contacto->email, 
                         $contacto->telefono
                     ]);
+
+                    // --- CORRECCIÓN CRÍTICA AQUÍ ---
+                    // Obtenemos el ID que la BD le acaba de asignar y lo metemos a la lista segura
+                    // para que el DELETE de abajo no lo borre.
+                    $nuevo_id = $pdo->lastInsertId();
+                    $ids_contactos_enviados[] = $nuevo_id; 
                 }
             }
-            
-            // 3. Borrar contactos que fueron eliminados
+
+            // 3. Borrar contactos que fueron eliminados en la interfaz
+            // Nota: Agregué una validación extra. Si borraste TODOS los contactos en el JS,
+            // el array estará vacío y debemos permitir que se borren todos en la BD.
             if (!empty($ids_contactos_enviados)) {
                 $placeholders = implode(',', array_fill(0, count($ids_contactos_enviados), '?'));
                 $sql_del = "DELETE FROM Contacto WHERE id_empresa = ? AND id_contacto NOT IN ($placeholders)";
                 $params = array_merge([$emp->id_empresa], $ids_contactos_enviados);
                 $pdo->prepare($sql_del)->execute($params);
+            } else {
+                // Si el array está vacío, significa que el usuario borró todos los contactos visualmente.
+                // (Aunque tu JS valida que haya al menos uno, es bueno tener esto por seguridad de lógica)
+                // OJO: Si tu regla de negocio obliga a tener 1 contacto, esto no se ejecutará nunca gracias a tu JS.
+                // Pero si permites 0 contactos, descomenta la línea de abajo:
+                // $pdo->prepare("DELETE FROM Contacto WHERE id_empresa = ?")->execute([$emp->id_empresa]);
             }
 
             $pdo->commit();
+
             echo json_encode(['success' => true, 'message' => 'Empresa modificada con éxito']);
 
         } elseif ($modo === 'eliminar_empresa') {
