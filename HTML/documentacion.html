@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subida de Documentos</title>
+
+    <script src="../js/auth.js"></script>
+
+    <link rel="stylesheet" href="../css/menu.css">
+    <link rel="stylesheet" href="../css/documentacion.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+
+    <nav id="sidebar-placeholder" class="sidebar"></nav>
+
+    <div id="main-wrapper" class="main-wrapper"> 
+        
+        <button id="btn-toggle-menu" class="menu-toggle">
+            <i class="fa fa-bars"></i>
+        </button>
+
+        <main class="content">
+
+            <div class="panel">
+
+                <h2>Subir Documentos</h2>
+
+                <div class="tabs">
+                    <button class="tab-button active" data-tab="tab-subir">
+                        <i class="fa fa-upload"></i> Subir Documentos
+                    </button>
+
+                    <button class="tab-button" data-tab="tab-archivos">
+                        <i class="fa fa-file"></i> Archivos Subidos
+                    </button>
+                </div>
+
+                <!-- Pestaña para subir documentos -->
+                <div id="tab-subir" class="tab-content active">
+
+                    <form id="form-upload-docs" class="form-busqueda">
+                        <div class="documentos">
+                            <div class="documento">
+                                <label for="situacion_fiscal">Constancia de Situación Fiscal</label>
+                                <input type="file" id="situacion_fiscal" name="situacion_fiscal" accept=".pdf">
+                                <button class="btn" onclick="uploadFile('situacion_fiscal')">Subir</button>
+                            </div>
+                            <div class="documento">
+                                <label for="identificacion_oficial">Identificación Oficial (Rep.)</label>
+                                <input type="file" id="identificacion_oficial" name="identificacion_oficial" accept="image/*,application/pdf">
+                                <button class="btn" onclick="uploadFile('identificacion_oficial')">Subir</button>
+                            </div>
+                            <div class="documento">
+                                <label for="poder_notarial">Poder Notarial (Rep.)</label>
+                                <input type="file" id="poder_notarial" name="poder_notarial" accept="image/*,application/pdf">
+                                <button class="btn" onclick="uploadFile('poder_notarial')">Subir</button>
+                            </div>
+                            <div class="documento">
+                                <label for="comprobante_domicilio">Comprobante de Domicilio</label>
+                                <input type="file" id="comprobante_domicilio" name="comprobante_domicilio" accept="image/*,application/pdf">
+                                <button class="btn" onclick="uploadFile('comprobante_domicilio')">Subir</button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+
+                <!-- Pestaña para archivos subidos -->
+                <div id="tab-archivos" class="tab-content">
+                    <p>No se han subido archivos aún.</p>
+                </div>
+
+            </div>
+            
+        </main> 
+    </div> 
+
+    <script src="../main.js"></script>
+    <script src="../app/app_subir_documentos.js"></script>
+</body>
+</html>

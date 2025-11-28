@@ -1,0 +1,227 @@
+/* ============================================
+   IMPORTACIÓN DE ESTILOS BASE
+   ============================================ */
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #f4f6f9; 
+}
+
+.content {
+    padding: 2rem;
+    background: #f4f6f9;
+    min-height: 100vh;
+}
+
+.panel {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1); /* Mejora de sombra para un toque más elegante */
+    margin-top: 2.5rem;
+}
+
+/* Título */
+.panel h2 {
+    margin-bottom: 2rem;
+    font-size: 1.6rem;
+    color: #333;
+    font-weight: 600;
+}
+
+/* ============================================
+   ESTILOS PARA LOS TABS (Pestañas)
+   ============================================ */
+.tabs {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 2rem;
+}
+
+.tab-button {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    background: #e6e6e6;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    color: #555;
+}
+
+.tab-button.active {
+    background: #2563eb;
+    color: white;
+}
+
+.tab-button:hover:not(.active) {
+    background: #d4d4d4;
+}
+
+/* Contenidos de los tabs */
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
+   ESTILOS DE LA TABLA DE DOCUMENTOS
+   ============================================ */
+.tabla-documentos {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2rem;
+}
+
+.tabla-documentos th,
+.tabla-documentos td {
+    padding: 1rem;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.tabla-documentos th {
+    background: #f7fafc;
+    text-align: left;
+    font-size: 1.1rem;
+    color: #555;
+}
+
+.tabla-documentos td {
+    font-size: 1rem;
+    color: #333;
+}
+
+/* Estilo de los enlaces de las columnas */
+.tabla-documentos td a {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.tabla-documentos td a:hover {
+    text-decoration: underline;
+}
+
+/* ============================================
+   ESTILOS DE ACCIONES EN LA TABLA
+   ============================================ */
+.tabla-documentos td .acciones {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.tabla-documentos td .acciones .btn-accion {
+    background: none;
+    border: none;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: background 0.3s, transform 0.3s ease;
+}
+
+.tabla-documentos td .acciones .btn-accion.ver {
+    color: #3b82f6; /* Azul */
+}
+
+.tabla-documentos td .acciones .btn-accion.editar {
+    color: #2563eb; /* Azul oscuro */
+}
+
+.tabla-documentos td .acciones .btn-accion.eliminar {
+    color: #ef4444; /* Rojo */
+}
+
+.tabla-documentos td .acciones .btn-accion:hover {
+    background: #f0f0f0;
+    transform: scale(1.1); /* Efecto de hover */
+}
+
+/* ============================================
+   ESTILOS DE BOTÓN DE CARGA
+   ============================================ */
+.btn-upload {
+    background-color: #059669;
+    padding: 12px;
+    border: none;
+    color: white;
+    font-weight: 600;
+    width: 100%;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+}
+
+.btn-upload:hover {
+    background-color: #047857;
+}
+
+/* ============================================
+   DISEÑO RESPONSIVO DE TABLAS (MÓVIL)
+   ============================================ */
+@media (max-width: 900px) {
+    /* Ajustes generales en móvil */
+    .content {
+        padding: 1rem;
+    }
+    .panel {
+        padding: 2rem;
+    }
+
+    /* Formularios de búsqueda y filtro en móvil */
+    .form-busqueda {
+        flex-direction: column;
+    }
+    .form-busqueda button {
+        width: 100%;
+    }
+
+    /* Tablas convertidas a tarjetas en móviles */
+    .tabla-documentos {
+        display: block;
+        width: 100%;
+    }
+
+    .tabla-documentos th {
+        display: none; /* Ocultar los encabezados */
+    }
+
+    .tabla-documentos td {
+        display: block;
+        text-align: right;
+        padding-left: 50%; /* Espacio para etiquetas */
+        position: relative;
+        border-bottom: 1px solid #eee;
+        font-size: 0.9rem;
+    }
+
+    .tabla-documentos td::before {
+        position: absolute;
+        left: 10px;
+        width: 50%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: bold;
+        color: #1f2937;
+        font-size: 0.9rem;
+    }
+
+    /* Etiquetas de las celdas móviles */
+    .tabla-documentos td:nth-of-type(1)::before { content: "Documento"; }
+    .tabla-documentos td:nth-of-type(2)::before { content: "Fecha de Subida"; }
+    .tabla-documentos td:nth-of-type(3)::before { content: "Acciones"; }
+}
