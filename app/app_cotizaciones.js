@@ -9,6 +9,8 @@ let datosCombinados = [];
 let listaProductos = [];
 let listaCotizaciones = [];
 let modalHTML = ""; 
+let modalViewHTML = ""; // Nueva variable para el HTML del modal de ver
+let datosCotizacionActual = null; // Para guardar datos al generar PDF
 
 // --- Selectores del DOM (Declarados globalmente, inicializados en init) ---
 let tabButtons;
@@ -107,18 +109,21 @@ async function cargarDatosIniciales() {
     try {
         const [
             respModalHTML,
+            respModalViewHTML, // <--- NUEVO
             respClientes,
             respProductos,
             respCotizaciones
         ] = await Promise.all([
-            // Desde 'app/', subimos a la raíz (../) y entramos a 'html/'.
             fetch("../html/modal_formulario.html"), 
+            fetch("../html/modal_ver_cotizacion.html"), // <--- NUEVO: Cargar el nuevo archivo
             fetch(`${API_URL}?accion=leer_clientes`),
             fetch(`${API_URL}?accion=leer_productos`),
             fetch(`${API_URL}?accion=leer_cotizaciones`)
         ]);
 
         modalHTML = await respModalHTML.text();
+        modalViewHTML = await respModalViewHTML.text(); // <--- Guardamos el texto
+        
         datosCombinados = await respClientes.json();
         listaProductos = await respProductos.json();
         listaCotizaciones = await respCotizaciones.json();
@@ -128,10 +133,7 @@ async function cargarDatosIniciales() {
 
     } catch (error) {
         console.error("Error fatal al cargar datos iniciales:", error); 
-        if (noResultadosClientes) {
-            noResultadosClientes.textContent = "Error al cargar datos. Revisa la consola (F12).";
-            noResultadosClientes.style.display = "block";
-        }
+        // ... manejo de error existente ...
     }
 }
 
@@ -192,7 +194,7 @@ function renderizarTablaCotizaciones(cotizaciones) {
         const estadoClase = estadoTexto.toLowerCase().replace(" ", "");
 
         tr.innerHTML = `
-            <td data-label="Folio">${cot.id_cotizacion}</td>
+            <td data-label="Folio">${formatearFolio(cot.id_cotizacion)}</td>
             <td data-label="Cliente">${cot.nombre_comercial || 'Cliente no encontrado'}</td>
             <td data-label="Total">${formatearMoneda(cot.total)}</td>
             <td data-label="Estado"><span class="badge ${estadoClase}">${estadoTexto}</span></td>
@@ -314,29 +316,55 @@ function agregarLineaTolva() {
 }
 
 function actualizarCalculoTotal() {
-    let total = 0;
+    let subtotal = 0; // Cambiamos el nombre de 'total' a 'subtotal' para no confundirnos
+
+    // 1. Calcular costo del Servicio de Recolección (si está marcado)
     const checkRecoleccion = document.getElementById('check-recoleccion');
     if (checkRecoleccion.checked) {
         let costo_servicio_mensual = parseFloat(checkRecoleccion.dataset.precio || 0);
         let costo_dias_semanal = 0;
+        
         const diasChecks = document.querySelectorAll('.dia-check:checked');
         diasChecks.forEach(check => {
             costo_dias_semanal += parseFloat(check.dataset.precio || 0);
         });
+
+        // Sumar mensualidad base + días extra al mes
         costo_servicio_mensual += (costo_dias_semanal * 4);
-        total += costo_servicio_mensual;
+        subtotal += costo_servicio_mensual;
+
+        // Calcular sobrepeso
         const bolsas_por_dia = parseFloat(document.getElementById('bolsas-dia').value) || 0;
         const peso_por_bolsa = parseFloat(document.getElementById('peso-bolsa').value) || 0;
         const dias_seleccionados = diasChecks.length;
+
         const bolsas_por_semana = bolsas_por_dia * dias_seleccionados;
         const bolsas_por_mes = bolsas_por_semana * 4;
         const peso_total_mes = bolsas_por_mes * peso_por_bolsa;
+        
         const costo_extra_peso = peso_total_mes * COSTO_POR_KG;
-        total += costo_extra_peso;
+        subtotal += costo_extra_peso;
     }
+
+    // 2. Calcular costo de las Tolvas / Rentas
     document.querySelectorAll('#tolvas-tbody tr').forEach(tr => {
-        total += parseFloat(tr.dataset.qty) * parseFloat(tr.dataset.precio);
+        subtotal += parseFloat(tr.dataset.qty) * parseFloat(tr.dataset.precio);
     });
+
+    // 3. CALCULAR IVA Y TOTAL FINAL
+    const iva = subtotal * 0.16;
+    const total = subtotal + iva;
+
+    // 4. Mostrar en pantalla
+    // Verificamos si existen los elementos (por si usas el modal viejo)
+    if(document.getElementById('subtotal-cotizacion')) {
+        document.getElementById('subtotal-cotizacion').textContent = formatearMoneda(subtotal);
+    }
+    if(document.getElementById('iva-cotizacion')) {
+        document.getElementById('iva-cotizacion').textContent = formatearMoneda(iva);
+    }
+    
+    // Este siempre existe
     document.getElementById('total-cotizacion').textContent = formatearMoneda(total);
 }
 
@@ -574,11 +602,502 @@ async function eliminarCotizacion(id) {
     }
 }
 
-function abrirModalVerCotizacion(id) {
-    // Usamos console.log/custom modal en lugar de alert()
-    console.log("Función 'Ver Detalles' aún no implementada.");
+async function abrirModalVerCotizacion(id) {
+    try {
+        // 1. Mostrar estado de carga (opcional, o simplemente esperar)
+        console.log("Cargando detalles de cotización " + id + "...");
+
+        // 2. Pedir datos completos a la API
+        const resp = await fetch(`${API_URL}?accion=leer_detalle_cotizacion&id=${id}`);
+        const data = await resp.json();
+
+        if (!data.success) {
+            alert("Error: " + (data.error || "No se pudo cargar la cotización"));
+            return;
+        }
+
+        const cabecera = data.cotizacion;
+        const productos = data.detalles;
+        datosCotizacionActual = { cabecera, productos }; // Guardar para el PDF
+
+        // 3. Inyectar el HTML en el placeholder correcto
+        modalViewPlaceholder.innerHTML = modalViewHTML;
+
+        // 4. Llenar los campos visuales generales
+       document.getElementById('view-folio').textContent = formatearFolio(cabecera.id_cotizacion);
+        
+        const badge = document.getElementById('view-estado');
+        badge.textContent = cabecera.estado_cotizacion;
+        badge.className = 'badge ' + cabecera.estado_cotizacion.toLowerCase().replace(" ", "");
+
+        document.getElementById('view-cliente').textContent = cabecera.nombre_comercial;
+        document.getElementById('view-contacto').textContent = `${cabecera.contacto_nombre} (${cabecera.contacto_email})`;
+        document.getElementById('view-fecha').textContent = cabecera.fecha_vencimiento || 'N/A';
+        document.getElementById('view-pago').textContent = cabecera.forma_de_pago || 'N/A';
+        document.getElementById('view-total').textContent = formatearMoneda(cabecera.total);
+
+        // --- 5. LÓGICA DE SEPARACIÓN (SERVICIO vs RENTAS) ---
+        
+        // Elementos del DOM
+        const containerServicio = document.getElementById('view-servicio-container');
+        const txtServicioNombre = document.getElementById('view-servicio-nombre');
+        const txtServicioTotal = document.getElementById('view-servicio-total');
+        const txtServicioDetalle = document.getElementById('view-servicio-detalle');
+        
+        const tbody = document.getElementById('view-tabla-productos');
+        const msgNoProductos = document.getElementById('view-no-productos');
+        
+        // Resetear visualización
+        tbody.innerHTML = '';
+        containerServicio.style.display = 'none';
+        msgNoProductos.style.display = 'none';
+        let hayProductosExtra = false;
+
+        productos.forEach(prod => {
+            const cantidad = parseFloat(prod.cantidad);
+            const precio = parseFloat(prod.precio_unitario);
+            const subtotal = cantidad * precio;
+
+            // ¿Es el Servicio de Recolección? (Identificamos porque tiene 'tipo_residuo')
+            if (prod.tipo_residuo) { // Si no es null o vacío
+                containerServicio.style.display = 'block'; // Mostramos el bloque azul
+                
+                // Formateamos el texto: "RSU (Urbano)" o "RME (Especial)"
+                const tipoTexto = (prod.tipo_residuo === 'Urbano') 
+                    ? 'Recolección de Residuos Sólidos Urbanos (RSU)' 
+                    : 'Recolección de Manejo Especial (RME)';
+                
+                txtServicioNombre.textContent = tipoTexto;
+                txtServicioTotal.textContent = formatearMoneda(subtotal); // Total del servicio
+                
+                // Detalles pequeños abajo
+                txtServicioDetalle.textContent = `${prod.bolsas_por_dia} bolsas/día`;
+
+            } else {
+                // Es una Renta (Tolva) u otro producto -> A LA TABLA
+                hayProductosExtra = true;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${prod.nombre_producto}</td>
+                    <td style="text-align:center;">${cantidad}</td>
+                    <td style="text-align:right;">${formatearMoneda(precio)}</td>
+                    <td style="text-align:right;">${formatearMoneda(subtotal)}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+        });
+
+        // Si solo hay servicio y no hay tolvas extra, mostramos mensaje en la tabla
+        if (!hayProductosExtra) {
+            msgNoProductos.style.display = 'block';
+            document.querySelector('.modal-table').style.display = 'none'; // Ocultar cabecera tabla
+        } else {
+            document.querySelector('.modal-table').style.display = 'table'; // Mostrar tabla
+            // Ajuste para móvil (si usaste el CSS que te di antes, esto asegura que se vea)
+            if(window.innerWidth <= 600) document.querySelector('.modal-table').style.display = 'block';
+        }
+
+        // 6. Configurar botones
+        document.getElementById('modal-view-close-btn').onclick = cerrarModalVer;
+        document.getElementById('btn-cerrar-view').onclick = cerrarModalVer;
+        
+        document.getElementById('btn-descargar-pdf').onclick = generarPDFProfesional;
+
+        // Mostrar el modal (asumiendo que el CSS ya maneja .modal-overlay igual que el anterior)
+        // NOTA: Asegúrate que el HTML inyectado tenga style="display:flex" o que la clase lo maneje.
+        // Como 'modal-overlay' en tu CSS actual necesita 'display:flex', pero al inyectarlo está oculto?
+        // Vamos a forzar el display block/flex en el contenedor hijo:
+        const overlay = modalViewPlaceholder.querySelector('.modal-overlay');
+        overlay.style.display = 'flex'; // Forzar visualización
+
+    } catch (e) {
+        console.error("Error al abrir modal detalle:", e);
+    }
 }
+
+function cerrarModalVer() {
+    modalViewPlaceholder.innerHTML = "";
+    datosCotizacionActual = null;
+}
+
+
 
 const formatearMoneda = (numero) => {
     return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(numero);
 };
+
+// ... (Tus variables y lógica de initCotizacionesApp y otras funciones siguen igual arriba) ...
+// ... SOLO REEMPLAZA DESDE "AYUDANTES PARA PDF" HACIA ABAJO ...
+
+// =====================================================
+// AYUDANTES PARA PDF PROFESIONAL (VERSIÓN CORREGIDA)
+// =====================================================
+
+// 1. Cargar Logo
+// Función para convertir imagen a Base64 manteniendo la TRANSPARENCIA
+async function getBase64ImageFromURL(url) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        // Importante para poder manipular imágenes de otros dominios/servidores local
+        img.setAttribute("crossOrigin", "anonymous");
+        
+        img.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+
+            // 1. LIMPIEZA CLAVE: Asegura que el fondo del canvas sea transparente antes de dibujar
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 2. Dibujar la imagen sobre el fondo limpio
+            ctx.drawImage(img, 0, 0);
+
+            // 3. OBLIGATORIO: Usar 'image/png'. 
+            // Si usaras 'image/jpeg', la transparencia se convertiría en negro automáticamente.
+            try {
+                const dataURL = canvas.toDataURL("image/png");
+                resolve(dataURL);
+            } catch (e) {
+                // Si hay error de seguridad (CORS), retornamos null para no romper el PDF
+                console.warn("No se pudo convertir la imagen (Posible bloqueo CORS):", e);
+                resolve(null);
+            }
+        };
+
+        img.onerror = () => {
+            console.warn(`No se pudo cargar la imagen desde: ${url}`);
+            resolve(null);
+        };
+
+        img.src = url;
+    });
+}
+
+// 2. Función Número a Letras (CORREGIDA - Sin duplicados)
+function numeroALetras(cantidad) {
+    const numero = parseFloat(cantidad);
+    const partes = numero.toFixed(2).split('.');
+    const entero = parseInt(partes[0]);
+    const centavos = partes[1];
+
+    if (entero === 0) return `(CERO PESOS ${centavos}/100 M.N.)`;
+
+    const Unidades = num => ["", "UN", "DOS", "TRES", "CUATRO", "CINCO", "SEIS", "SIETE", "OCHO", "NUEVE"][num];
+    const Decenas = num => {
+        const n = Math.floor(num / 10);
+        const u = num % 10;
+        if (n === 0) return Unidades(u);
+        if (n === 1) return ["DIEZ", "ONCE", "DOCE", "TRECE", "CATORCE", "QUINCE", "DIECISEIS", "DIECISIETE", "DIECIOCHO", "DIECINUEVE"][u];
+        if (n === 2) return u === 0 ? "VEINTE" : "VEINTI" + Unidades(u);
+        return ["TREINTA", "CUARENTA", "CINCUENTA", "SESENTA", "SETENTA", "OCHENTA", "NOVENTA"][n - 3] + (u > 0 ? " Y " + Unidades(u) : "");
+    };
+    const Centenas = num => {
+        const c = Math.floor(num / 100);
+        const r = num % 100;
+        if (c === 0) return Decenas(r);
+        if (c === 1) return r === 0 ? "CIEN" : "CIENTO " + Decenas(r);
+        return ["DOSCIENTOS", "TRESCIENTOS", "CUATROCIENTOS", "QUINIENTOS", "SEISCIENTOS", "SETECIENTOS", "OCHOCIENTOS", "NOVECIENTOS"][c - 2] + (r > 0 ? " " + Decenas(r) : "");
+    };
+    const Miles = num => {
+        const m = Math.floor(num / 1000);
+        const r = num % 1000;
+        if (m === 0) return Centenas(r);
+        const strMiles = (m === 1 ? "UN" : Centenas(m)) + " MIL";
+        return strMiles + (r > 0 ? " " + Centenas(r) : "");
+    };
+
+    // Soporte hasta millones básico
+    let letras = "";
+    if (entero < 1000000) letras = Miles(entero);
+    else letras = "CONSULTAR SOPORTE PARA MILLONES"; // Simple safe-guard
+
+    return `(${letras.trim()} PESOS ${centavos}/100 M.N.)`;
+}
+
+// --- FUNCIÓN DEFINITIVA: PDF PROFESIONAL (COLORES VERDES Y LÓGICA FIXED) ---
+// --- FUNCIÓN DEFINITIVA: PDF PROFESIONAL (ENCABEZADO CORREGIDO) ---
+async function generarPDFProfesional() {
+    if (!datosCotizacionActual) return;
+
+    const { cabecera, productos } = datosCotizacionActual;
+    const btnPdf = document.getElementById('btn-descargar-pdf');
+    const textoOriginal = btnPdf.innerHTML;
+    btnPdf.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
+    btnPdf.disabled = true;
+
+    try {
+        // Colores Corporativos
+        const COLOR_PRIMARIO = '#92D050'; // Verde Fuerte
+        const COLOR_SECUNDARIO = '#ACD593'; // Verde Claro
+        const COLOR_TEXTO = '#333333';
+
+        // 1. Cargar Logo
+        const logoBase64 = await getBase64ImageFromURL('../assets/logotipo.png');
+
+        // 2. Preparar Datos
+        const fechaHoy = new Date().toLocaleDateString('es-MX');
+        let subtotal = 0;
+        const fmt = (num) => `$${parseFloat(num).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
+
+        // --- LÓGICA DE SEPARACIÓN Y LIMPIEZA DE NOMBRES ---
+        const servicios = [];
+        const rentas = [];
+
+        productos.forEach(prod => {
+            if (prod.tipo_residuo) {
+                // ES UN SERVICIO
+                const tipo = prod.tipo_residuo === 'Urbano' ? 'RSU' : 'RME';
+                const nombreLimpio = `SERVICIO DE RECOLECCIÓN (${tipo})`; 
+                servicios.push({
+                    ...prod,
+                    descripcion_final: `${nombreLimpio}\nDetalle: ${prod.bolsas_por_dia} bolsas/día`
+                });
+            } else {
+                // ES UNA RENTA U OTRO
+                rentas.push({
+                    ...prod,
+                    descripcion_final: prod.nombre_producto
+                });
+            }
+        });
+
+        const tableBody = [
+            [
+                { text: 'DESCRIPCIÓN', style: 'tableHeader' },
+                { text: 'UNIDAD', style: 'tableHeader', alignment: 'center' },
+                { text: 'CANT.', style: 'tableHeader', alignment: 'center' },
+                { text: 'P. UNITARIO', style: 'tableHeader', alignment: 'right' },
+                { text: 'IMPORTE', style: 'tableHeader', alignment: 'right' }
+            ]
+        ];
+
+        // A. Insertar Servicios
+        servicios.forEach(prod => {
+            const importe = parseFloat(prod.cantidad) * parseFloat(prod.precio_unitario);
+            subtotal += importe;
+            tableBody.push([
+                { text: prod.descripcion_final, bold: true, color: '#333' },
+                { text: 'Servicio', alignment: 'center' },
+                { text: parseFloat(prod.cantidad), alignment: 'center' },
+                { text: fmt(prod.precio_unitario), alignment: 'right' },
+                { text: fmt(importe), alignment: 'right', bold: true }
+            ]);
+        });
+
+        // B. Insertar Rentas
+        rentas.forEach(prod => {
+            const importe = parseFloat(prod.cantidad) * parseFloat(prod.precio_unitario);
+            subtotal += importe;
+            
+            let unidad = prod.unidad || 'Pza';
+            if (prod.nombre_producto.toLowerCase().includes('tolva')) unidad = 'Renta';
+
+            tableBody.push([
+                { text: prod.descripcion_final },
+                { text: unidad, alignment: 'center' },
+                { text: parseFloat(prod.cantidad), alignment: 'center' },
+                { text: fmt(prod.precio_unitario), alignment: 'right' },
+                { text: fmt(importe), alignment: 'right' }
+            ]);
+        });
+
+        // Filas de relleno estéticas
+        const filasMinimas = 8;
+        if ((tableBody.length - 1) < filasMinimas) {
+            for (let i = 0; i < (filasMinimas - (tableBody.length - 1)); i++) {
+                tableBody.push([' ', ' ', ' ', ' ', ' ']);
+            }
+        }
+
+        // Totales
+        const iva = subtotal * 0.16;
+        const totalFinal = subtotal + iva;
+        const totalEnLetras = numeroALetras(totalFinal);
+
+        // --- DEFINICIÓN DEL PDF ---
+        const docDefinition = {
+            pageMargins: [40, 30, 40, 30],
+            content: [
+                // 1. ENCABEZADO (COLUMNAS: Logo Izq | Texto Centro)
+                {
+                    columns: [
+                        {
+                            // Columna 1: Logo
+                            width: 100,
+                            stack: [
+                                logoBase64 ? { image: logoBase64, width: 80 } : {} 
+                            ]
+                        },
+                        {
+                            // Columna 2: Títulos Centrados
+                            width: '*',
+                            stack: [
+                                { text: 'EMPRESA SOCIALMENTE RESPONSABLE', style: 'headerSubtitle', alignment: 'center' },
+                                { text: 'SERVICIOS, OPERACIONES Y SUMINISTROS DE LA ISLA S.A. DE C.V.', style: 'headerTitle', alignment: 'center' }
+                            ],
+                            margin: [0, 10, 0, 0] // Ajuste vertical para centrar con el logo
+                        },
+                        {
+                            // Columna 3: Espacio vacío para equilibrar el centro (Opcional, misma anchura que el logo)
+                            width: 100,
+                            text: ''
+                        }
+                    ],
+                    margin: [0, 0, 0, 10]
+                },
+
+                // 2. CONTACTO EMPRESA (Centrado debajo)
+                {
+                    text: [
+                        'Fraccionamiento Holkan No. 9 Colonia aviación, C.P. 24170\n',
+                        'Cd. Del Carmen, Campeche\n',
+                        { text: '938 164 0963', bold: true }, '\n',
+                        { text: 'ventas@sosdelaisla.com', color: COLOR_PRIMARIO }
+                    ],
+                    style: 'companyContact',
+                    margin: [0, 0, 0, 10]
+                },
+                
+                // Línea separadora verde
+                { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1.5, lineColor: COLOR_PRIMARIO }], margin: [0, 0, 0, 15] },
+
+                // 3. TABLAS DE CLIENTE (Verde Claro)
+                {
+                    style: 'infoTable',
+                    table: {
+                        widths: ['*', 'auto', 'auto', 'auto', 'auto'],
+                        body: [
+                            [
+                                { text: 'CLIENTE (RAZÓN SOCIAL)', style: 'tableHeaderSm' },
+                                { text: 'FORMA DE PAGO', style: 'tableHeaderSm' },
+                                { text: 'DIRECCIÓN', style: 'tableHeaderSm' },
+                                { text: 'FECHA', style: 'tableHeaderSm' },
+                                { text: 'NO. COTIZACIÓN', style: 'tableHeaderSm', alignment: 'right' }
+                            ],
+                            [
+                                { text: cabecera.razon_social || cabecera.nombre_comercial, bold: true },
+                                { text: cabecera.forma_de_pago || 'No especificado' },
+                                { text: cabecera.direccion || 'Sin dirección', fontSize: 8 },
+                                { text: fechaHoy },
+                                { text: formatearFolio(cabecera.id_cotizacion), bold: true, alignment: 'right', color: COLOR_PRIMARIO }
+                            ]
+                        ]
+                    },
+                    layout: 'lightHorizontalLines'
+                },
+                // Segunda tabla (Contacto)
+                {
+                    style: 'infoTable',
+                    margin: [0, 5, 0, 20],
+                    table: {
+                        widths: ['*', 'auto', '*'],
+                        body: [
+                            [
+                                { text: 'NOMBRE CONTACTO', style: 'tableHeaderSm' },
+                                { text: 'TELÉFONO', style: 'tableHeaderSm' },
+                                { text: 'CORREO ELECTRÓNICO', style: 'tableHeaderSm' }
+                            ],
+                            [
+                                { text: cabecera.contacto_nombre || '--' },
+                                { text: cabecera.contacto_telefono || cabecera.telefono || '--' },
+                                { text: cabecera.contacto_email || '--' }
+                            ]
+                        ]
+                    },
+                    layout: 'lightHorizontalLines'
+                },
+
+                // 4. TABLA PRODUCTOS
+                {
+                    table: {
+                        widths: ['*', 50, 40, 70, 70],
+                        headerRows: 1,
+                        body: tableBody
+                    },
+                    layout: {
+                        fillColor: function (rowIndex) {
+                            return (rowIndex === 0) ? COLOR_PRIMARIO : null;
+                        },
+                        hLineWidth: function(i, node) { return (i === 0 || i === node.table.body.length) ? 1 : 0.5; },
+                        vLineWidth: function() { return 0; },
+                        hLineColor: function(i) { return (i === 0) ? COLOR_PRIMARIO : '#e5e7eb'; }
+                    }
+                },
+
+                // 5. TOTALES
+                {
+                    margin: [0, 15, 0, 0],
+                    columns: [
+                        {
+                            width: '*',
+                            text: [
+                                { text: 'CANTIDAD EN LETRAS:\n', bold: true, fontSize: 9 },
+                                { text: totalEnLetras, fontSize: 10, italics: true }
+                            ]
+                        },
+                        {
+                            width: 'auto',
+                            table: {
+                                widths: [80, 70],
+                                body: [
+                                    [{ text: 'SUBTOTAL:', alignment: 'right', bold: true, fontSize: 9 }, { text: fmt(subtotal), alignment: 'right', fontSize: 9 }],
+                                    [{ text: 'IVA (16%):', alignment: 'right', bold: true, fontSize: 9 }, { text: fmt(iva), alignment: 'right', fontSize: 9 }],
+                                    [{ text: 'TOTAL:', alignment: 'right', bold: true, color: 'white', fillColor: COLOR_PRIMARIO }, { text: fmt(totalFinal), alignment: 'right', bold: true, color: 'white', fillColor: COLOR_PRIMARIO }]
+                                ]
+                            },
+                            layout: 'noBorders'
+                        }
+                    ]
+                },
+
+                // 6. CONDICIONES
+                {
+                    margin: [0, 30, 0, 0],
+                    text: 'CONDICIONES COMERCIALES',
+                    style: 'sectionHeader',
+                    color: COLOR_PRIMARIO
+                },
+                { canvas: [{ type: 'line', x1: 0, y1: 2, x2: 200, y2: 2, lineWidth: 1, lineColor: COLOR_PRIMARIO }], margin: [0, 0, 0, 5] },
+                {
+                    style: 'termsText',
+                    ul: [
+                        `Esta cotización tiene una vigencia de ${cabecera.fecha_vencimiento || '15 días'}.`,
+                        'Este servicio no incluye contenedores.',
+                        'El servicio de RSU consta de 1 visita en la semana los días sábados con un máximo de 0.30ton (5 bolsas a la semana), en caso de requerir otro servicio de recolección de basura, se cotiza nuevamente.',
+                        'Los servicios de RSU se realizan en horarios de 8:30 a 16:00 horas de Lunes a Sábado.',
+                        { text: 'Condiciones de pago: ', bold: true } + (cabecera.forma_de_pago || '10 días a partir de la recepción de la factura mensual.')
+                    ]
+                }
+            ],
+            styles: {
+                headerSubtitle: { fontSize: 9, color: '#555', bold: true, margin: [0, 0, 0, 2] },
+                headerTitle: { fontSize: 13, color: COLOR_PRIMARIO, bold: true, margin: [0, 0, 0, 5] },
+                companyContact: { fontSize: 9, color: '#333', alignment: 'center', lineHeight: 1.2 },
+                tableHeader: { bold: true, fontSize: 9, color: 'white', fillColor: COLOR_PRIMARIO, alignment: 'left', margin: [0, 2] },
+                tableHeaderSm: { bold: true, fontSize: 8, color: '#555', fillColor: COLOR_SECUNDARIO },
+                infoTable: { fontSize: 9, margin: [0, 5] },
+                sectionHeader: { fontSize: 10, bold: true },
+                termsText: { fontSize: 8, color: '#444', lineHeight: 1.3, margin: [0, 5, 0, 0] }
+            },
+            defaultStyle: { fontSize: 10, font: 'Roboto' }
+        };
+
+        pdfMake.createPdf(docDefinition).download(`Cotizacion_${cabecera.id_cotizacion}.pdf`);
+
+    } catch (error) {
+        console.error(error);
+        alert("Error al generar PDF: " + error.message);
+    } finally {
+        btnPdf.innerHTML = textoOriginal;
+        btnPdf.disabled = false;
+    }
+}
+
+
+// Función para dar formato al Folio: COM_ID_AÑO
+function formatearFolio(id) {
+    const year = new Date().getFullYear(); // Usa el año actual
+    return `COM_${id}_${year}`;
+}

@@ -40,7 +40,7 @@
                 </div>
 
                 <div id="tipo-residuo-group" class="hidden recoleccion-residuo-group">
-                    <p>Tipo de Residuo:</p>
+                    <legend>Tipo de Residuo:</legend>
                     <div style="display:flex; gap: 20px; flex-wrap: wrap;">
                         <label>
                             <input type="radio" id="tipo-urbano" name="tipo_residuo" value="Urbano" checked>
@@ -97,9 +97,18 @@
                         <option value="efectivo">Efectivo</option>
                     </select>
                 </div>
-                <div class="total-section">
-                    TOTAL: $<span id="total-cotizacion">0.00</span>
+            <div class="total-section" style="text-align: right; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+                <div style="font-size: 0.95rem; color: #555; margin-bottom: 5px;">
+                    Subtotal: <span id="subtotal-cotizacion" style="font-weight: bold;">$0.00</span>
                 </div>
+                <div style="font-size: 0.95rem; color: #555; margin-bottom: 5px;">
+                    IVA (16%): <span id="iva-cotizacion" style="font-weight: bold;">$0.00</span>
+                </div>
+                
+                <div style="font-size: 1.6rem; font-weight: bold; color: #059669; margin-top: 5px;">
+                    Total: <span id="total-cotizacion">$0.00</span>
+                </div>
+            </div>
             </fieldset>
 
             <button type="submit" class="btn-guardar-cotizacion">

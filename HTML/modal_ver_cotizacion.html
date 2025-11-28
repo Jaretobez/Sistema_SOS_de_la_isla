@@ -1,0 +1,75 @@
+<div class="modal-overlay">
+    <div class="modal-content" style="max-width: 700px;">
+        
+        <button id="modal-view-close-btn" class="modal-close-btn">&times;</button>
+        
+        <div style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin:0; color: #333;">Cotización <span id="view-folio" style="color:#2563eb;">#000</span></h2>
+            <span id="view-estado" class="badge" style="margin-right: 40px;">Estado</span>
+        </div>
+
+        <div class="detalle-grid">
+            <div class="info-bloque">
+                <strong>Cliente / Empresa:</strong>
+                <div id="view-cliente" class="info-valor">Cargando...</div>
+            </div>
+            <div class="info-bloque">
+                <strong>Contacto:</strong>
+                <div id="view-contacto" class="info-valor">Cargando...</div>
+            </div>
+            <div class="info-bloque">
+                <strong>Fecha de Vencimiento:</strong>
+                <div id="view-fecha" class="info-valor">--/--/----</div>
+            </div>
+            <div class="info-bloque">
+                <strong>Forma de Pago:</strong>
+                <div id="view-pago" class="info-valor">--</div>
+            </div>
+        </div>
+
+        <div id="view-servicio-container" style="display:none; margin-top: 20px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 15px;">
+            <h3 style="margin: 0 0 10px 0; color: #0369a1; font-size: 1rem; text-transform: uppercase;">Servicio de Recolección</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 1.1rem; color: #333;">
+                    <i class="fas fa-truck-loading" style="color: #0369a1; margin-right: 8px;"></i>
+                    <span id="view-servicio-nombre" style="font-weight: 500;">--</span>
+                </div>
+                <div style="text-align: right;">
+                    <span style="display:block; font-size: 0.8rem; color: #666;">Total Mensual</span>
+                    <span id="view-servicio-total" style="font-size: 1.4rem; font-weight: bold; color: #0369a1;">$0.00</span>
+                </div>
+            </div>
+            <div id="view-servicio-detalle" style="margin-top: 5px; font-size: 0.9rem; color: #555;">
+                </div>
+        </div>
+
+        <div id="view-seccion-productos" style="margin-top: 20px;">
+            <h3 style="font-size: 1.1rem; color: #555; margin-bottom: 10px;">Renta de Equipos / Adicionales</h3>
+            <table class="modal-table">
+                <thead>
+                    <tr>
+                        <th>Producto / Equipo</th>
+                        <th style="width: 80px; text-align: center;">Cant.</th>
+                        <th style="width: 100px; text-align: right;">P. Unit.</th>
+                        <th style="width: 100px; text-align: right;">Total</th>
+                    </tr>
+                </thead>
+                <tbody id="view-tabla-productos">
+                    </tbody>
+            </table>
+            <p id="view-no-productos" style="display:none; color:#777; font-style:italic;">No hay rentas adicionales.</p>
+        </div>
+
+        <div class="total-section" style="margin-top: 20px;">
+            TOTAL GLOBAL: <span id="view-total">$0.00</span>
+        </div>
+
+        <div style="margin-top: 25px; display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" id="btn-cerrar-view" style="padding: 10px 20px; background: #e5e7eb; border: none; border-radius: 6px; cursor: pointer;">Cerrar</button>
+            <button type="button" id="btn-descargar-pdf" style="padding: 10px 20px; background: #dc2626; color: white; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-file-pdf"></i> Descargar PDF
+            </button>
+        </div>
+
+    </div>
+</div>
