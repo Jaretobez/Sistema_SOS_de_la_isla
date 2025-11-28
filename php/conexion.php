@@ -2,7 +2,7 @@
 // --- Variables de Conexión ---
 // Reemplaza 'nombre_de_tu_bd' con el nombre que creaste en phpMyAdmin
 $db_host = 'localhost';
-$tu_puerto = 33065;
+$tu_puerto = 3308;
 $db_name = 'sos'; 
 $db_user = 'root';
 $db_pass = ''; // XAMPP por defecto no tiene contraseña
