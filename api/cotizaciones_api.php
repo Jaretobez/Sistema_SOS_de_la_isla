@@ -96,7 +96,9 @@ function handle_get_request() {
                 SELECT 
                     c.id_cotizacion, c.total, c.estado_cotizacion, c.fecha_vencimiento, c.forma_de_pago,
                     e.nombre_comercial, e.razon_social, e.direccion,
-                    con.nombre as contacto_nombre, con.email as contacto_email
+                    con.nombre as contacto_nombre, 
+                    con.email as contacto_email,
+                    con.telefono as contacto_telefono  /* <--- AQUÍ PEDIMOS EL TELÉFONO */
                 FROM Cotizacion c
                 JOIN Contacto con ON c.id_contacto = con.id_contacto
                 JOIN Empresa e ON con.id_empresa = e.id_empresa
