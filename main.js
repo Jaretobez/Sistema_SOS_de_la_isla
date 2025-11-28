@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!usuarioData) {
         // Redirigir al login (Ruta absoluta: /sos/html/login.html)
-        if (nombreArchivo !== "login.html" && nombreArchivo !== "registro.html") {
+        if (nombreArchivo !== "login.html") {
             // 🟢 CAMBIO A RUTA CON /sos/
             window.location.href = RUTA_LOGIN; 
         }
@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Usuario logueado:", user.nombre, "Rol:", user.rol_id);
 
     // Si ya tiene sesión y está en login o registro, redirigir al dashboard
-    if (nombreArchivo === "login.html" || nombreArchivo === "registro.html") {
+    if (nombreArchivo === "login.html") {
         // Redirigir al index (Ruta absoluta: /sos/index.html)
         // 🟢 CAMBIO A RUTA CON /sos/
         window.location.href = RUTA_INDEX; 
@@ -147,6 +147,7 @@ function aplicarPermisosPorRol(rol) {
     const empresas = document.querySelector(".menu-empresas");
     const cotizaciones = document.querySelector(".menu-cotizaciones");
     const facturacion = document.querySelector(".menu-facturacion");
+    const registro = document.querySelector(".menu-registro");
 
     console.log("Aplicando permisos, rol:", rol);
 
@@ -156,6 +157,7 @@ function aplicarPermisosPorRol(rol) {
     // VENTAS (1)
     if (rol == 1) {
         if (facturacion) facturacion.style.display = "none";
+        if (registro) registro.style.display = "none";
         return;
     }
 
@@ -163,6 +165,7 @@ function aplicarPermisosPorRol(rol) {
     if (rol == 2) {
         if (empresas) empresas.style.display = "none";
         if (cotizaciones) cotizaciones.style.display = "none";
+        if (registro) registro.style.display = "none";
         return;
     }
 }

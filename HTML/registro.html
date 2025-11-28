@@ -4,178 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Usuarios</title>
-    <style>
-       /* -------------------------------------------------------------------------- */
-/* --- ESTILOS GENERALES Y TIPOGRAFÍA --- */
-/* -------------------------------------------------------------------------- */
-
-body {
-    /* Usamos Inter como una fuente moderna y legible */
-    font-family: 'Inter', sans-serif;
-    /* Fondo limpio y sutil para un look corporativo */
-    background-color: #f4f6f9; 
     
-    /* Configuración de Flexbox para centrar el contenedor */
-    display: flex;
-    justify-content: center;
-    align-items: center; /* Alineación por defecto para escritorio */
-    min-height: 100vh; 
-    margin: 0;
-    padding: 20px; 
-}
-
-/* Título de la tarjeta/formulario */
-h2 {
-    text-align: center;
-    margin-bottom: 30px;
-    /* Un color de texto oscuro y profesional */
-    color: #34495e; 
-    font-weight: 700;
-    font-size: 1.75rem;
-}
-
-/* -------------------------------------------------------------------------- */
-/* --- CONTENEDOR DEL REGISTRO --- */
-/* -------------------------------------------------------------------------- */
-
-.registro-container {
-    background: #ffffff;
-    /* Borde más sutil y moderno */
-    border-radius: 12px; 
-    padding: 40px;
-    /* Ancho moderado en escritorio */
-    width: 100%;
-    max-width: 400px; 
-    /* Sombra elegante y con profundidad */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); 
-    text-align: center;
-    transition: transform 0.3s ease-in-out;
-}
-
-/* -------------------------------------------------------------------------- */
-/* --- CAMPOS DE ENTRADA (INPUT Y SELECT) --- */
-/* -------------------------------------------------------------------------- */
-
-input, select {
-    width: 100%;
-    padding: 12px 15px;
-    margin-bottom: 20px; /* Espaciado ajustado */
-    border: 1px solid #dfe6e9; /* Borde más claro */
-    border-radius: 8px; /* Borde redondeado */
-    outline: none;
-    font-size: 1rem;
-    color: #34495e;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    box-sizing: border-box; /* Asegura que el padding no desborde el ancho total */
-}
-
-/* Efecto de foco profesional */
-input:focus, select:focus {
-    border-color: #3f51b5; /* Color primario (Índigo) al enfocarse */
-    box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.2);
-}
-
-/* -------------------------------------------------------------------------- */
-/* --- BOTÓN DE ACCIÓN --- */
-/* -------------------------------------------------------------------------- */
-
-button {
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 8px;
-    /* Color primario corporativo: Índigo */
-    background-color: #3f51b5; 
-    color: white;
-    font-weight: 600;
-    font-size: 1.05rem;
-    cursor: pointer;
-    letter-spacing: 0.5px;
-    box-shadow: 0 4px 15px rgba(63, 81, 181, 0.4);
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-/* Efecto hover/activo */
-button:hover {
-    /* Un tono más claro del índigo */
-    background-color: #5c6bc0; 
-    box-shadow: 0 6px 20px rgba(63, 81, 181, 0.5);
-}
-
-/* Mensajes y enlaces */
-.mensaje {
-    margin-top: 20px;
-    text-align: center;
-    color: #34495e;
-    font-size: 0.9rem;
-    font-weight: 400;
-}
-
-.mensaje a {
-    color: #3f51b5; /* Color de enlace primario */
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s ease;
-}
-
-.mensaje a:hover {
-    text-decoration: underline;
-}
-
-/* -------------------------------------------------------------------------- */
-/* --- RESPONSIVIDAD (MÓVILES) --- */
-/* -------------------------------------------------------------------------- */
-
-@media (max-width: 600px) {
-    /* Mueve el contenido del body al inicio (arriba) en móviles */
-    body {
-        align-items: flex-start; 
-        padding-top: 5vh; /* Espacio superior */
-    }
-
-    /* Ajustes específicos del contenedor en móvil */
-    .registro-container {
-        max-width: 90%; 
-        padding: 30px 20px; 
-        margin: 0 auto;
-        box-shadow: none; 
-    }
-
-    h2 {
-        font-size: 1.5rem;
-        margin-bottom: 20px;
-    }
-
-    /* Reduce el padding del botón en móvil */
-    button {
-        padding: 12px;
-        font-size: 1rem;
-        box-shadow: 0 4px 10px rgba(63, 81, 181, 0.3);
-    }
-}
-    </style>
-</head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <link rel="stylesheet" href="../css/menu.css"> 
+    <link rel="stylesheet" href="../css/registro.css"> 
+    
+    </head>
 <body>
-    <div class="registro-container">
-        <h2>Registro de Usuario</h2>
-        <form id="formRegistro">
-            <input type="text" id="nombre" name="nombre" placeholder="Nombre completo" required>
-            <input type="email" id="correo" name="correo" placeholder="Correo electrónico" required>
-            <input type="password" id="contrasena" name="contrasena" placeholder="Contraseña" required>
-            <select id="rol_id" name="rol_id" required>
-                <option value="">Seleccione un rol</option>
-                <option value="1">Ventas</option>
-                <option value="2">Facturacion</option>
-                <option value="3">Admin</option>
-            </select>
-            <button type="submit">Registrar</button>
-        </form>
-        <div class="mensaje">
-            ¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a> <!-- Correcto, en la misma carpeta -->
-        </div>
-    </div>
+    
+    <nav id="sidebar-placeholder" class="sidebar"></nav>
 
-    <!-- CORRECCIÓN DE RUTA: Subimos a la raíz (../) y entramos a 'js/' -->
+    <div id="main-wrapper" class="main-wrapper"> 
+        
+        <button id="btn-toggle-menu" class="menu-toggle">
+            <i class="fa fa-bars"></i>
+        </button>
+
+        <main class="content">
+            <div class="registro-container">
+                <h2>Registro de Usuario</h2>
+                <form id="formRegistro">
+                    <input type="text" id="nombre" name="nombre" placeholder="Nombre completo" required>
+                    <input type="email" id="correo" name="correo" placeholder="Correo electrónico" required>
+                    <input type="password" id="contrasena" name="contrasena" placeholder="Contraseña" required>
+                    <select id="rol_id" name="rol_id" required>
+                        <option value="">Seleccione un rol</option>
+                        <option value="1">Ventas</option>
+                        <option value="2">Facturacion</option>
+                        <option value="3">Admin</option>
+                    </select>
+                    <button type="submit">Registrar</button>
+                </form>
+            </div>
+        </main>
+    </div> <script src="../main.js"></script> 
     <script src="../js/registro.js"></script>
 </body>
 </html>

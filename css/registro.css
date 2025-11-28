@@ -1,0 +1,142 @@
+/* -------------------------------------------------------------------------- */
+/* --- 1. ESTILOS BASE Y ESTRUCTURA DE LA APLICACIÓN (PARA EL MENÚ) --- */
+/* -------------------------------------------------------------------------- */
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: #f4f6f9; 
+}
+
+/* 🟢 Estilo del Contenido 🟢 */
+.content {
+    /* Mantiene el padding del contenido principal */
+    padding: 2rem;
+    background: #f4f6f9;
+    min-height: 100vh;
+    
+    /* Centramos el formulario dentro del Content */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Botón de Abrir Menú (Toggle) - El estilo es el definido en menu.css */
+.menu-toggle {
+    position: fixed; 
+    top: 15px;
+    left: 15px;
+    z-index: 1001; 
+    transition: left 0.3s ease; 
+    
+    background: #2563eb; 
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+    
+    /* 🔴 CLAVE: Asegura la visibilidad en escritorio y móvil */
+    display: block; 
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* --- 2. ESTILOS DEL FORMULARIO DE REGISTRO (PANEL BLANCO) --- */
+/* -------------------------------------------------------------------------- */
+
+h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #34495e; 
+    font-weight: 700;
+    font-size: 1.75rem;
+}
+
+.registro-container {
+    background: #ffffff;
+    /* Ajustado para ser similar a .panel en empresas.css */
+    border-radius: 12px; 
+    padding: 1.5rem; /* Usamos el padding de .panel en empresas.css (1.5rem) */
+    width: 100%;
+    
+    /* 💥 CAMBIO CLAVE: Permite que ocupe todo el ancho disponible (como .panel) 💥 */
+    max-width: 900px; /* Un valor grande, pero no infinito, para que luzca bien centrado */
+    
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); 
+    
+    /* 💥 CAMBIO CLAVE: Eliminar el centrado de texto para los elementos internos 💥 */
+    text-align: left; /* Restauramos a alineación izquierda para campos y botones */
+}
+
+/* El h2 dentro del panel se mantiene centrado */
+.registro-container h2 {
+    text-align: center;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 20px; 
+    border: 1px solid #dfe6e9; 
+    border-radius: 8px; 
+    outline: none;
+    font-size: 1rem;
+    color: #34495e;
+    box-sizing: border-box; 
+}
+
+input:focus, select:focus {
+    border-color: #3f51b5; 
+    box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.2);
+}
+
+.registro-container button { 
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    background-color: #3f51b5; 
+    color: white;
+    font-weight: 600;
+    font-size: 1.05rem;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(63, 81, 181, 0.4);
+}
+
+.registro-container button:hover {
+    background-color: #5c6bc0; 
+}
+
+.mensaje a {
+    color: #3f51b5; 
+    text-decoration: none;
+}
+
+/* -------------------------------------------------------------------------- */
+/* --- 3. RESPONSIVIDAD (MÓVILES) --- */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+    /* El display: block; es redundante, pero se mantiene para claridad. */
+    .menu-toggle {
+        display: block; 
+    }
+    
+    /* 🟢 CORRECCIÓN: Ajustamos el padding del content en móvil 🟢 */
+    .content {
+        padding: 1rem; 
+        padding-top: 4.5rem; /* Deja espacio para el botón flotante */
+        align-items: flex-start; /* Alinea el formulario hacia arriba */
+    }
+
+    .registro-container {
+        max-width: 100%; /* Ocupa todo el ancho disponible */
+        padding: 30px 20px; 
+        box-shadow: none; 
+    }
+}
