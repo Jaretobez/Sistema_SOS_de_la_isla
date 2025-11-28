@@ -9,10 +9,10 @@ let datosCombinados = [];
 let listaProductos = [];
 let listaCotizaciones = [];
 let modalHTML = ""; 
-let modalViewHTML = ""; // Nueva variable para el HTML del modal de ver
-let datosCotizacionActual = null; // Para guardar datos al generar PDF
+let modalViewHTML = ""; 
+let datosCotizacionActual = null; 
 
-// --- Selectores del DOM (Declarados globalmente, inicializados en init) ---
+// --- Selectores del DOM ---
 let tabButtons;
 let tabContents;
 let modalPlaceholder;
@@ -34,7 +34,6 @@ let noResultadosCotizaciones;
 function initCotizacionesApp() {
     
     // --- 1. Inicialización de Selectores del DOM ---
-    // 🟢 ESTOS YA NO DEBEN SER NULL GRACIAS A LA CORRECCIÓN EN EL HTML 🟢
     tabButtons = document.querySelectorAll(".tab-button");
     tabContents = document.querySelectorAll(".tab-content");
     modalPlaceholder = document.getElementById("modal-placeholder"); 
@@ -109,20 +108,20 @@ async function cargarDatosIniciales() {
     try {
         const [
             respModalHTML,
-            respModalViewHTML, // <--- NUEVO
+            respModalViewHTML, 
             respClientes,
             respProductos,
             respCotizaciones
         ] = await Promise.all([
             fetch("../html/modal_formulario.html"), 
-            fetch("../html/modal_ver_cotizacion.html"), // <--- NUEVO: Cargar el nuevo archivo
+            fetch("../html/modal_ver_cotizacion.html"), 
             fetch(`${API_URL}?accion=leer_clientes`),
             fetch(`${API_URL}?accion=leer_productos`),
             fetch(`${API_URL}?accion=leer_cotizaciones`)
         ]);
 
         modalHTML = await respModalHTML.text();
-        modalViewHTML = await respModalViewHTML.text(); // <--- Guardamos el texto
+        modalViewHTML = await respModalViewHTML.text(); 
         
         datosCombinados = await respClientes.json();
         listaProductos = await respProductos.json();
@@ -133,13 +132,8 @@ async function cargarDatosIniciales() {
 
     } catch (error) {
         console.error("Error fatal al cargar datos iniciales:", error); 
-        // ... manejo de error existente ...
     }
 }
-
-// --------------------------------------------------------------------------------------
-// --- Renderizado de Clientes (Corregido para mostrar Teléfono) ---
-// --------------------------------------------------------------------------------------
 
 function renderizarTablaClientes(empresas) {
     tablaClientesBody.innerHTML = "";
@@ -152,13 +146,11 @@ function renderizarTablaClientes(empresas) {
         
         let celdaContacto = '<td data-label="Contacto">—</td>';
         let celdaEmail = '<td data-label="Email">—</td>';
-
         
         if (item.contacto_nombre) {
             celdaContacto = `<td class="info-contacto" data-label="Contacto"><strong>${item.contacto_nombre}</strong></td>`;
             celdaEmail = `<td data-label="Email">${item.contacto_email || '—'}</td>`;
         }
-
 
         const celdaAcciones = `
             <td data-label="Acciones">
@@ -210,7 +202,6 @@ function renderizarTablaCotizaciones(cotizaciones) {
                     <i class="fa fa-times"></i>
                 </button>
                 ` : ''}
-                
                 <button class="btn-accion-cot eliminar" data-id="${cot.id_cotizacion}" title="Eliminar Cotización">
                     <i class="fa fa-trash"></i>
                 </button>
@@ -231,60 +222,6 @@ function filtrarYRenderizarCotizaciones() {
         return matchTermino && matchEstado;
     });
     renderizarTablaCotizaciones(filtrados);
-}
-
-function abrirModal(idEmpresa) {
-    const empresa = datosCombinados.find(e => e.id_empresa == idEmpresa);
-    if (!empresa) return;
-    
-    // 🟢 LÍNEA 232 CORREGIDA: modalPlaceholder ya no es null
-    modalPlaceholder.innerHTML = modalHTML; 
-    
-    document.getElementById("modal-empresa-id").value = empresa.id_empresa;
-    document.getElementById("modal-empresa-nombre").textContent = empresa.nombre_comercial;
-    const selectContacto = document.createElement('select');
-    selectContacto.id = "modal-contacto-select";
-    selectContacto.style.cssText = "width:100%; padding:0.5rem;";
-    if (empresa.id_contacto) {
-        const opt = document.createElement('option');
-        opt.value = empresa.id_contacto;
-        opt.textContent = `${empresa.contacto_nombre} (${empresa.contacto_email})`;
-        selectContacto.appendChild(opt);
-    } else {
-        selectContacto.innerHTML = "<option value=''>Sin contactos</option>";
-    }
-    document.getElementById("modal-contacto-nombre").replaceWith(selectContacto);
-    const selectTolva = document.getElementById("select-tolva");
-    const productosTolva = listaProductos.filter(p => p.unidad === "renta");
-    productosTolva.forEach(p => {
-        const option = document.createElement('option');
-        option.value = p.id_producto;
-        option.textContent = `${p.descripcion} (${formatearMoneda(p.precio_unitario)})`;
-        option.dataset.precio = p.precio_unitario;
-        selectTolva.appendChild(option);
-    });
-    document.getElementById("modal-close-btn").addEventListener("click", cerrarModal);
-    document.getElementById("form-cotizacion").addEventListener("submit", manejarSubmitCotizacion);
-    document.getElementById("check-recoleccion").addEventListener("change", function() {
-        const estaMarcado = this.checked;
-        document.getElementById("dias-recoleccion").classList.toggle('hidden', !estaMarcado);
-        document.getElementById("tipo-residuo-group").classList.toggle('hidden', !estaMarcado);
-        document.getElementById("bolsas-peso-group").classList.toggle('hidden', !estaMarcado);
-        if (!estaMarcado) {
-            document.querySelectorAll('.dia-check').forEach(check => check.checked = false);
-        }
-        actualizarCalculoTotal();
-    });
-    document.querySelectorAll(".dia-check").forEach(check => check.addEventListener("change", actualizarCalculoTotal));
-    document.getElementById("bolsas-dia").addEventListener("input", actualizarCalculoTotal);
-    document.getElementById("peso-bolsa").addEventListener("input", actualizarCalculoTotal);
-    document.getElementById("btn-add-tolva").addEventListener("click", agregarLineaTolva);
-    document.getElementById("tolvas-tbody").addEventListener("click", (e) => {
-        if (e.target.classList.contains("btn-borrar-linea")) {
-            e.target.closest("tr").remove();
-            actualizarCalculoTotal();
-        }
-    });
 }
 
 function cerrarModal() {
@@ -315,56 +252,140 @@ function agregarLineaTolva() {
     actualizarCalculoTotal();
 }
 
-function actualizarCalculoTotal() {
-    let subtotal = 0; // Cambiamos el nombre de 'total' a 'subtotal' para no confundirnos
+function abrirModal(idEmpresa) {
+    const empresa = datosCombinados.find(e => e.id_empresa == idEmpresa);
+    if (!empresa) return;
+    
+    // Inyectar HTML
+    modalPlaceholder.innerHTML = modalHTML; 
+    
+    document.getElementById("modal-empresa-id").value = empresa.id_empresa;
+    document.getElementById("modal-empresa-nombre").textContent = empresa.nombre_comercial;
+    
+    // Llenar Contactos
+    const selectContacto = document.createElement('select');
+    selectContacto.id = "modal-contacto-select";
+    selectContacto.style.cssText = "width:100%; padding:0.5rem;";
+    if (empresa.id_contacto) {
+        const opt = document.createElement('option');
+        opt.value = empresa.id_contacto;
+        opt.textContent = `${empresa.contacto_nombre} (${empresa.contacto_email})`;
+        selectContacto.appendChild(opt);
+    } else {
+        selectContacto.innerHTML = "<option value=''>Sin contactos</option>";
+    }
+    document.getElementById("modal-contacto-nombre").replaceWith(selectContacto);
+    
+    // Llenar Tolvas
+    const selectTolva = document.getElementById("select-tolva");
+    const productosTolva = listaProductos.filter(p => p.unidad === "renta");
+    productosTolva.forEach(p => {
+        const option = document.createElement('option');
+        option.value = p.id_producto;
+        option.textContent = `${p.descripcion} (${formatearMoneda(p.precio_unitario)})`;
+        option.dataset.precio = p.precio_unitario;
+        selectTolva.appendChild(option);
+    });
 
-    // 1. Calcular costo del Servicio de Recolección (si está marcado)
+    // LISTENERS
+    document.getElementById("modal-close-btn").addEventListener("click", cerrarModal);
+    document.getElementById("form-cotizacion").addEventListener("submit", manejarSubmitCotizacion);
+    
+    // Listener Checkbox Recolección
+    document.getElementById("check-recoleccion").addEventListener("change", function() {
+        const estaMarcado = this.checked;
+        document.getElementById("dias-recoleccion").classList.toggle('hidden', !estaMarcado);
+        document.getElementById("tipo-residuo-group").classList.toggle('hidden', !estaMarcado);
+        document.getElementById("bolsas-peso-group").classList.toggle('hidden', !estaMarcado);
+        if (!estaMarcado) {
+            document.querySelectorAll('.dia-check').forEach(check => check.checked = false);
+        }
+        actualizarCalculoTotal();
+    });
+
+    // Listeners de cálculo
+    document.querySelectorAll(".dia-check").forEach(check => check.addEventListener("change", actualizarCalculoTotal));
+    document.getElementById("bolsas-dia").addEventListener("input", actualizarCalculoTotal);
+    document.getElementById("peso-bolsa").addEventListener("input", actualizarCalculoTotal);
+    
+    document.getElementById("btn-add-tolva").addEventListener("click", agregarLineaTolva);
+    document.getElementById("tolvas-tbody").addEventListener("click", (e) => {
+        if (e.target.classList.contains("btn-borrar-linea")) {
+            e.target.closest("tr").remove();
+            actualizarCalculoTotal();
+        }
+    });
+
+    // 🟢 DETECTAR CAMBIO EN FORMA DE PAGO 🟢
+    const selectPago = document.getElementById("forma-pago");
+    if (selectPago) {
+        selectPago.addEventListener("change", actualizarCalculoTotal);
+    }
+    
+    // 🟢 FORZAR CÁLCULO INICIAL 🟢
+    // Esto asegura que si el select ya empieza en "Efectivo", el IVA se ponga en 0 inmediatamente.
+    actualizarCalculoTotal();
+}
+
+function actualizarCalculoTotal() {
+    let subtotal = 0;
+
+    // 1. Calcular Recolección
     const checkRecoleccion = document.getElementById('check-recoleccion');
-    if (checkRecoleccion.checked) {
-        let costo_servicio_mensual = parseFloat(checkRecoleccion.dataset.precio || 0);
+    if (checkRecoleccion && checkRecoleccion.checked) {
+        let costo_base = parseFloat(checkRecoleccion.dataset.precio || 0);
         let costo_dias_semanal = 0;
         
-        const diasChecks = document.querySelectorAll('.dia-check:checked');
-        diasChecks.forEach(check => {
+        document.querySelectorAll('.dia-check:checked').forEach(check => {
             costo_dias_semanal += parseFloat(check.dataset.precio || 0);
         });
 
-        // Sumar mensualidad base + días extra al mes
-        costo_servicio_mensual += (costo_dias_semanal * 4);
-        subtotal += costo_servicio_mensual;
+        // Sumar mensualidad
+        subtotal += costo_base + (costo_dias_semanal * 4);
 
-        // Calcular sobrepeso
+        // Sumar Peso Extra
         const bolsas_por_dia = parseFloat(document.getElementById('bolsas-dia').value) || 0;
         const peso_por_bolsa = parseFloat(document.getElementById('peso-bolsa').value) || 0;
-        const dias_seleccionados = diasChecks.length;
-
-        const bolsas_por_semana = bolsas_por_dia * dias_seleccionados;
-        const bolsas_por_mes = bolsas_por_semana * 4;
-        const peso_total_mes = bolsas_por_mes * peso_por_bolsa;
+        const dias_seleccionados = document.querySelectorAll('.dia-check:checked').length;
         
-        const costo_extra_peso = peso_total_mes * COSTO_POR_KG;
+        const costo_extra_peso = (bolsas_por_dia * dias_seleccionados * 4) * peso_por_bolsa * COSTO_POR_KG;
         subtotal += costo_extra_peso;
     }
 
-    // 2. Calcular costo de las Tolvas / Rentas
+    // 2. Calcular Tolvas
     document.querySelectorAll('#tolvas-tbody tr').forEach(tr => {
         subtotal += parseFloat(tr.dataset.qty) * parseFloat(tr.dataset.precio);
     });
 
-    // 3. CALCULAR IVA Y TOTAL FINAL
-    const iva = subtotal * 0.16;
+    // 🟢 3. LÓGICA DE IVA MEJORADA (Insensible a mayúsculas/minúsculas) 🟢
+    const selectPago = document.getElementById("forma-pago");
+    
+    // Obtenemos el valor, quitamos espacios y convertimos a minúsculas
+    const formaPago = selectPago ? selectPago.value.trim().toLowerCase() : "";
+    
+    console.log("Forma de pago detectada:", formaPago); // Para depuración
+
+    // Si dice "efectivo" (en cualquier combinación de Mayús/Minús), IVA es 0.
+    const tasaIVA = (formaPago === "efectivo") ? 0 : 0.16;
+    
+    const iva = subtotal * tasaIVA;
     const total = subtotal + iva;
 
     // 4. Mostrar en pantalla
-    // Verificamos si existen los elementos (por si usas el modal viejo)
     if(document.getElementById('subtotal-cotizacion')) {
         document.getElementById('subtotal-cotizacion').textContent = formatearMoneda(subtotal);
     }
     if(document.getElementById('iva-cotizacion')) {
         document.getElementById('iva-cotizacion').textContent = formatearMoneda(iva);
+        
+        // Opcional: Cambiar color si es $0.00 para que sea evidente
+        if (tasaIVA === 0) {
+            document.getElementById('iva-cotizacion').style.color = "#999"; // Gris si es 0
+        } else {
+            document.getElementById('iva-cotizacion').style.color = "#333"; // Negro si hay IVA
+        }
     }
     
-    // Este siempre existe
     document.getElementById('total-cotizacion').textContent = formatearMoneda(total);
 }
 
@@ -421,7 +442,6 @@ async function manejarSubmitCotizacion(e) {
         });
     });
     if (detallesData.length === 0) {
-        // Usamos un modal o mensaje en lugar de alert()
         console.warn("No se puede crear una cotización vacía.");
         btnGuardar.disabled = false;
         btnGuardar.textContent = "Guardar Cotización";
@@ -447,7 +467,6 @@ async function manejarSubmitCotizacion(e) {
         const resultado = await resp.json();
 
         if (resultado.success) {
-            // Usamos un mensaje en lugar de alert()
             console.log(resultado.message || "¡Cotización guardada!");
             const nombreEmpresa = document.getElementById("modal-empresa-nombre").textContent;
             cerrarModal();
@@ -464,7 +483,6 @@ async function manejarSubmitCotizacion(e) {
         }
     } catch (error) {
         console.error("Error al guardar:", error);
-        // Usamos un mensaje en lugar de alert()
         noResultadosClientes.textContent = "Error al guardar: " + error.message; 
         noResultadosClientes.style.display = "block";
         btnGuardar.disabled = false;
@@ -473,10 +491,7 @@ async function manejarSubmitCotizacion(e) {
 }
 
 async function cambiarEstadoCotizacion(id, nuevoEstado) {
-    // Usamos console.log/custom modal en lugar de confirm()
-    if (false) { // Lógica para un modal de confirmación
-        return;
-    }
+    if (false) { return; } // Placeholder para confirmación
 
     try {
         const body = {
@@ -511,17 +526,13 @@ async function cambiarEstadoCotizacion(id, nuevoEstado) {
 
     } catch (error) {
         console.error("Error al cambiar estado:", error);
-        // Usamos un mensaje en lugar de alert()
         noResultadosCotizaciones.textContent = "Error: " + error.message;
         noResultadosCotizaciones.style.display = "block";
     }
 }
 
 async function aceptarCotizacion(id) {
-    // Usamos console.log/custom modal en lugar de confirm()
-    if (false) { // Lógica para un modal de confirmación
-        return;
-    }
+    if (false) { return; }
 
     try {
         const body = {
@@ -555,17 +566,13 @@ async function aceptarCotizacion(id) {
 
     } catch (error) {
         console.error("Error al aceptar cotización:", error);
-        // Usamos un mensaje en lugar de alert()
         noResultadosCotizaciones.textContent = "Error: " + error.message;
         noResultadosCotizaciones.style.display = "block";
     }
 }
 
 async function eliminarCotizacion(id) {
-    // Usamos console.log/custom modal en lugar de confirm()
-    if (false) { // Lógica para un modal de confirmación
-        return;
-    }
+    if (false) { return; }
 
     try {
         const body = {
@@ -596,7 +603,6 @@ async function eliminarCotizacion(id) {
 
     } catch (error) {
         console.error("Error al eliminar:", error);
-        // Usamos un mensaje en lugar de alert()
         noResultadosCotizaciones.textContent = "Error: " + error.message;
         noResultadosCotizaciones.style.display = "block";
     }
@@ -604,10 +610,7 @@ async function eliminarCotizacion(id) {
 
 async function abrirModalVerCotizacion(id) {
     try {
-        // 1. Mostrar estado de carga (opcional, o simplemente esperar)
         console.log("Cargando detalles de cotización " + id + "...");
-
-        // 2. Pedir datos completos a la API
         const resp = await fetch(`${API_URL}?accion=leer_detalle_cotizacion&id=${id}`);
         const data = await resp.json();
 
@@ -618,13 +621,11 @@ async function abrirModalVerCotizacion(id) {
 
         const cabecera = data.cotizacion;
         const productos = data.detalles;
-        datosCotizacionActual = { cabecera, productos }; // Guardar para el PDF
+        datosCotizacionActual = { cabecera, productos }; 
 
-        // 3. Inyectar el HTML en el placeholder correcto
         modalViewPlaceholder.innerHTML = modalViewHTML;
 
-        // 4. Llenar los campos visuales generales
-       document.getElementById('view-folio').textContent = formatearFolio(cabecera.id_cotizacion);
+        document.getElementById('view-folio').textContent = formatearFolio(cabecera.id_cotizacion);
         
         const badge = document.getElementById('view-estado');
         badge.textContent = cabecera.estado_cotizacion;
@@ -636,18 +637,14 @@ async function abrirModalVerCotizacion(id) {
         document.getElementById('view-pago').textContent = cabecera.forma_de_pago || 'N/A';
         document.getElementById('view-total').textContent = formatearMoneda(cabecera.total);
 
-        // --- 5. LÓGICA DE SEPARACIÓN (SERVICIO vs RENTAS) ---
-        
-        // Elementos del DOM
+        // --- SEPARACIÓN SERVICIO vs RENTAS ---
         const containerServicio = document.getElementById('view-servicio-container');
         const txtServicioNombre = document.getElementById('view-servicio-nombre');
         const txtServicioTotal = document.getElementById('view-servicio-total');
         const txtServicioDetalle = document.getElementById('view-servicio-detalle');
-        
         const tbody = document.getElementById('view-tabla-productos');
         const msgNoProductos = document.getElementById('view-no-productos');
         
-        // Resetear visualización
         tbody.innerHTML = '';
         containerServicio.style.display = 'none';
         msgNoProductos.style.display = 'none';
@@ -658,25 +655,16 @@ async function abrirModalVerCotizacion(id) {
             const precio = parseFloat(prod.precio_unitario);
             const subtotal = cantidad * precio;
 
-            // ¿Es el Servicio de Recolección? (Identificamos porque tiene 'tipo_residuo')
-            if (prod.tipo_residuo) { // Si no es null o vacío
-                containerServicio.style.display = 'block'; // Mostramos el bloque azul
-                
-                // Formateamos el texto: "RSU (Urbano)" o "RME (Especial)"
+            if (prod.tipo_residuo) { 
+                containerServicio.style.display = 'block'; 
                 const tipoTexto = (prod.tipo_residuo === 'Urbano') 
                     ? 'Recolección de Residuos Sólidos Urbanos (RSU)' 
                     : 'Recolección de Manejo Especial (RME)';
-                
                 txtServicioNombre.textContent = tipoTexto;
-                txtServicioTotal.textContent = formatearMoneda(subtotal); // Total del servicio
-                
-                // Detalles pequeños abajo
+                txtServicioTotal.textContent = formatearMoneda(subtotal);
                 txtServicioDetalle.textContent = `${prod.bolsas_por_dia} bolsas/día`;
-
             } else {
-                // Es una Renta (Tolva) u otro producto -> A LA TABLA
                 hayProductosExtra = true;
-                
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${prod.nombre_producto}</td>
@@ -688,28 +676,20 @@ async function abrirModalVerCotizacion(id) {
             }
         });
 
-        // Si solo hay servicio y no hay tolvas extra, mostramos mensaje en la tabla
         if (!hayProductosExtra) {
             msgNoProductos.style.display = 'block';
-            document.querySelector('.modal-table').style.display = 'none'; // Ocultar cabecera tabla
+            document.querySelector('.modal-table').style.display = 'none';
         } else {
-            document.querySelector('.modal-table').style.display = 'table'; // Mostrar tabla
-            // Ajuste para móvil (si usaste el CSS que te di antes, esto asegura que se vea)
+            document.querySelector('.modal-table').style.display = 'table';
             if(window.innerWidth <= 600) document.querySelector('.modal-table').style.display = 'block';
         }
 
-        // 6. Configurar botones
         document.getElementById('modal-view-close-btn').onclick = cerrarModalVer;
         document.getElementById('btn-cerrar-view').onclick = cerrarModalVer;
-        
         document.getElementById('btn-descargar-pdf').onclick = generarPDFProfesional;
 
-        // Mostrar el modal (asumiendo que el CSS ya maneja .modal-overlay igual que el anterior)
-        // NOTA: Asegúrate que el HTML inyectado tenga style="display:flex" o que la clase lo maneje.
-        // Como 'modal-overlay' en tu CSS actual necesita 'display:flex', pero al inyectarlo está oculto?
-        // Vamos a forzar el display block/flex en el contenedor hijo:
         const overlay = modalViewPlaceholder.querySelector('.modal-overlay');
-        overlay.style.display = 'flex'; // Forzar visualización
+        overlay.style.display = 'flex'; 
 
     } catch (e) {
         console.error("Error al abrir modal detalle:", e);
@@ -721,15 +701,13 @@ function cerrarModalVer() {
     datosCotizacionActual = null;
 }
 
-
-
 const formatearMoneda = (numero) => {
     return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(numero);
 };
 
-// ... (Tus variables y lógica de initCotizacionesApp y otras funciones siguen igual arriba) ...
-// ... SOLO REEMPLAZA DESDE "AYUDANTES PARA PDF" HACIA ABAJO ...
-
+// ... PDF Logic remains the same as previously provided ...
+// (Incluye aquí las funciones getBase64ImageFromURL, numeroALetras y generarPDFProfesional que ya tenías)
+// Para no hacer el mensaje demasiado largo, asumo que esas ya las tienes integradas o si las necesitas pídelas.
 // =====================================================
 // AYUDANTES PARA PDF PROFESIONAL (VERSIÓN CORREGIDA)
 // =====================================================

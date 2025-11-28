@@ -582,65 +582,83 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    function actualizarCalculoTotal() {
-    let total = 0;
+function actualizarCalculoTotal() {
+    let subtotal = 0;
     const checkRecoleccion = document.getElementById('check-recoleccion');
     
-    // Validamos que el elemento exista para evitar errores
+    // 1. Calcular Servicio de Recolección
     if (checkRecoleccion && checkRecoleccion.checked) {
-        // Obtenemos el precio del dataset (que inyectamos al abrir) o usamos 0 si falla
         let costo_base = parseFloat(checkRecoleccion.dataset.precio || 0);
-        
         let costo_dias_semanal = 0;
-        const diasChecks = document.querySelectorAll('.dia-check:checked');
         
-        diasChecks.forEach(check => {
+        document.querySelectorAll('.dia-check:checked').forEach(check => {
             costo_dias_semanal += parseFloat(check.dataset.precio || 0);
         });
 
-        // Fórmula: Costo Base + (Costo por días extra * 4 semanas)
-        let costo_servicio_mensual = costo_base + (costo_dias_semanal * 4);
-        
-        // Sumamos al total general
-        total += costo_servicio_mensual;
+        // Sumar mensualidad
+        subtotal += costo_base + (costo_dias_semanal * 4);
 
-        // --- CÁLCULO DE PESO EXTRA ---
+        // Sumar Peso Extra
         const bolsas_por_dia = parseFloat(document.getElementById('bolsas-dia').value) || 0;
         const peso_por_bolsa = parseFloat(document.getElementById('peso-bolsa').value) || 0;
-        const dias_seleccionados = diasChecks.length;
+        const dias_seleccionados = document.querySelectorAll('.dia-check:checked').length;
         
-        // Fórmula: (Bolsas * DíasSemana * 4semanas) * Peso * CostoKg
         const costo_extra_peso = (bolsas_por_dia * dias_seleccionados * 4) * peso_por_bolsa * COSTO_POR_KG;
-        
-        total += costo_extra_peso;
+        subtotal += costo_extra_peso;
     }
 
-    // --- CÁLCULO DE TOLVAS/RENTAS ---
-    const filasTolvas = document.querySelectorAll('#tolvas-tbody tr');
-    filasTolvas.forEach(tr => {
+    // 2. Calcular Tolvas
+    document.querySelectorAll('#tolvas-tbody tr').forEach(tr => {
         const qty = parseFloat(tr.dataset.qty) || 0;
         const precio = parseFloat(tr.dataset.precio) || 0;
-        total += (qty * precio);
+        subtotal += (qty * precio);
     });
 
-    // Actualizamos el texto en pantalla
+    // 🟢 3. LÓGICA DE IVA MEJORADA (Efectivo = 0%) 🟢
+    const selectPago = document.getElementById("forma-pago");
+    
+    // Obtenemos valor, quitamos espacios y pasamos a minúsculas para comparar seguro
+    const formaPago = selectPago ? selectPago.value.trim().toLowerCase() : "";
+    
+    // Si es "efectivo", IVA es 0. Si no, es 16%
+    const tasaIVA = (formaPago === "efectivo") ? 0 : 0.16;
+    
+    const iva = subtotal * tasaIVA;
+    const total = subtotal + iva;
+
+    // 4. Mostrar en pantalla
+    if(document.getElementById('subtotal-cotizacion')) {
+        document.getElementById('subtotal-cotizacion').textContent = formatearMoneda(subtotal);
+    }
+    
+    if(document.getElementById('iva-cotizacion')) {
+        document.getElementById('iva-cotizacion').textContent = formatearMoneda(iva);
+        
+        // Visual: poner en gris si es 0, negro si tiene valor
+        if (tasaIVA === 0) {
+            document.getElementById('iva-cotizacion').style.color = "#999";
+        } else {
+            document.getElementById('iva-cotizacion').style.color = "#333";
+        }
+    }
+
     const elementoTotal = document.getElementById('total-cotizacion');
     if (elementoTotal) {
         elementoTotal.textContent = formatearMoneda(total);
     }
 }
 
-   function abrirModalCotizar(id) {
-    // 1. Inyectar HTML (Usamos la variable de perfil)
+function abrirModalCotizar(id) {
+    // 1. Inyectar HTML
     modalCotizarPlaceholder.innerHTML = modalCotizarHTML;
     
-    // 2. Llenar datos de empresa (Usamos los datos ya cargados en perfil)
+    // 2. Llenar datos de empresa
     if (empresaData) {
         document.getElementById("modal-empresa-id").value = empresaData.id_empresa;
         document.getElementById("modal-empresa-nombre").textContent = empresaData.nombre_comercial;
     }
 
-    // 3. Select de Contactos (Adaptado a la estructura de contactos de Perfil)
+    // 3. Select de Contactos
     const selectContacto = document.createElement('select');
     selectContacto.id = "modal-contacto-select";
     selectContacto.style.cssText = "width:100%; padding:0.5rem;";
@@ -655,16 +673,13 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
         selectContacto.innerHTML = "<option value=''>Sin contactos</option>";
     }
-    // Reemplaza el input estático si existe
     const inputContacto = document.getElementById("modal-contacto-nombre");
     if(inputContacto) inputContacto.replaceWith(selectContacto);
 
 
-    // 4. Select de Tolvas (Productos de Renta)
+    // 4. Select de Tolvas
     const selectTolva = document.getElementById("select-tolva");
-    // Filtramos explícitamente las rentas o tolvas
     const productosTolva = listaProductos.filter(p => p.unidad === "renta" || p.descripcion.toLowerCase().includes('tolva'));
-    
     productosTolva.forEach(p => {
         const option = document.createElement('option');
         option.value = p.id_producto;
@@ -673,18 +688,16 @@ document.addEventListener("DOMContentLoaded", () => {
         selectTolva.appendChild(option);
     });
 
-    // 🟢 5. CORRECCIÓN DEFINITIVA: ENCONTRAR EL PRECIO REAL DEL SERVICIO 🟢
+    // 5. Inyectar Precio Servicio (Búsqueda Inteligente que ya tenías)
     const checkRecoleccion = document.getElementById("check-recoleccion");
-    
     if (checkRecoleccion) {
-        // A) Intentamos buscar por SKU 'P-001' primero
+        // Intento 1: SKU
         let productoServicio = listaProductos.find(p => p.sku === 'P-001'); 
         
-        // B) Si no existe el SKU, buscamos por nombre (evitando las tolvas)
+        // Intento 2: Nombre
         if (!productoServicio) {
              productoServicio = listaProductos.find(p => {
                  const desc = p.descripcion.toLowerCase();
-                 // Debe decir 'recolección' o 'servicio' Y NO ser 'tolva' ni 'renta'
                  return (desc.includes('recolección') || desc.includes('servicio')) 
                         && !desc.includes('renta') 
                         && !desc.includes('tolva');
@@ -692,27 +705,20 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (productoServicio) {
-            console.log("Servicio de Recolección detectado:", productoServicio.descripcion, "Precio:", productoServicio.precio_unitario);
-            
-            // Asignamos el precio real al checkbox
             checkRecoleccion.dataset.precio = productoServicio.precio_unitario;
-            
-            // Actualizamos la etiqueta visual para que veas el precio correcto
             const label = document.querySelector('label[for="check-recoleccion"]');
             if (label) {
                 const textoLimpio = "Incluir servicio de recolección"; 
                 label.innerHTML = `${textoLimpio} <strong>(${formatearMoneda(productoServicio.precio_unitario)})</strong>`;
             }
-        } else {
-            console.warn("ADVERTENCIA: No se encontró un producto de 'Servicio de Recolección' válido en la BD.");
         }
     }
 
-    // 6. Listeners (Eventos)
+    // 6. LISTENERS
     document.getElementById("modal-close-btn").addEventListener("click", cerrarModalCotizar);
     document.getElementById("form-cotizacion").addEventListener("submit", manejarSubmitCotizacion);
     
-    // Listener del Checkbox Principal
+    // Checkbox Recolección
     if (checkRecoleccion) {
         checkRecoleccion.addEventListener("change", function() {
             const estaMarcado = this.checked;
@@ -722,7 +728,6 @@ document.addEventListener("DOMContentLoaded", () => {
             
             if (!estaMarcado) {
                 document.querySelectorAll('.dia-check').forEach(check => check.checked = false);
-                // Limpiamos inputs para evitar cálculos erróneos ocultos
                 document.getElementById('bolsas-dia').value = "";
                 document.getElementById('peso-bolsa').value = "";
             }
@@ -730,22 +735,30 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Listeners de recálculo en tiempo real
+    // Inputs de cálculo
     document.querySelectorAll(".dia-check").forEach(check => check.addEventListener("change", actualizarCalculoTotal));
     document.getElementById("bolsas-dia").addEventListener("input", actualizarCalculoTotal);
     document.getElementById("peso-bolsa").addEventListener("input", actualizarCalculoTotal);
     
-    // Listeners para Tolvas
+    // Tolvas
     document.getElementById("btn-add-tolva").addEventListener("click", agregarLineaTolva);
-    
     document.getElementById("tolvas-tbody").addEventListener("click", (e) => {
         if (e.target.classList.contains("btn-borrar-linea")) {
             e.target.closest("tr").remove();
             actualizarCalculoTotal();
         }
     });
-}
 
+    // 🟢 NUEVO: DETECTAR CAMBIO EN FORMA DE PAGO 🟢
+    const selectPago = document.getElementById("forma-pago");
+    if (selectPago) {
+        selectPago.addEventListener("change", actualizarCalculoTotal);
+    }
+
+    // 🟢 NUEVO: FORZAR CÁLCULO INICIAL 🟢
+    // Para que si empieza en "Efectivo" ya salga sin IVA desde el segundo 0
+    actualizarCalculoTotal();
+}
 
     // --- Ejecutar la carga inicial ---
     cargarDatosPerfil();
