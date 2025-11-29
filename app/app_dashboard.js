@@ -13,12 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- Selectores del DOM (Tabla) ---
     const tablaRecientesBody = document.getElementById("tabla-recientes-body");
 
-    // --- Selectores del DOM (Botones) ---
-    // NOTA: Si 'empresas.html' está en la carpeta 'html/', la ruta es solo 'empresas.html'
-    // porque el navegador ya está en la carpeta 'html/'.
-    document.getElementById("btn-ir-a-empresas").addEventListener("click", () => {
-        window.location.href = '/sos/html/empresas.html'; 
-    });
+  
 
     // --- Helpers de Formato ---
     const formatMoneda = (num) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(num);
