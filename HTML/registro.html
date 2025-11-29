@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Usuarios</title>
+    <title>Gestión de Usuarios</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    
     <link rel="stylesheet" href="../css/menu.css"> 
     <link rel="stylesheet" href="../css/registro.css"> 
-    
-    </head>
+</head>
 <body>
     
     <nav id="sidebar-placeholder" class="sidebar"></nav>
@@ -22,23 +20,180 @@
         </button>
 
         <main class="content">
-            <div class="registro-container">
-                <h2>Registro de Usuario</h2>
-                <form id="formRegistro">
-                    <input type="text" id="nombre" name="nombre" placeholder="Nombre completo" required>
-                    <input type="email" id="correo" name="correo" placeholder="Correo electrónico" required>
-                    <input type="password" id="contrasena" name="contrasena" placeholder="Contraseña" required>
-                    <select id="rol_id" name="rol_id" required>
-                        <option value="">Seleccione un rol</option>
-                        <option value="1">Ventas</option>
-                        <option value="2">Facturacion</option>
-                        <option value="3">Admin</option>
-                    </select>
-                    <button type="submit">Registrar</button>
-                </form>
+            
+            <div class="gestion-wrapper">
+                
+                <!-- PANEL IZQUIERDO: FORMULARIO -->
+                <div class="panel-estilo">
+                    <h2 id="tituloForm">Nuevo Usuario</h2>
+                    
+                    <form id="formUsuario">
+                        <input type="hidden" id="id_usuario" name="id_usuario">
+                        
+                        <label for="nombre">Nombre Completo</label>
+                        <input type="text" id="nombre" name="nombre" placeholder="Ej: Juan Pérez" required>
+                        
+                        <label for="correo">Correo Electrónico</label>
+                        <input type="email" id="correo" name="correo" placeholder="ejemplo@correo.com" required>
+                        
+                        <label for="contrasena">Contraseña</label>
+                        <input type="password" id="contrasena" name="contrasena" placeholder="••••••••">
+                        <small style="display:block; margin-top:-15px; margin-bottom:15px; color:#7f8c8d; font-size:0.8rem;">
+                            * Dejar vacío si no se desea cambiar
+                        </small>
+                        
+                        <label for="rol_id">Rol de Usuario</label>
+                        <select id="rol_id" name="rol_id" required>
+                            <option value="" disabled selected>Seleccione...</option>
+                            <option value="1">Ventas</option>
+                            <option value="2">Facturación</option>
+                            <option value="3">Admin</option>
+                        </select>
+                        
+                        <button type="submit" class="btn-primary">
+                            <i class="fa fa-save"></i> Guardar Usuario
+                        </button>
+                        
+                        <button type="button" class="btn-secondary" onclick="limpiarFormulario()">
+                            Cancelar / Limpiar
+                        </button>
+                    </form>
+                </div>
+
+                <!-- PANEL DERECHO: TABLA -->
+                <div class="panel-estilo">
+                    <h2>Usuarios Registrados</h2>
+                    
+                    <div class="tabla-scroll">
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Correo</th>
+                                    <th>Rol</th>
+                                    <th style="text-align:center;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaUsuarios">
+                                <!-- Se llena dinámicamente con JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </main>
-    </div> <script src="../main.js"></script> 
-    <script src="../js/registro.js"></script>
+    </div> 
+    
+    <script src="../main.js"></script> 
+    
+    <!-- JS Lógica (La misma que ya te funcionó) -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            listarUsuarios();
+
+            // GUARDAR O EDITAR
+            document.getElementById("formUsuario").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                formData.append('accion', 'guardar'); 
+
+                try {
+                    const res = await fetch('../php/usuarios.php', { method: 'POST', body: formData });
+                    const data = await res.json();
+
+                    alert(data.msg); // Mantenemos el alert simple como pediste
+                    if (data.ok) {
+                        listarUsuarios();
+                        limpiarFormulario();
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Error al guardar. Revisa la consola.");
+                }
+            });
+        });
+
+        // LISTAR
+        async function listarUsuarios() {
+            try {
+                const res = await fetch('../php/usuarios.php?accion=listar');
+                const usuarios = await res.json();
+                
+                let html = '';
+                const roles = {1: 'Ventas', 2: 'Facturación', 3: 'Admin'};
+                const badges = {1: 'rol-ventas', 2: 'rol-fact', 3: 'rol-admin'};
+
+                if(usuarios.length === 0) {
+                    document.getElementById("tablaUsuarios").innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">No hay usuarios registrados.</td></tr>';
+                    return;
+                }
+
+                usuarios.forEach(u => {
+                    // Determinar clase del badge
+                    let badgeClass = badges[u.rol_id] || '';
+                    let rolNombre = roles[u.rol_id] || u.rol_id;
+
+                    html += `
+                        <tr>
+                            <td>${u.id}</td>
+                            <td><strong>${u.nombre}</strong></td>
+                            <td>${u.correo}</td>
+                            <td><span class="badge ${badgeClass}">${rolNombre}</span></td>
+                            <td style="text-align:center;">
+                                <button class="action-btn btn-edit" onclick='llenarFormulario(${JSON.stringify(u)})' title="Editar">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                                <button class="action-btn btn-delete" onclick="eliminarUsuario(${u.id})" title="Eliminar">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                document.getElementById("tablaUsuarios").innerHTML = html;
+            } catch (error) {
+                console.error("Error al listar:", error);
+            }
+        }
+
+        // ELIMINAR
+        async function eliminarUsuario(id) {
+            if(!confirm('¿Seguro que deseas eliminar este usuario?')) return;
+            
+            const formData = new FormData();
+            formData.append('accion', 'eliminar');
+            formData.append('id', id);
+
+            try {
+                const res = await fetch('../php/usuarios.php', { method: 'POST', body: formData });
+                const data = await res.json();
+                alert(data.msg);
+                if(data.ok) listarUsuarios();
+            } catch(err) {
+                alert("Error eliminando usuario.");
+            }
+        }
+
+        // LLENAR FORMULARIO
+        function llenarFormulario(u) {
+            document.getElementById('id_usuario').value = u.id;
+            document.getElementById('nombre').value = u.nombre;
+            document.getElementById('correo').value = u.correo;
+            document.getElementById('rol_id').value = u.rol_id;
+            // Scroll suave hacia arriba en móviles para ver el formulario
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            document.getElementById('tituloForm').innerText = "Editar: " + u.nombre;
+        }
+
+        // LIMPIAR
+        function limpiarFormulario() {
+            document.getElementById("formUsuario").reset();
+            document.getElementById('id_usuario').value = '';
+            document.getElementById('tituloForm').innerText = "Nuevo Usuario";
+        }
+    </script>
 </body>
 </html>

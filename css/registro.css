@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* --- 1. ESTILOS BASE Y ESTRUCTURA DE LA APLICACIÓN (PARA EL MENÚ) --- */
+/* --- 1. ESTILOS BASE Y ESTRUCTURA (Idéntico a tu base) --- */
 /* -------------------------------------------------------------------------- */
 
 html, body {
@@ -9,27 +9,22 @@ html, body {
     background-color: #f4f6f9; 
 }
 
-/* 🟢 Estilo del Contenido 🟢 */
+/* 🟢 Estilo del Contenido Principal 🟢 */
 .content {
-    /* Mantiene el padding del contenido principal */
     padding: 2rem;
     background: #f4f6f9;
     min-height: 100vh;
-    
-    /* Centramos el formulario dentro del Content */
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    box-sizing: border-box;
+    /* Quitamos el flex center absoluto para permitir scroll y grid */
 }
 
-/* Botón de Abrir Menú (Toggle) - El estilo es el definido en menu.css */
+/* Botón de Abrir Menú */
 .menu-toggle {
     position: fixed; 
     top: 15px;
     left: 15px;
     z-index: 1001; 
     transition: left 0.3s ease; 
-    
     background: #2563eb; 
     color: #fff;
     border: none;
@@ -38,43 +33,56 @@ html, body {
     cursor: pointer;
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-    
-    /* 🔴 CLAVE: Asegura la visibilidad en escritorio y móvil */
     display: block; 
 }
 
+/* -------------------------------------------------------------------------- */
+/* --- 2. LAYOUT DE GESTIÓN (GRID 2 COLUMNAS) --- */
+/* -------------------------------------------------------------------------- */
+
+.gestion-wrapper {
+    display: grid;
+    grid-template-columns: 350px 1fr; /* Formulario fijo, tabla flexible */
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 40px auto 0 auto; /* Margen superior para separarlo del header móvil */
+    align-items: start;
+}
 
 /* -------------------------------------------------------------------------- */
-/* --- 2. ESTILOS DEL FORMULARIO DE REGISTRO (PANEL BLANCO) --- */
+/* --- 3. ESTILOS DE LOS PANELES (Basado en .registro-container) --- */
 /* -------------------------------------------------------------------------- */
 
-h2 {
+.panel-estilo {
+    background: #ffffff;
+    border-radius: 12px; 
+    padding: 1.5rem; 
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); 
+    text-align: left;
+    transition: transform 0.2s ease;
+}
+
+.panel-estilo h2 {
     text-align: center;
-    margin-bottom: 30px;
+    margin-top: 0;
+    margin-bottom: 25px;
     color: #34495e; 
     font-weight: 700;
-    font-size: 1.75rem;
+    font-size: 1.5rem;
+    border-bottom: 2px solid #f0f2f5;
+    padding-bottom: 15px;
 }
 
-.registro-container {
-    background: #ffffff;
-    /* Ajustado para ser similar a .panel en empresas.css */
-    border-radius: 12px; 
-    padding: 1.5rem; /* Usamos el padding de .panel en empresas.css (1.5rem) */
-    width: 100%;
-    
-    /* 💥 CAMBIO CLAVE: Permite que ocupe todo el ancho disponible (como .panel) 💥 */
-    max-width: 900px; /* Un valor grande, pero no infinito, para que luzca bien centrado */
-    
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); 
-    
-    /* 💥 CAMBIO CLAVE: Eliminar el centrado de texto para los elementos internos 💥 */
-    text-align: left; /* Restauramos a alineación izquierda para campos y botones */
-}
+/* -------------------------------------------------------------------------- */
+/* --- 4. FORMULARIO (Inputs y Botones Originales) --- */
+/* -------------------------------------------------------------------------- */
 
-/* El h2 dentro del panel se mantiene centrado */
-.registro-container h2 {
-    text-align: center;
+label {
+    display: block;
+    margin-bottom: 6px;
+    color: #34495e;
+    font-weight: 600;
+    font-size: 0.9rem;
 }
 
 input, select {
@@ -84,17 +92,21 @@ input, select {
     border: 1px solid #dfe6e9; 
     border-radius: 8px; 
     outline: none;
-    font-size: 1rem;
+    font-size: 0.95rem;
     color: #34495e;
     box-sizing: border-box; 
+    background-color: #fdfdfd;
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 input:focus, select:focus {
     border-color: #3f51b5; 
     box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.2);
+    background-color: #fff;
 }
 
-.registro-container button { 
+/* Botones principales */
+.btn-primary { 
     width: 100%;
     padding: 14px;
     border: none;
@@ -105,38 +117,113 @@ input:focus, select:focus {
     font-size: 1.05rem;
     cursor: pointer;
     letter-spacing: 0.5px;
-    box-shadow: 0 4px 15px rgba(63, 81, 181, 0.4);
+    box-shadow: 0 4px 15px rgba(63, 81, 181, 0.3);
+    transition: background-color 0.3s, transform 0.2s;
 }
 
-.registro-container button:hover {
-    background-color: #5c6bc0; 
+.btn-primary:hover {
+    background-color: #303f9f;
+    transform: translateY(-2px);
 }
 
-.mensaje a {
-    color: #3f51b5; 
-    text-decoration: none;
+.btn-secondary {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 8px;
+    background-color: #ecf0f1;
+    color: #7f8c8d;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
 }
+.btn-secondary:hover { background-color: #bdc3c7; color: #2c3e50; }
 
 /* -------------------------------------------------------------------------- */
-/* --- 3. RESPONSIVIDAD (MÓVILES) --- */
+/* --- 5. TABLA DE USUARIOS (Diseño a juego) --- */
 /* -------------------------------------------------------------------------- */
 
-@media (max-width: 768px) {
-    /* El display: block; es redundante, pero se mantiene para claridad. */
-    .menu-toggle {
-        display: block; 
+.tabla-scroll {
+    overflow-x: auto;
+}
+
+.styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    min-width: 600px; /* Asegura que no se aplaste en pantallas pequeñas */
+}
+
+.styled-table thead tr {
+    background-color: #3f51b5; /* Mismo azul que el botón */
+    color: #ffffff;
+    text-align: left;
+}
+
+.styled-table th, .styled-table td {
+    padding: 12px 15px;
+}
+
+.styled-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+    background-color: #f8f9fa;
+}
+
+.styled-table tbody tr:last-of-type {
+    border-bottom: 2px solid #3f51b5;
+}
+
+.styled-table tbody tr:hover {
+    background-color: #e8eaf6; /* Un azul muy clarito al pasar el mouse */
+    color: #3f51b5;
+}
+
+/* Botones de acción en la tabla (iconos) */
+.action-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 1.1rem;
+    margin: 0 5px;
+    transition: transform 0.2s;
+}
+
+.btn-edit { color: #f39c12; }
+.btn-delete { color: #e74c3c; }
+
+.action-btn:hover { transform: scale(1.2); }
+
+/* Badges para roles */
+.badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.rol-admin { background-color: #e8f5e9; color: #2e7d32; }
+.rol-ventas { background-color: #e3f2fd; color: #1565c0; }
+.rol-fact { background-color: #fff3e0; color: #ef6c00; }
+
+/* -------------------------------------------------------------------------- */
+/* --- 6. RESPONSIVIDAD (MÓVILES) --- */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+    .gestion-wrapper {
+        grid-template-columns: 1fr; /* Una sola columna */
+        gap: 1.5rem;
     }
     
-    /* 🟢 CORRECCIÓN: Ajustamos el padding del content en móvil 🟢 */
     .content {
-        padding: 1rem; 
-        padding-top: 4.5rem; /* Deja espacio para el botón flotante */
-        align-items: flex-start; /* Alinea el formulario hacia arriba */
+        padding: 1rem;
+        padding-top: 4.5rem; 
     }
 
-    .registro-container {
-        max-width: 100%; /* Ocupa todo el ancho disponible */
-        padding: 30px 20px; 
-        box-shadow: none; 
+    .panel-estilo {
+        padding: 1.2rem;
     }
 }
