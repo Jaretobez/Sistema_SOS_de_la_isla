@@ -1,14 +1,13 @@
 // Espera a que la página HTML esté completamente cargada.
 document.addEventListener("DOMContentLoaded", () => {
     
-    // --- URLs de las APIs (Rutas Corregidas) ---
-    // CLAVE: Desde 'app/', subimos un nivel (../) y entramos a 'api/'.
+    // --- URLs de las APIs ---
     const API_URL_PERFIL = '../api/perfil_api.php';
     const API_URL_EMPRESAS = '../api/empresas_api.php';
     const API_URL_COTIZACIONES = '../api/cotizaciones_api.php';
-    const COSTO_POR_KG = 1.5; // Constante de negocio
+    const COSTO_POR_KG = 1.5;
 
-    // --- Selectores del DOM (Principales) ---
+    // --- Selectores del DOM ---
     const nombreComercial = document.getElementById("perfil-nombre-comercial");
     const razonSocial = document.getElementById("perfil-razon-social");
     const fechaCreacion = document.getElementById("perfil-fecha-creacion");
@@ -25,26 +24,31 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- Selectores de Modales ---
     const modalFormPlaceholder = document.getElementById("modal-form-placeholder"); 
     const modalCotizarPlaceholder = document.getElementById("modal-cotizar-placeholder");
+    // CORRECCIÓN: Agregamos el selector correcto para docs
+    const modalDocsPlaceholder = document.getElementById("modal-docs-placeholder"); 
 
     // --- Almacenes de Datos ---
     let empresaData = null; 
     let contactosData = []; 
     let servicioData = null; 
     let listaProductos = []; 
+    // Variables para guardar el HTML crudo
     let modalEmpresaFormHTML = ""; 
     let modalCotizarHTML = ""; 
+    let modalDocumentacionHTML = ""; // Esta variable vive aquí adentro
 
-    // --- Helpers de Formato ---
+    // Variable temporal para documentos (ahora vive aquí adentro también)
+    let documentosMemoria = {}; 
+
+    // --- Helpers ---
     const formatearMoneda = (num) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(num);
     const formatFecha = (dateISO) => {
         if (!dateISO) return 'N/A';
-        // Reemplaza '-' por '/' para compatibilidad universal con constructores de Fecha
         return new Date(dateISO.replace(/-/g, '/')).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
     };
 
-
     /**
-     * 1. Función Principal: Cargar todo
+     * 1. Cargar Datos
      */
     async function cargarDatosPerfil() {
         const params = new URLSearchParams(window.location.search);
@@ -56,27 +60,26 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-            // --- Carga de recursos en paralelo (Rutas Corregidas) ---
             const [
                 respModalFormEmpresa,
                 respModalFormCotizar,
+                respModalDocs,       // Fetch del nuevo modal
                 respProductos,
-                respPerfil // ¡La llamada principal!
+                respPerfil 
             ] = await Promise.all([
-                // 🟢 CORRECCIÓN DE RUTA: Modal de empresa
                 fetch("../html/modal_empresa_form.html"), 
-                // 🟢 CORRECCIÓN DE RUTA: Modal de cotizar
                 fetch("../html/modal_formulario.html"),  
+                fetch("../html/modal_documentacion.html"), // Asegúrate que este archivo exista en la carpeta html/
                 fetch(`${API_URL_COTIZACIONES}?accion=leer_productos`), 
                 fetch(`${API_URL_PERFIL}?accion=leer_perfil&id=${idEmpresa}`) 
             ]);
 
-            // Guardar HTML y Productos
+            // Guardamos los textos HTML en las variables
             modalEmpresaFormHTML = await respModalFormEmpresa.text();
             modalCotizarHTML = await respModalFormCotizar.text();
+            modalDocumentacionHTML = await respModalDocs.text(); // AQUI SE LLENA LA VARIABLE
+            
             listaProductos = await respProductos.json();
-
-            // Guardar datos del perfil
             const data = await respPerfil.json();
             
             if (data.success === false || !data.empresa) { 
@@ -88,7 +91,6 @@ document.addEventListener("DOMContentLoaded", () => {
             servicioData = data.servicio; 
             const detalleServicio = data.detalle_servicio; 
 
-            // "Dibujar" los datos en la página
             popularCabecera(empresaData, servicioData);
             popularContactos(contactosData);
             popularDocumentos(servicioData);
@@ -96,9 +98,8 @@ document.addEventListener("DOMContentLoaded", () => {
             asignarAcciones(empresaData.id_empresa); 
 
         } catch (error) {
-            console.error("Error al cargar datos del perfil:", error);
-            // NOTA: Si 'empresas.html' está en 'html/', la ruta debe ser 'empresas.html' aquí
-            document.body.innerHTML = `<h1><i class="fa fa-exclamation-triangle"></i> Error al cargar datos</h1><p>${error.message}</p><a href="empresas.html">Volver a la lista</a>`;
+            console.error("Error:", error);
+            document.body.innerHTML = `<h1>Error</h1><p>${error.message}</p>`;
         }
     }
 
@@ -164,37 +165,39 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    /**
-     * 4. Llenar documentos (Tarjeta 3)
+  /**
+     * 4. Llenar documentos (Tarjeta 3) - VERSIÓN LIMPIA
      */
     function popularDocumentos(servicio) {
         listaDocumentos.innerHTML = ""; 
-        let estadoGeneral = "Inactivo";
-        let estadoClase = "inactivo";
-        if (servicio && servicio.id_servicio) {
-            estadoGeneral = servicio.estado_documentacion;
-            estadoClase = (estadoGeneral === "Todo Aceptado") ? "aceptado" : "pendiente";
-        }
-        const estadoDiv = document.createElement("div");
-        estadoDiv.className = `doc-status-general ${estadoClase}`;
-        estadoDiv.textContent = estadoGeneral;
-        listaDocumentos.appendChild(estadoDiv);
+        
+        // 1. ELIMINADO: Ya no calculamos ni mostramos el estado general ("En Revisión", etc.)
+        
+        // 2. Solo mostramos la lista estática de lo que se requiere
         const docs = [
-             { nombre: "Constancia de Situación Fiscal", icono: "fa-file-pdf", estado: estadoClase },
-             { nombre: "Identificación Oficial (Rep.)", icono: "fa-id-card", estado: estadoClase },
-             { nombre: "Poder Notarial (Rep.)", icono: "fa-gavel", estado: "pendiente" }, 
-             { nombre: "Comprobante de Domicilio", icono: "fa-map-location-dot", estado: estadoClase }
-          ];
-          docs.forEach(doc => {
-            const li = document.createElement("li");
-            li.className = "doc-item";
-            const docStatus = (doc.nombre.includes("Poder")) ? "pendiente" : doc.estado;
-            li.innerHTML = `
-                <span class="doc-name"><i class="fa-solid ${doc.icono}"></i> ${doc.nombre}</span>
-                <span class="doc-status ${docStatus}">${docStatus}</span>
-            `;
-            listaDocumentos.appendChild(li);
-          });
+             { nombre: "Constancia de Situación Fiscal", icono: "fa-file-pdf" },
+             { nombre: "Identificación Oficial (Rep.)", icono: "fa-id-card" },
+             { nombre: "Poder Notarial (Rep.)", icono: "fa-file-signature" }, 
+             { nombre: "Comprobante de Domicilio", icono: "fa-house-chimney" }
+        ];
+
+        if (servicio && servicio.id_servicio) {
+            docs.forEach(doc => {
+                const li = document.createElement("li");
+                li.className = "doc-item";
+                // Solo mostramos Ícono y Nombre. Quitamos los estados.
+                li.innerHTML = `
+                    <span class="doc-name" style="font-size: 0.95rem; color: #555;">
+                        <i class="fa-solid ${doc.icono}" style="margin-right:8px; color:#0d6efd;"></i> 
+                        ${doc.nombre}
+                    </span>
+                `;
+                listaDocumentos.appendChild(li);
+            });
+        } else {
+            // Mensaje simple si no hay servicio
+            listaDocumentos.innerHTML = "<p class='text-muted small p-2'>Se requiere cotizar un servicio para gestionar documentos.</p>";
+        }
     }
 
     /**
@@ -251,6 +254,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert("No hay servicio activo para cancelar.");
             }
         });
+
+        const btnDocs = document.querySelector('.div3.card .card-header button');
+        if(btnDocs) {
+            // Ahora sí funcionará porque abrirModalDocumentacion está en el mismo scope
+            btnDocs.addEventListener("click", abrirModalDocumentacion); 
+        }
+   
     }
 
     /**
@@ -760,6 +770,218 @@ function abrirModalCotizar(id) {
     actualizarCalculoTotal();
 }
 
+async function abrirModalDocumentacion() {
+        // 1. Validaciones básicas
+        if(!modalDocsPlaceholder) return;
+        
+        // Verificamos tener el servicio activo (variable global 'servicioData')
+        if (!servicioData || !servicioData.id_servicio) {
+            alert("No hay un servicio activo para gestionar documentos. Realiza una cotización primero.");
+            return;
+        }
+
+        // 2. Inyectar HTML
+        modalDocsPlaceholder.innerHTML = modalDocumentacionHTML;
+        
+        // 3. Configurar Estilos del Modal (Centrado)
+        const modalNode = document.getElementById("modalDocumentacion");
+        if (modalNode) {
+            modalNode.classList.add("show");
+            Object.assign(modalNode.style, {
+                display: "flex", alignItems: "center", justifyContent: "center",
+                position: "fixed", top: "0", left: "0", width: "100%", height: "100%",
+                zIndex: "1055", backgroundColor: "rgba(0,0,0,0.5)", opacity: "1"
+            });
+            document.body.classList.add("modal-open");
+
+            // ============================================================
+            // 4. CEREBRO: RECUPERAR ARCHIVOS SUBIDOS
+            // ============================================================
+            try {
+                // Llamamos a la API para ver qué hay en la BD
+                const url = `../api/documentos_api.php?accion=leer_documentos&id_servicio=${servicioData.id_servicio}`;
+                const resp = await fetch(url);
+                const data = await resp.json();
+
+                if (data.success && data.documentos.length > 0) {
+                    
+                    // Diccionario: Nombre en BD -> ID en tu HTML
+                    const mapa = {
+                        'Constancia de Situación Fiscal': 'csf',
+                        'Identificación Oficial (Rep.)': 'ine',
+                        'Poder Notarial (Rep.)': 'poder',
+                        'Comprobante de Domicilio': 'comp'
+                    };
+
+                    data.documentos.forEach(doc => {
+                        // Buscamos el código corto (ej: 'csf') usando el nombre largo de la BD
+                        const codigoHTML = mapa[doc.tipo_documento]; 
+                        
+                        if (codigoHTML) {
+                            // A. Modificar Botón VER (Ojito)
+                            const btnVer = document.getElementById(`btn-ver-${codigoHTML}`);
+                            if (btnVer) {
+                                // Le quitamos lo gris y deshabilitado
+                                btnVer.classList.remove('disabled', 'btn-light', 'border');
+                                // Le ponemos color verde
+                                btnVer.classList.add('btn-success', 'text-white');
+                                
+                                // Construimos la ruta. 
+                                // En la BD está como: "uploads/archivo.pdf"
+                                // Desde el HTML necesitamos: "../uploads/archivo.pdf"
+                                const rutaFinal = "../" + doc.path_archivo;
+                                
+                                // Le asignamos la acción de abrir
+                                btnVer.onclick = () => window.open(rutaFinal, '_blank');
+                            }
+
+                            // B. Opcional: Cambiar texto del botón subir a "Actualizar"
+                            // Para que sepa que ya hay uno
+                            const btnSubir = document.querySelector(`button[data-target="input-${codigoHTML}"]`);
+                            if(btnSubir) {
+                                btnSubir.innerHTML = '<i class="fa-solid fa-rotate"></i> Actualizar';
+                                btnSubir.classList.remove('btn-primary');
+                                btnSubir.classList.add('btn-outline-primary');
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error("Error al cargar documentos existentes:", error);
+            }
+        }
+
+        // 5. Configurar Botones de Cerrar
+        const cerrar = () => { 
+            modalDocsPlaceholder.innerHTML = ""; 
+            document.body.classList.remove("modal-open");
+        };
+        document.getElementById("btn-cerrar-docs").addEventListener("click", cerrar);
+        document.getElementById("btn-cerrar-docs-x").addEventListener("click", cerrar);
+
+        // 6. Activar la lógica de subir nuevos archivos
+        configurarLogicaDocumentos();
+    }
+
+
+
+function configurarLogicaDocumentos() {
+        // Botones Subir
+        document.querySelectorAll('.btn-subir-trigger').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const targetId = e.target.closest('button').dataset.target;
+                document.getElementById(targetId).click();
+            });
+        });
+        
+        // Inputs Change
+        document.querySelectorAll('input[type="file"]').forEach(input => {
+            input.addEventListener('change', () => {
+                const tipo = input.dataset.tipo;
+                if (input.files[0]) {
+                    documentosMemoria[tipo] = input.files[0];
+                    
+                    const msg = document.getElementById(`msg-${tipo}`);
+                    if(msg) {
+                        msg.textContent = input.files[0].name;
+                        msg.className = "text-success small fw-bold ms-4";
+                    }
+
+                    const btnVer = document.getElementById(`btn-ver-${tipo}`);
+                    if(btnVer) {
+                        btnVer.classList.remove('disabled', 'btn-secondary');
+                        btnVer.classList.add('btn-success');
+                    }
+                }
+            });
+        });
+
+        // Botones Ver
+        document.querySelectorAll('.btn-ver-doc').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tipo = e.target.closest('button').dataset.tipo;
+                if (documentosMemoria[tipo]) {
+                    window.open(URL.createObjectURL(documentosMemoria[tipo]), '_blank');
+                }
+            });
+        });
+
+        // Botón Guardar (Opcional, si lo tienes en el HTML)
+const btnGuardarDocs = document.getElementById("btn-guardar-docs");
+        if(btnGuardarDocs) {
+            btnGuardarDocs.addEventListener("click", async () => {
+                
+                // 1. Validaciones básicas
+                if (Object.keys(documentosMemoria).length === 0) {
+                    alert("No has seleccionado ningún archivo para subir.");
+                    return;
+                }
+
+                // Asegurarnos de que tenemos un servicio al cual adjuntar los docs
+                // servicioData es la variable global que llenamos en cargarDatosPerfil
+                if (!servicioData || !servicioData.id_servicio) {
+                    alert("Error: Esta empresa no tiene un servicio activo vinculado para subir documentos.");
+                    return;
+                }
+
+                const btnContentOriginal = btnGuardarDocs.innerHTML;
+                btnGuardarDocs.disabled = true;
+                btnGuardarDocs.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+
+                try {
+                    // 2. Crear FormData
+                    const formData = new FormData();
+                    formData.append('accion', 'subir_documentos');
+                    formData.append('id_servicio', servicioData.id_servicio);
+
+                    // Agregar archivos del objeto documentosMemoria
+                    // Las claves (key) son 'csf', 'ine', 'poder', 'comp'
+                    for (const [key, file] of Object.entries(documentosMemoria)) {
+                        formData.append(key, file);
+                    }
+
+                    // 3. Enviar a la API
+                    const response = await fetch('../api/documentos_api.php', {
+                        method: 'POST',
+                        body: formData // Fetch detecta FormData y pone los headers correctos automáticamente
+                    });
+
+                    const resultado = await response.json();
+
+                    if (resultado.success) {
+                        alert("¡Documentos guardados correctamente!");
+                        
+                        // Limpiar memoria
+                        documentosMemoria = {};
+                        
+                        // Cerrar modal
+                        document.getElementById("modalDocumentacion").classList.remove("show");
+                        document.getElementById("modalDocumentacion").style.display = "none";
+                        document.body.classList.remove("modal-open");
+                        
+                        // Recargar la página para ver cambios en la lista de docs
+                        window.location.reload(); 
+                    } else {
+                        throw new Error(resultado.error || "Error desconocido al subir.");
+                    }
+
+                } catch (error) {
+                    console.error(error);
+                    alert("Hubo un problema: " + error.message);
+                } finally {
+                    btnGuardarDocs.disabled = false;
+                    btnGuardarDocs.innerHTML = btnContentOriginal;
+                }
+            });
+        }
+    }
+
+
+
     // --- Ejecutar la carga inicial ---
     cargarDatosPerfil();
 });
+
+
+
+

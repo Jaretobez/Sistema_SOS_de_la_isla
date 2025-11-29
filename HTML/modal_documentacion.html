@@ -1,0 +1,155 @@
+<style>
+    /* Hace que el modal sea más ancho */
+    .modal-dialog-custom {
+        max-width: 900px !important;
+        width: 95%;
+    }
+
+    /* Diseño de las tarjetas de cada documento */
+    .doc-card {
+        background-color: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .doc-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+        border-color: #cfe2ff;
+        background-color: #f8faff;
+    }
+
+    /* Iconos grandes */
+    .icon-box {
+        width: 50px;
+        height: 50px;
+        background-color: #e7f1ff;
+        color: #0d6efd;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-right: 1rem;
+    }
+
+    /* Títulos */
+    .doc-title {
+        font-weight: 700;
+        color: #343a40;
+        margin-bottom: 2px;
+        font-size: 1.1rem;
+    }
+    
+    .doc-subtitle {
+        font-size: 0.85rem;
+        color: #868e96;
+    }
+</style>
+
+<div class="modal fade" id="modalDocumentacion" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-custom" role="document">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
+            
+            <div class="modal-header border-bottom-0 pb-0" style="padding: 2rem 2rem 1rem;">
+                <div>
+                    <h3 class="modal-title fw-bold">Documentación Requerida</h3>
+                    <p class="text-muted">Por favor sube los comprobantes oficiales en formato PDF o Imagen.</p>
+                </div>
+                <button type="button" class="btn-close" id="btn-cerrar-docs-x" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body" style="padding: 2rem; background-color: #fcfcfc;">
+
+                <div class="doc-card">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box"><i class="fa-solid fa-file-invoice"></i></div>
+                        <div>
+                            <div class="doc-title">Constancia de Situación Fiscal</div>
+                            <div class="doc-subtitle">Debe ser vigente (máx. 3 meses)</div>
+                            </div>
+                    </div>
+                    <div class="text-end">
+                        <input type="file" id="input-csf" data-tipo="csf" hidden accept=".pdf,.jpg,.png">
+                        <button class="btn btn-primary px-4 rounded-pill btn-subir-trigger" data-target="input-csf">
+                            <i class="fa-solid fa-cloud-arrow-up me-2"></i> Subir
+                        </button>
+                        <button id="btn-ver-csf" data-tipo="csf" class="btn btn-light border px-3 rounded-pill disabled btn-ver-doc ms-2">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box"><i class="fa-solid fa-id-card"></i></div>
+                        <div>
+                            <div class="doc-title">Identificación Oficial (INE/Pasaporte)</div>
+                            <div class="doc-subtitle">Del Representante Legal</div>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <input type="file" id="input-ine" data-tipo="ine" hidden accept=".pdf,.jpg,.png">
+                        <button class="btn btn-primary px-4 rounded-pill btn-subir-trigger" data-target="input-ine">
+                            <i class="fa-solid fa-cloud-arrow-up me-2"></i> Subir
+                        </button>
+                        <button id="btn-ver-ine" data-tipo="ine" class="btn btn-light border px-3 rounded-pill disabled btn-ver-doc ms-2">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box"><i class="fa-solid fa-file-signature"></i></div>
+                        <div>
+                            <div class="doc-title">Poder Notarial</div>
+                            <div class="doc-subtitle">Solo la sección de poderes</div>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <input type="file" id="input-poder" data-tipo="poder" hidden accept=".pdf,.jpg,.png">
+                        <button class="btn btn-primary px-4 rounded-pill btn-subir-trigger" data-target="input-poder">
+                            <i class="fa-solid fa-cloud-arrow-up me-2"></i> Subir
+                        </button>
+                        <button id="btn-ver-poder" data-tipo="poder" class="btn btn-light border px-3 rounded-pill disabled btn-ver-doc ms-2">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box"><i class="fa-solid fa-house-chimney"></i></div>
+                        <div>
+                            <div class="doc-title">Comprobante de Domicilio</div>
+                            <div class="doc-subtitle">Luz, Agua o Teléfono (Reciente)</div>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <input type="file" id="input-comp" data-tipo="comp" hidden accept=".pdf,.jpg,.png">
+                        <button class="btn btn-primary px-4 rounded-pill btn-subir-trigger" data-target="input-comp">
+                            <i class="fa-solid fa-cloud-arrow-up me-2"></i> Subir
+                        </button>
+                        <button id="btn-ver-comp" data-tipo="comp" class="btn btn-light border px-3 rounded-pill disabled btn-ver-doc ms-2">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer border-top-0 pt-0 pb-4 pe-4">
+                <button type="button" class="btn btn-light btn-lg px-4" id="btn-cerrar-docs">Cerrar</button>
+                <button type="button" class="btn btn-success btn-lg px-5 shadow-sm" id="btn-guardar-docs">
+                    <i class="fa-solid fa-check me-2"></i> Guardar Todo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
