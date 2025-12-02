@@ -7,7 +7,7 @@ $db_pass = '';
 
 // ⚠️ IMPORTANTE: Verifica tu puerto en XAMPP.
 // Si en el panel de XAMPP dice "Port: 3306", cambia esto a 3306.
-$tu_puerto = 3308; 
+$tu_puerto = 33065; 
 
 $charset = 'utf8mb4';
 
