@@ -1,6 +1,5 @@
 /* ============================================
    ESTILOS GENERALES Y LAYOUT BASE 
-   (Igual que Empresas)
    ============================================ */
 html, body {
     margin: 0;
@@ -205,11 +204,13 @@ html, body {
     font-style: italic;
 }
 
+
 /* ============================================
-   ESTILOS DE MODALES (Unificado con Empresas) 🎨
+   ESTILOS DE MODALES (LAYOUT FLEXIBLE / STICKY) 🔧
+   Esta sección reemplaza el estilo antiguo de modales
    ============================================ */
 
-/* 1. Overlay */
+/* 1. Overlay (Fondo oscuro) */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -225,33 +226,43 @@ html, body {
     transition: opacity 0.3s ease;
 }
 
-/* 2. Contenido del Modal */
+/* 2. Contenedor Principal del Modal */
 .modal-content {
     background-color: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     width: 90%; 
-    max-width: 750px; /* Un poco más ancho para la tabla de productos */
-    max-height: 90vh; 
-    overflow-y: auto; 
-    position: relative; 
+    max-width: 750px;
+    
+    /* --- CONFIGURACIÓN PARA FOOTER FIJO --- */
+    height: 85vh;            /* Altura fija casi total de la pantalla */
+    max-height: 900px;
+    display: flex;           /* Flexbox para ordenar verticalmente */
+    flex-direction: column;  
+    overflow: hidden;        /* Quitamos el scroll de la ventana principal */
+    position: relative;      
+    
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    padding: 0;              /* El padding va en los hijos */
     animation: slideUp 0.3s ease;
 }
+
 @keyframes slideUp {
     from { transform: translateY(20px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
 }
 
-/* 3. Título y Cerrar */
+/* 3. Cabecera (Título) - FIJA ARRIBA */
 .modal-content h2 {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
+    margin: 0;
+    padding: 20px 30px;      /* Espaciado amplio */
+    border-bottom: 1px solid #e5e7eb;
+    background: #fff;
+    flex-shrink: 0;          /* No se encoge */
     color: #2563eb;
-    font-size: 1.5rem;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
+    font-size: 1.4rem;
 }
+
+/* Botón cerrar (X) */
 .modal-close-btn {
     position: absolute;
     top: 15px;
@@ -263,14 +274,58 @@ html, body {
     cursor: pointer;
     color: #9ca3af;
     transition: color 0.2s;
+    z-index: 20;
 }
-.modal-close-btn:hover {
-    color: #374151;
+.modal-close-btn:hover { color: #374151; }
+
+/* 4. Cuerpo con Scroll (CENTRO) - SE MUEVE */
+.modal-body-scroll {
+    flex-grow: 1;            /* Ocupa todo el espacio sobrante */
+    overflow-y: auto;        /* AQUÍ ESTÁ EL SCROLL */
+    padding: 25px 30px;      /* Espaciado interno */
+    background-color: #f9fafb; 
+    
+    /* Scrollbar suave */
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
 }
 
-/* 4. Estilos de Formularios (Inputs y Fieldsets) */
+/* 5. Pie de Página (Totales y Botón) - FIJO ABAJO */
+.total-section {
+    flex-shrink: 0;          /* Evita que desaparezca */
+    background: #ffffff;
+    border-top: 1px solid #d1d5db;
+    padding: 20px 30px;      /* Espaciado amplio */
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.05); /* Sombra sutil hacia arriba */
+    z-index: 10;
+    text-align: right;       /* Alinea los números a la derecha */
+}
 
-/* Fieldset estilizado como en Empresas */
+/* Botón Guardar dentro del footer */
+.btn-guardar-cotizacion {
+    width: 100%;
+    padding: 0.9rem;
+    background-color: #059669;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+.btn-guardar-cotizacion:hover { background-color: #047857; }
+.btn-guardar-cotizacion:disabled { background-color: #9ca3af; cursor: not-allowed; }
+
+/* ============================================
+   ESTILOS INTERNOS DE FORMULARIOS (Inputs y Tablas)
+   ============================================ */
+
 .modal-fieldset {
     border: 1px solid #e5e7eb;
     border-radius: 8px;
@@ -285,25 +340,15 @@ html, body {
     padding: 0 10px;
 }
 
-/* GRIDS para Inputs */
+/* Grids y Layouts de Inputs */
 .modal-input-group {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* 2 columnas en escritorio */
+    grid-template-columns: 1fr 1fr;
     gap: 15px;
     margin-bottom: 1rem;
 }
 
-/* Labels y Textos */
-.modal-input-group label,
-.modal-fieldset label {
-    display: block;
-    margin-bottom: 6px;
-    font-weight: 500;
-    color: #374151;
-    font-size: 0.95rem;
-}
-
-/* Inputs, Selects, Textareas (Estilo Unificado) */
+/* Inputs, Selects, etc. */
 input:not([type="checkbox"]):not([type="radio"]),
 select,
 textarea {
@@ -313,19 +358,16 @@ textarea {
     border-radius: 6px;
     box-sizing: border-box;
     font-size: 1rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.2s;
     background-color: #fff;
 }
-
-input:focus,
-select:focus,
-textarea:focus {
+input:focus, select:focus {
     border-color: #2563eb;
     outline: none;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-/* Textos estáticos (Cliente/Contacto seleccionados) */
+/* Labels estáticos */
 #modal-empresa-nombre, 
 #modal-contacto-nombre {
     display: block;
@@ -336,38 +378,7 @@ textarea:focus {
     font-weight: 500;
 }
 
-/* ============================================
-   ESTILOS ESPECÍFICOS: SECCIÓN RECOLECCIÓN
-   ============================================ */
-
-/* Contenedor del check principal */
-.recoleccion-header {
-    background: #f0f9ff; /* Azul muy suave */
-    border: 1px solid #bae6fd;
-    padding: 15px;
-    border-radius: 6px;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.recoleccion-header label {
-    margin: 0;
-    font-size: 1rem;
-    color: #0369a1;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-}
-.recoleccion-header input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: #0284c7;
-}
-
-/* Días de la semana */
+/* Sección Recolección */
 .recoleccion-dias-container {
     padding: 10px 15px;
     background: #f9fafb;
@@ -389,41 +400,19 @@ textarea:focus {
     padding: 5px 10px;
     border: 1px solid #e5e7eb;
     border-radius: 4px;
-    transition: all 0.2s;
 }
-.recoleccion-dias-checks label:hover {
-    border-color: #2563eb;
-}
-
-/* Radios de Tipo de Residuo */
-.radio-group-residuo {
-    display: flex;
-    gap: 20px;
-    padding: 10px 0;
-}
-.radio-group-residuo label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-}
-
-/* Inputs de Peso y Cantidad */
 .recoleccion-peso-group {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 15px;
     margin-top: 15px;
     padding: 15px;
-    background: #fffbeb; /* Fondo amarillo suave para diferenciar */
+    background: #fffbeb;
     border: 1px dashed #fcd34d;
     border-radius: 6px;
 }
 
-/* ============================================
-   ESTILOS ESPECÍFICOS: TABLA DE TOLVAS (Modal)
-   ============================================ */
-
+/* Tabla Tolvas Modal */
 .tolva-add-section {
     display: flex;
     gap: 10px;
@@ -440,13 +429,11 @@ textarea:focus {
     color: white;
     border: none;
     padding: 0 1.2rem;
-    height: 42px; /* Altura igual a los inputs */
+    height: 42px;
     border-radius: 6px;
     cursor: pointer;
     font-weight: 500;
 }
-.tolva-add-section button:hover { background: #1d4ed8; }
-
 .modal-table {
     width: 100%;
     border-collapse: collapse;
@@ -456,16 +443,12 @@ textarea:focus {
     background: #f9fafb;
     color: #6b7280;
     font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    letter-spacing: 0.05em;
     padding: 10px;
     border-bottom: 1px solid #e5e7eb;
 }
 .modal-table td {
     padding: 10px;
     border-bottom: 1px solid #f3f4f6;
-    color: #374151;
 }
 .modal-table .btn-borrar-linea {
     background: none;
@@ -473,50 +456,14 @@ textarea:focus {
     color: #ef4444;
     cursor: pointer;
     font-size: 1.1rem;
-    transition: color 0.2s;
-}
-.modal-table .btn-borrar-linea:hover { color: #dc2626; }
-
-/* ============================================
-   SECCIÓN DE TOTALES Y BOTÓN FINAL
-   ============================================ */
-.total-section {
-    background: #f9fafb;
-    padding: 15px;
-    border-radius: 8px;
-    text-align: right;
-    border: 1px solid #e5e7eb;
-}
-
-.btn-guardar-cotizacion {
-    width: 100%;
-    padding: 1rem;
-    background-color: #059669; /* Verde fuerte */
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: all 0.2s;
-}
-.btn-guardar-cotizacion:hover {
-    background-color: #047857;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-.btn-guardar-cotizacion:disabled {
-    background-color: #9ca3af;
-    cursor: not-allowed;
 }
 
 /* Utilidad oculto */
 .hidden { display: none !important; }
 
+
 /* ============================================
-   ESTILOS PARA MODAL DE "VER DETALLE" (Lectura)
+   ESTILOS PARA MODAL DE "VER DETALLE" (Visualización)
    ============================================ */
 .detalle-grid {
     display: grid;
@@ -541,14 +488,128 @@ textarea:focus {
     font-size: 1rem;
 }
 
+/* 1. Bloque Servicio (Azul) */
+#view-servicio-container, 
+.bloque-servicio-azul {
+    background-color: #eff6ff;
+    border: 2px solid #60a5fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+#view-servicio-nombre {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e40af;
+    display: block;
+    margin-bottom: 5px;
+}
+#view-servicio-total {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #3b82f6;
+    background: white;
+    padding: 2px 10px;
+    border-radius: 15px;
+    border: 1px solid #bfdbfe;
+    display: inline-block;
+}
+
+/* 2. Bloque Rentas (Amarillo) */
+.bloque-rentas-amarillo {
+    background-color: #fefce8;
+    border: 2px solid #facc15;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 25px;
+}
+.bloque-rentas-amarillo h3 {
+    color: #a16207;
+    font-size: 1rem;
+    text-transform: uppercase;
+    border-bottom: 1px dashed #fde047;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+.bloque-rentas-amarillo table th {
+    background-color: #fef08a !important;
+    color: #854d0e !important;
+    border-bottom: 1px solid #eab308 !important;
+}
+
+/* 3. Bloque Total Global (Verde Gigante) */
+.bloque-total-verde {
+    background-color: #dcfce7;
+    border: 4px solid #16a34a;
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    margin-top: 30px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    animation: pulseGreen 2s infinite;
+}
+.label-total-global {
+    display: block;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #15803d;
+    margin-bottom: 5px;
+}
+#view-total {
+    display: block;
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: #14532d;
+    line-height: 1;
+    text-shadow: 2px 2px 0px rgba(255,255,255,0.5);
+}
+@keyframes pulseGreen {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4); }
+    70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(22, 163, 74, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+}
+
+
 /* ============================================
-   RESPONSIVO (MÓVIL)
+   RESPONSIVO (MÓVIL) 📱
    ============================================ */
 @media (max-width: 900px) {
     .content { padding: 1rem; padding-top: 4.5rem; }
     .panel { padding: 1rem; margin-top: 1rem; }
     
-    /* Inputs a 1 columna en móvil */
+    /* 1. Modal casi pantalla completa para aprovechar espacio */
+    .modal-content {
+        width: 95%;
+        height: 92vh; /* Un poco más alto en móvil */
+    }
+
+    /* 2. Reducir Padding de la Cabecera */
+    .modal-content h2 {
+        padding: 15px 20px;
+        font-size: 1.2rem;
+        padding-right: 40px; 
+    }
+    .modal-close-btn {
+        top: 10px;
+        right: 15px;
+        font-size: 1.8rem;
+    }
+
+    /* 3. Reducir Padding del Cuerpo (Scroll) */
+    .modal-body-scroll {
+        padding: 15px; /* Menos padding lateral para ganar espacio */
+    }
+
+    /* 4. Ajustar Fieldsets en móvil */
+    .modal-fieldset {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    /* 5. Inputs a 1 columna */
     .modal-input-group,
     .recoleccion-peso-group,
     .detalle-grid {
@@ -556,7 +617,15 @@ textarea:focus {
         gap: 10px;
     }
 
-    /* Tabla Principal (Tarjetas) */
+    /* 6. Footer Fijo más compacto */
+    .total-section {
+        padding: 15px;
+    }
+    #subtotal-cotizacion, #iva-cotizacion { font-size: 0.9rem; }
+    #total-cotizacion { font-size: 1.2rem !important; }
+    .btn-guardar-cotizacion { padding: 0.8rem; }
+
+    /* 7. Tabla Principal (Tarjetas) */
     .tabla-empresas thead { display: none; }
     .tabla-empresas tr { 
         display: block; 
@@ -586,7 +655,7 @@ textarea:focus {
         padding: 10px;
     }
 
-    /* Modal Tabla Tolvas en Móvil (Estilo Tarjeta Simple) */
+    /* 8. Tabla Tolvas en Modal (Tarjetas simples) */
     .modal-table, .modal-table tbody, .modal-table tr, .modal-table td {
         display: block;
         width: 100%;
@@ -603,133 +672,21 @@ textarea:focus {
         text-align: right;
         padding: 5px 0;
         border-bottom: 1px dashed #e5e7eb;
+        display: flex;
+        justify-content: space-between; /* Para que etiqueta y valor se separen */
     }
-    .modal-table td:last-child { border-bottom: none; }
+    /* Truco para agregar labels si no los tiene el HTML */
+    .modal-table td:nth-of-type(1):before { content: "Producto:"; font-weight: bold; }
+    .modal-table td:nth-of-type(2):before { content: "Cant:"; font-weight: bold; }
+    .modal-table td:nth-of-type(3):before { content: "P.U.:"; font-weight: bold; }
+    .modal-table td:nth-of-type(4):before { content: "Subtotal:"; font-weight: bold; }
+    
+    .modal-table td:last-child { border-bottom: none; justify-content: flex-end; }
     
     .tolva-add-section { flex-direction: column; }
     .tolva-add-section select, .tolva-add-section input, .tolva-add-section button { width: 100%; }
-}
 
-/* =======================================================
-   NUEVOS ESTILOS: MODAL VER COTIZACIÓN (DISEÑO DE 3 BLOQUES)
-   ======================================================= */
-
-/* 1. BLOQUE SERVICIO (AZUL) */
-/* Este ID o clase debes ponérselo al div que encierra el Servicio de Recolección */
-#view-servicio-container, 
-.bloque-servicio-azul {
-    background-color: #eff6ff; /* Fondo Azul muy claro */
-    border: 2px solid #60a5fa; /* Borde Azul medio */
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
-    text-align: center; /* Centramos para darle orden */
-}
-
-#view-servicio-nombre {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #1e40af; /* Azul fuerte para el título */
-    margin-bottom: 5px;
-    display: block;
-}
-
-#view-servicio-detalle {
-    font-size: 0.9rem;
-    color: #64748b;
-    margin-bottom: 10px;
-    display: block;
-}
-
-/* El precio del servicio (Hacerlo "chico" como pediste) */
-#view-servicio-total {
-    font-size: 1.2rem; /* Tamaño normal, no gigante */
-    font-weight: 600;
-    color: #3b82f6;
-    background: white;
-    padding: 2px 10px;
-    border-radius: 15px;
-    border: 1px solid #bfdbfe;
-    display: inline-block;
-}
-
-/* Ocultar la etiqueta "Total Mensual" si está en un span/label separado */
-/* Nota: Si el texto está suelto en el HTML, tendrás que borrarlo manualmente del HTML */
-.label-total-mensual {
-    display: none; 
-}
-
-
-/* 2. BLOQUE RENTAS (AMARILLO) */
-/* Envolveremos la tabla en este estilo o se lo aplicamos al contenedor de la tabla */
-.bloque-rentas-amarillo {
-    background-color: #fefce8; /* Fondo Amarillo claro */
-    border: 2px solid #facc15; /* Borde Amarillo fuerte */
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 25px;
-}
-
-.bloque-rentas-amarillo h3, 
-.titulo-rentas {
-    color: #a16207; /* Texto Ocre/Dorado */
-    font-size: 1rem;
-    text-transform: uppercase;
-    border-bottom: 1px dashed #fde047;
-    padding-bottom: 5px;
-    margin-bottom: 10px;
-}
-
-/* Forzamos el estilo de la tabla dentro del bloque amarillo */
-.bloque-rentas-amarillo table th {
-    background-color: #fef08a !important; /* Cabecera Amarilla */
-    color: #854d0e !important;
-    border-bottom: 1px solid #eab308 !important;
-}
-
-
-/* 3. BLOQUE TOTAL GLOBAL (VERDE GIGANTE) */
-/* Este es el cambio más importante */
-.bloque-total-verde {
-    background-color: #dcfce7; /* Fondo Verde menta */
-    border: 4px solid #16a34a; /* Borde Verde fuerte y grueso */
-    border-radius: 12px;
-    padding: 25px;
-    text-align: center;
-    margin-top: 30px;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    animation: pulseGreen 2s infinite; /* Efecto suave para llamar la atención */
-}
-
-/* Etiqueta "TOTAL GLOBAL" */
-.label-total-global {
-    display: block;
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #15803d;
-    margin-bottom: 5px;
-}
-
-/* El NÚMERO gigante */
-#view-total {
-    display: block;
-    font-size: 3.5rem; /* ¡Muy Grande! */
-    font-weight: 900;
-    color: #14532d; /* Verde muy oscuro */
-    line-height: 1;
-    text-shadow: 2px 2px 0px rgba(255,255,255,0.5);
-}
-
-@keyframes pulseGreen {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4); }
-    70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(22, 163, 74, 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
-}
-
-/* Ajuste Responsivo para que el número no rompa la pantalla en celular */
-@media (max-width: 600px) {
+    /* Ajuste Total Gigante en móvil */
     #view-total {
         font-size: 2.5rem;
     }

@@ -4,116 +4,121 @@
         <button id="modal-close-btn" class="modal-close-btn">&times;</button>
         <h2>Realizar Cotización</h2>
 
-        <form id="form-cotizacion">
+        <form id="form-cotizacion" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
             
-            <fieldset class="modal-fieldset">
-                <legend>Cliente</legend>
-                <input type="hidden" id="modal-empresa-id">
-                <input type="hidden" id="modal-contacto-id">
-                <div class="modal-input-group">
-                    <strong>Empresa:</strong> <span id="modal-empresa-nombre"></span>
-                </div>
-                <div class="modal-input-group">
-                    <strong>Contacto:</strong> <span id="modal-contacto-nombre"></span>
-                </div>
-            </fieldset>
-
-            <fieldset class="modal-fieldset">
-                <legend>Servicio de Recolección</legend>
+            <div class="modal-body-scroll">
                 
-                <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                    <label for="check-recoleccion">
-                        <input type="checkbox" id="check-recoleccion" data-precio="1200">
-                        <strong>Incluir Servicio de Recolección ($1,200.00)</strong>
-                    </label>
-                </div>
-                
-                <div id="dias-recoleccion" class="hidden recoleccion-dias-container">
-                    <p>Días de recolección (+$130.00 c/u):</p>
-                    <div class="recoleccion-dias-checks">
-                        <label><input type="checkbox" class="dia-check" data-precio="130" data-dia="lunes"> Lun</label>
-                        <label><input type="checkbox" class="dia-check" data-precio="130" data-dia="martes"> Mar</label>
-                        <label><input type="checkbox" class="dia-check" data-precio="130" data-dia="miercoles"> Mié</label>
-                        <label><input type="checkbox" class="dia-check" data-precio="130" data-dia="jueves"> Jue</label>
-                        <label><input type="checkbox" class="dia-check" data-precio="130" data-dia="viernes"> Vie</label>
+                <fieldset class="modal-fieldset">
+                    <legend>Cliente</legend>
+                    <input type="hidden" id="modal-empresa-id">
+                    <input type="hidden" id="modal-contacto-id">
+                    <div class="modal-input-group">
+                        <strong>Empresa:</strong> <span id="modal-empresa-nombre"></span>
                     </div>
-                </div>
+                    <div class="modal-input-group">
+                        <strong>Contacto:</strong> <span id="modal-contacto-nombre"></span>
+                    </div>
+                </fieldset>
 
-                <div id="tipo-residuo-group" class="hidden recoleccion-residuo-group">
-                    <legend>Tipo de Residuo:</legend>
-                    <div style="display:flex; gap: 20px; flex-wrap: wrap;">
-                        <label>
-                            <input type="radio" id="tipo-urbano" name="tipo_residuo" value="Urbano" checked>
-                            Recolección de Residuos Solidos Urbanos
-                        </label>
-                        <label>
-                            <input type="radio" id="tipo-especial" name="tipo_residuo" value="Especial">
-                            Recolección de Residuo de Manejo Especial
+                <fieldset class="modal-fieldset">
+                    <legend>Servicio de Recolección</legend>
+                    
+                    <div style="display:none;">
+                        <label for="check-recoleccion">
+                            <input type="checkbox" id="check-recoleccion" data-precio="0" checked>
+                            <strong>Servicio de Recolección</strong>
                         </label>
                     </div>
-                </div>
-
-                <div id="bolsas-peso-group" class="hidden recoleccion-peso-group">
-                    <div>
-                        <label for="bolsas-dia">Cantidad de Bolsas (por día)</label>
-                        <input type="number" id="bolsas-dia" value="1" min="1">
+                    
+                    <div id="dias-recoleccion" class="recoleccion-dias-container">
+                        <p>Días de recolección (+$130.00 c/u):</p>
+                        <div class="recoleccion-dias-checks">
+                            <label><input type="checkbox" class="dia-check" data-precio="130" data-dia="lunes"> Lun</label>
+                            <label><input type="checkbox" class="dia-check" data-precio="130" data-dia="martes"> Mar</label>
+                            <label><input type="checkbox" class="dia-check" data-precio="130" data-dia="miercoles"> Mié</label>
+                            <label><input type="checkbox" class="dia-check" data-precio="130" data-dia="jueves"> Jue</label>
+                            <label><input type="checkbox" class="dia-check" data-precio="130" data-dia="viernes"> Vie</label>
+                        </div>
                     </div>
-                    <div>
-                        <label for="peso-bolsa">Peso en KG (por bolsa)</label>
-                        <input type="number" id="peso-bolsa" value="1" min="1">
-                    </div>
-                </div>
-            </fieldset>
-            
-            <fieldset class="modal-fieldset">
-                <legend>Renta de Tolvas</legend>
-                <div class="tolva-add-section">
-                    <select id="select-tolva">
-                        <option value="">-- Seleccionar tolva --</option>
-                    </select>
-                    <input type="number" id="input-tolva-qty" value="1" min="1">
-                    <button type="button" id="btn-add-tolva">Agregar</button>
-                </div>
-                <table class="modal-table">
-                    <thead>
-                        <tr>
-                            <th>Producto</th>
-                            <th>Cant.</th>
-                            <th>P.U.</th>
-                            <th>Subtotal</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="tolvas-tbody"></tbody>
-                </table>
-            </fieldset>
 
-            <fieldset class="modal-fieldset">
-                <legend>Total y Forma de Pago</legend>
-                <div class="modal-input-group">
-                    <label for="forma-pago">Forma de Pago</label>
-                    <select id="forma-pago" class="modal-full-width-select">
-                        <option value="transferencia">Transferencia</option>
-                        <option value="efectivo">Efectivo</option>
-                    </select>
-                </div>
-            <div class="total-section" style="text-align: right; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-                <div style="font-size: 0.95rem; color: #555; margin-bottom: 5px;">
-                    Subtotal: <span id="subtotal-cotizacion" style="font-weight: bold;">$0.00</span>
-                </div>
-                <div style="font-size: 0.95rem; color: #555; margin-bottom: 5px;">
-                    IVA (16%): <span id="iva-cotizacion" style="font-weight: bold;">$0.00</span>
-                </div>
+                    <div id="tipo-residuo-group" class="recoleccion-residuo-group">
+                        <legend>Tipo de Residuo:</legend>
+                        <div style="display:flex; gap: 20px; flex-wrap: wrap;">
+                            <label>
+                                <input type="radio" id="tipo-urbano" name="tipo_residuo" value="Urbano" checked>
+                                Urbano (RSU)
+                            </label>
+                            <label>
+                                <input type="radio" id="tipo-especial" name="tipo_residuo" value="Especial">
+                                Manejo Especial (RME)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="bolsas-peso-group" class="recoleccion-peso-group">
+                        <div>
+                            <label for="bolsas-dia">Cantidad de Bolsas (por día)</label>
+                            <input type="number" id="bolsas-dia" value="1" min="1">
+                        </div>
+                        <div>
+                            <label for="peso-bolsa">Peso en KG (por bolsa)</label>
+                            <input type="number" id="peso-bolsa" value="1" min="1">
+                        </div>
+                    </div>
+                </fieldset>
                 
-                <div style="font-size: 1.6rem; font-weight: bold; color: #059669; margin-top: 5px;">
-                    Total: <span id="total-cotizacion">$0.00</span>
+                <fieldset class="modal-fieldset">
+                    <legend>Renta de Tolvas</legend>
+                    <div class="tolva-add-section">
+                        <select id="select-tolva">
+                            <option value="">-- Seleccionar tolva --</option>
+                        </select>
+                        <input type="number" id="input-tolva-qty" value="1" min="1">
+                        <button type="button" id="btn-add-tolva">Agregar</button>
+                    </div>
+                    <table class="modal-table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cant.</th>
+                                <th>P.U.</th>
+                                <th>Subtotal</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tolvas-tbody"></tbody>
+                    </table>
+                </fieldset>
+
+                <fieldset class="modal-fieldset" style="margin-bottom: 0;">
+                    <legend>Forma de Pago</legend>
+                    <div class="modal-input-group">
+                        <label for="forma-pago">Seleccione método:</label>
+                        <select id="forma-pago" class="modal-full-width-select">
+                            <option value="transferencia">Transferencia</option>
+                            <option value="efectivo">Efectivo</option>
+                        </select>
+                    </div>
+                </fieldset>
+
+            </div> <div class="total-section">
+                <div style="margin-bottom: 15px;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span>Subtotal:</span> <strong id="subtotal-cotizacion">$0.00</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; color:#666;">
+                        <span>IVA (16%):</span> <strong id="iva-cotizacion">$0.00</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:1.3em; margin-top:5px; color:#059669;">
+                        <span>Total:</span> <strong id="total-cotizacion">$0.00</strong>
+                    </div>
                 </div>
+
+                <button type="submit" class="btn-guardar-cotizacion">
+                    <i class="fa fa-save"></i> Guardar Cotización
+                </button>
             </div>
-            </fieldset>
 
-            <button type="submit" class="btn-guardar-cotizacion">
-                Guardar Cotización
-            </button>
         </form>
     </div>
 </div>

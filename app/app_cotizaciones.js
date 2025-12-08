@@ -311,17 +311,24 @@ function abrirModal(idEmpresa) {
     document.getElementById("modal-close-btn").addEventListener("click", cerrarModal);
     document.getElementById("form-cotizacion").addEventListener("submit", manejarSubmitCotizacion);
     
-    // Listener Checkbox Recolección
-    document.getElementById("check-recoleccion").addEventListener("change", function() {
-        const estaMarcado = this.checked;
-        document.getElementById("dias-recoleccion").classList.toggle('hidden', !estaMarcado);
-        document.getElementById("tipo-residuo-group").classList.toggle('hidden', !estaMarcado);
-        document.getElementById("bolsas-peso-group").classList.toggle('hidden', !estaMarcado);
-        if (!estaMarcado) {
-            document.querySelectorAll('.dia-check').forEach(check => check.checked = false);
+    // --- CAMBIO: Ocultar selector y forzar despliegue ---
+    const checkRecoleccion = document.getElementById("check-recoleccion");
+    if(checkRecoleccion) {
+        checkRecoleccion.checked = true; // Forzamos marcado
+        // Ocultamos el contenedor padre (donde suele estar el Label y el Check)
+        // Asumiendo que tiene un contenedor .recoleccion-header o similar:
+        if(checkRecoleccion.closest('.recoleccion-header')) {
+            checkRecoleccion.closest('.recoleccion-header').style.display = 'none';
+        } else {
+            // Si no encuentra la clase, oculta el check directamente
+            checkRecoleccion.style.display = 'none';
         }
-        actualizarCalculoTotal();
-    });
+    }
+
+    // Forzar visualización de los contenedores
+    document.getElementById("dias-recoleccion").classList.remove('hidden');
+    document.getElementById("tipo-residuo-group").classList.remove('hidden');
+    document.getElementById("bolsas-peso-group").classList.remove('hidden');
 
     // Listeners de cálculo
     document.querySelectorAll(".dia-check").forEach(check => check.addEventListener("change", actualizarCalculoTotal));
@@ -336,56 +343,49 @@ function abrirModal(idEmpresa) {
         }
     });
 
-    // 🟢 DETECTAR CAMBIO EN FORMA DE PAGO 🟢
     const selectPago = document.getElementById("forma-pago");
     if (selectPago) {
         selectPago.addEventListener("change", actualizarCalculoTotal);
     }
     
-    // 🟢 FORZAR CÁLCULO INICIAL 🟢
-    // Esto asegura que si el select ya empieza en "Efectivo", el IVA se ponga en 0 inmediatamente.
     actualizarCalculoTotal();
 }
 
 function actualizarCalculoTotal() {
     let subtotal = 0;
 
-    // 1. Calcular Recolección
-    const checkRecoleccion = document.getElementById('check-recoleccion');
-    if (checkRecoleccion && checkRecoleccion.checked) {
-        let costo_base = parseFloat(checkRecoleccion.dataset.precio || 0);
-        let costo_dias_semanal = 0;
-        
-        document.querySelectorAll('.dia-check:checked').forEach(check => {
-            costo_dias_semanal += parseFloat(check.dataset.precio || 0);
-        });
+    // --- CAMBIO: La recolección ahora es obligatoria ---
+    // 1. Calcular Recolección (Sin if checkRecoleccion.checked)
+    
+    // CAMBIO: Costo base ahora es 0 (eliminamos los 1200)
+    let costo_base = 0; 
+    
+    let costo_dias_semanal = 0;
+    
+    // Sumamos los días seleccionados (mantiene los 130 por día si están configurados en el HTML)
+    document.querySelectorAll('.dia-check:checked').forEach(check => {
+        costo_dias_semanal += parseFloat(check.dataset.precio || 0);
+    });
 
-        // Sumar mensualidad
-        subtotal += costo_base + (costo_dias_semanal * 4);
+    // Sumar mensualidad (Base 0 + Días * 4 semanas)
+    subtotal += costo_base + (costo_dias_semanal * 4);
 
-        // Sumar Peso Extra
-        const bolsas_por_dia = parseFloat(document.getElementById('bolsas-dia').value) || 0;
-        const peso_por_bolsa = parseFloat(document.getElementById('peso-bolsa').value) || 0;
-        const dias_seleccionados = document.querySelectorAll('.dia-check:checked').length;
-        
-        const costo_extra_peso = (bolsas_por_dia * dias_seleccionados * 4) * peso_por_bolsa * COSTO_POR_KG;
-        subtotal += costo_extra_peso;
-    }
+    // Sumar Peso Extra
+    const bolsas_por_dia = parseFloat(document.getElementById('bolsas-dia').value) || 0;
+    const peso_por_bolsa = parseFloat(document.getElementById('peso-bolsa').value) || 0;
+    const dias_seleccionados = document.querySelectorAll('.dia-check:checked').length;
+    
+    const costo_extra_peso = (bolsas_por_dia * dias_seleccionados * 4) * peso_por_bolsa * COSTO_POR_KG;
+    subtotal += costo_extra_peso;
 
     // 2. Calcular Tolvas
     document.querySelectorAll('#tolvas-tbody tr').forEach(tr => {
         subtotal += parseFloat(tr.dataset.qty) * parseFloat(tr.dataset.precio);
     });
 
-    // 🟢 3. LÓGICA DE IVA MEJORADA (Insensible a mayúsculas/minúsculas) 🟢
+    // 3. IVA y Totales
     const selectPago = document.getElementById("forma-pago");
-    
-    // Obtenemos el valor, quitamos espacios y convertimos a minúsculas
     const formaPago = selectPago ? selectPago.value.trim().toLowerCase() : "";
-    
-    console.log("Forma de pago detectada:", formaPago); // Para depuración
-
-    // Si dice "efectivo" (en cualquier combinación de Mayús/Minús), IVA es 0.
     const tasaIVA = (formaPago === "efectivo") ? 0 : 0.16;
     
     const iva = subtotal * tasaIVA;
@@ -397,12 +397,10 @@ function actualizarCalculoTotal() {
     }
     if(document.getElementById('iva-cotizacion')) {
         document.getElementById('iva-cotizacion').textContent = formatearMoneda(iva);
-        
-        // Opcional: Cambiar color si es $0.00 para que sea evidente
         if (tasaIVA === 0) {
-            document.getElementById('iva-cotizacion').style.color = "#999"; // Gris si es 0
+            document.getElementById('iva-cotizacion').style.color = "#999"; 
         } else {
-            document.getElementById('iva-cotizacion').style.color = "#333"; // Negro si hay IVA
+            document.getElementById('iva-cotizacion').style.color = "#333"; 
         }
     }
     
@@ -422,38 +420,50 @@ async function manejarSubmitCotizacion(e) {
         estado_cotizacion: "Pendiente", 
         fecha_vencimiento: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
     };
+
     const detallesData = [];
-    const checkRecoleccion = document.getElementById("check-recoleccion");
-    if (checkRecoleccion.checked) {
-        let costo_base_servicio = parseFloat(checkRecoleccion.dataset.precio || 0);
-        let costo_dias_semanal = 0;
-        const diasChecks = document.querySelectorAll('.dia-check:checked');
-        diasChecks.forEach(check => {
-            costo_dias_semanal += parseFloat(check.dataset.precio || 0);
-        });
-        const costo_servicio_mensual = costo_base_servicio + (costo_dias_semanal * 4);
-        const bolsas_por_dia = parseFloat(document.getElementById('bolsas-dia').value) || 0;
-        const peso_por_bolsa = parseFloat(document.getElementById('peso-bolsa').value) || 0;
-        const dias_seleccionados = diasChecks.length;
-        const bolsas_por_mes = (bolsas_por_dia * dias_seleccionados) * 4;
-        const peso_total_mes = bolsas_por_mes * peso_por_bolsa;
-        const costo_extra_peso = peso_total_mes * COSTO_POR_KG;
-        const productoServicio = listaProductos.find(p => p.sku === 'P-001');
-        const idProductoServicio = productoServicio ? productoServicio.id_producto : 1; 
-        detallesData.push({
-            id_producto: idProductoServicio,
-            cantidad: 1,
-            precio_unitario: (costo_servicio_mensual + costo_extra_peso), 
-            lunes: !!document.querySelector('.dia-check[data-dia="lunes"]:checked'),
-            martes: !!document.querySelector('.dia-check[data-dia="martes"]:checked'),
-            miercoles: !!document.querySelector('.dia-check[data-dia="miercoles"]:checked'),
-            jueves: !!document.querySelector('.dia-check[data-dia="jueves"]:checked'),
-            viernes: !!document.querySelector('.dia-check[data-dia="viernes"]:checked'),
-            tipo_residuo: document.getElementById('tipo-urbano').checked ? 'Urbano' : 'Especial',
-            bolsas_por_dia: bolsas_por_dia,
-            peso_por_bolsa_kg: peso_por_bolsa
-        });
-    }
+
+    // --- CAMBIO: Siempre procesamos la sección de recolección ---
+    
+    // CAMBIO: Costo base forzado a 0
+    let costo_base_servicio = 0; 
+    
+    let costo_dias_semanal = 0;
+    const diasChecks = document.querySelectorAll('.dia-check:checked');
+    diasChecks.forEach(check => {
+        costo_dias_semanal += parseFloat(check.dataset.precio || 0);
+    });
+
+    // Calculamos el costo mensual solo con los días
+    const costo_servicio_mensual = costo_base_servicio + (costo_dias_semanal * 4);
+    
+    const bolsas_por_dia = parseFloat(document.getElementById('bolsas-dia').value) || 0;
+    const peso_por_bolsa = parseFloat(document.getElementById('peso-bolsa').value) || 0;
+    const dias_seleccionados = diasChecks.length;
+    
+    const bolsas_por_mes = (bolsas_por_dia * dias_seleccionados) * 4;
+    const peso_total_mes = bolsas_por_mes * peso_por_bolsa;
+    const costo_extra_peso = peso_total_mes * COSTO_POR_KG;
+
+    const productoServicio = listaProductos.find(p => p.sku === 'P-001');
+    const idProductoServicio = productoServicio ? productoServicio.id_producto : 1; 
+
+    // Agregamos el detalle de recolección siempre
+    detallesData.push({
+        id_producto: idProductoServicio,
+        cantidad: 1,
+        precio_unitario: (costo_servicio_mensual + costo_extra_peso), 
+        lunes: !!document.querySelector('.dia-check[data-dia="lunes"]:checked'),
+        martes: !!document.querySelector('.dia-check[data-dia="martes"]:checked'),
+        miercoles: !!document.querySelector('.dia-check[data-dia="miercoles"]:checked'),
+        jueves: !!document.querySelector('.dia-check[data-dia="jueves"]:checked'),
+        viernes: !!document.querySelector('.dia-check[data-dia="viernes"]:checked'),
+        tipo_residuo: document.getElementById('tipo-urbano').checked ? 'Urbano' : 'Especial',
+        bolsas_por_dia: bolsas_por_dia,
+        peso_por_bolsa_kg: peso_por_bolsa
+    });
+
+    // Agregamos Tolvas si las hay
     document.querySelectorAll("#tolvas-tbody tr").forEach(tr => {
         detallesData.push({
             id_producto: tr.dataset.idProducto,
@@ -461,6 +471,7 @@ async function manejarSubmitCotizacion(e) {
             precio_unitario: parseFloat(tr.dataset.precio),
         });
     });
+
     if (detallesData.length === 0) {
         console.warn("No se puede crear una cotización vacía.");
         btnGuardar.disabled = false;
@@ -1101,36 +1112,34 @@ function formatearFolio(id) {
 }
 
 
-/**
- * 🟢 FUNCION: COTIZACIÓN RÁPIDA (SOLO CÁLCULO)
- * Reutiliza el modal pero sin vincular cliente y sin permitir guardar.
- */
+
 function abrirModalRapida() {
-    // 1. Inyectar HTML del modal (El mismo que usas siempre)
-    modalPlaceholder.innerHTML = modalHTML;
-
-    // 2. Modificar Visualmente para indicar que es modo "Rápido"
-    document.getElementById("modal-empresa-id").value = "0"; // ID ficticio
+    const empresa = datosCombinados.find(e => e.id_empresa == idEmpresa);
+    if (!empresa) return;
     
-    // Cambiar etiqueta de Nombre de Empresa
-    const lblEmpresa = document.getElementById("modal-empresa-nombre");
-    lblEmpresa.textContent = "COTIZACIÓN RÁPIDA / MOSTRADOR";
-    lblEmpresa.style.backgroundColor = "#eef2ff";
-    lblEmpresa.style.color = "#4338ca";
-    lblEmpresa.style.border = "1px dashed #4338ca";
+    // Inyectar HTML
+    modalPlaceholder.innerHTML = modalHTML; 
     
-    // Ocultar/Modificar contacto
-    const lblContacto = document.getElementById("modal-contacto-nombre");
-    lblContacto.textContent = "Sin contacto vinculado";
-    lblContacto.style.color = "#999";
-
-    // 3. Llenar Select de Tolvas (Igual que en abrirModal normal)
+    document.getElementById("modal-empresa-id").value = empresa.id_empresa;
+    document.getElementById("modal-empresa-nombre").textContent = empresa.nombre_comercial;
+    
+    // Llenar Contactos
+    const selectContacto = document.createElement('select');
+    selectContacto.id = "modal-contacto-select";
+    selectContacto.style.cssText = "width:100%; padding:0.5rem;";
+    if (empresa.id_contacto) {
+        const opt = document.createElement('option');
+        opt.value = empresa.id_contacto;
+        opt.textContent = `${empresa.contacto_nombre} (${empresa.contacto_email})`;
+        selectContacto.appendChild(opt);
+    } else {
+        selectContacto.innerHTML = "<option value=''>Sin contactos</option>";
+    }
+    document.getElementById("modal-contacto-nombre").replaceWith(selectContacto);
+    
+    // Llenar Tolvas
     const selectTolva = document.getElementById("select-tolva");
     const productosTolva = listaProductos.filter(p => p.unidad === "renta");
-    
-    // Limpiar opciones previas si las hubiera y poner default
-    selectTolva.innerHTML = '<option value="">Seleccione una tolva...</option>';
-    
     productosTolva.forEach(p => {
         const option = document.createElement('option');
         option.value = p.id_producto;
@@ -1139,30 +1148,34 @@ function abrirModalRapida() {
         selectTolva.appendChild(option);
     });
 
-    // 4. CONFIGURAR LISTENERS DE CÁLCULO (Crucial para que funcione la calculadora)
-    
-    // Botón cerrar
+    // LISTENERS
     document.getElementById("modal-close-btn").addEventListener("click", cerrarModal);
-
-    // Checkbox Recolección
-    document.getElementById("check-recoleccion").addEventListener("change", function() {
-        const estaMarcado = this.checked;
-        document.getElementById("dias-recoleccion").classList.toggle('hidden', !estaMarcado);
-        document.getElementById("tipo-residuo-group").classList.toggle('hidden', !estaMarcado);
-        document.getElementById("bolsas-peso-group").classList.toggle('hidden', !estaMarcado);
-        
-        if (!estaMarcado) {
-            document.querySelectorAll('.dia-check').forEach(check => check.checked = false);
+    document.getElementById("form-cotizacion").addEventListener("submit", manejarSubmitCotizacion);
+    
+    // --- CAMBIO: Ocultar selector y forzar despliegue ---
+    const checkRecoleccion = document.getElementById("check-recoleccion");
+    if(checkRecoleccion) {
+        checkRecoleccion.checked = true; // Forzamos marcado
+        // Ocultamos el contenedor padre (donde suele estar el Label y el Check)
+        // Asumiendo que tiene un contenedor .recoleccion-header o similar:
+        if(checkRecoleccion.closest('.recoleccion-header')) {
+            checkRecoleccion.closest('.recoleccion-header').style.display = 'none';
+        } else {
+            // Si no encuentra la clase, oculta el check directamente
+            checkRecoleccion.style.display = 'none';
         }
-        actualizarCalculoTotal();
-    });
+    }
 
-    // Inputs que afectan el total
+    // Forzar visualización de los contenedores
+    document.getElementById("dias-recoleccion").classList.remove('hidden');
+    document.getElementById("tipo-residuo-group").classList.remove('hidden');
+    document.getElementById("bolsas-peso-group").classList.remove('hidden');
+
+    // Listeners de cálculo
     document.querySelectorAll(".dia-check").forEach(check => check.addEventListener("change", actualizarCalculoTotal));
     document.getElementById("bolsas-dia").addEventListener("input", actualizarCalculoTotal);
     document.getElementById("peso-bolsa").addEventListener("input", actualizarCalculoTotal);
     
-    // Lógica de Tolvas
     document.getElementById("btn-add-tolva").addEventListener("click", agregarLineaTolva);
     document.getElementById("tolvas-tbody").addEventListener("click", (e) => {
         if (e.target.classList.contains("btn-borrar-linea")) {
@@ -1171,31 +1184,10 @@ function abrirModalRapida() {
         }
     });
 
-    // Forma de Pago (IVA)
     const selectPago = document.getElementById("forma-pago");
     if (selectPago) {
         selectPago.addEventListener("change", actualizarCalculoTotal);
     }
-
-    // 5. 🛑 BLOQUEAR EL GUARDADO 🛑
-    // Como es rápida, eliminamos el botón de submit para que no intenten guardar en BD
-    const form = document.getElementById("form-cotizacion");
-    const btnGuardar = form.querySelector('button[type="submit"]');
     
-    // Reemplazamos el botón de guardar por uno que solo cierra
-    const btnCerrar = document.createElement("button");
-    btnCerrar.type = "button";
-    btnCerrar.className = "btn-guardar-cotizacion"; // Usamos misma clase para estilo
-    btnCerrar.style.backgroundColor = "#6b7280"; // Gris
-    btnCerrar.textContent = "Cerrar Calculadora";
-    btnCerrar.onclick = cerrarModal;
-    
-    // Reemplazar en el DOM
-    btnGuardar.replaceWith(btnCerrar);
-
-    // Evitar submit del form por si acaso
-    form.onsubmit = (e) => e.preventDefault();
-
-    // 6. Cálculo inicial
     actualizarCalculoTotal();
 }
